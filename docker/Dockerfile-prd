@@ -1,0 +1,26 @@
+FROM 583459700509.dkr.ecr.ap-southeast-1.amazonaws.com/rll-project-builder/rll_builder_php_nginx_php_7.2:latest
+
+# Getting code into container 
+RUN mkdir /var/www/php/
+RUN mkdir /var/www/php/apiseller
+ADD . /var/www/php/apiseller
+WORKDIR /var/www/php/apiseller
+RUN rm /etc/nginx/conf.d/default.conf
+COPY ./docker/nginx.conf /etc/nginx/
+COPY ./docker/site-prd.conf /etc/nginx/conf.d/
+RUN cd /var/www/php/apiseller
+RUN chmod 777 storage/ -R
+
+# Install composer
+RUN cd /var/www/php/apiseller
+RUN chmod +x composer-install.sh
+RUN ./composer-install.sh
+
+# Install project PHP depedency
+RUN cd /var/www/php/apiseller
+RUN composer install
+RUN chmod 777 vendor/ -R
+
+EXPOSE 80
+
+CMD nginx && php-fpm

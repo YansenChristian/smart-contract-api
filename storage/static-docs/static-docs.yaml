@@ -1,0 +1,4773 @@
+openapi: 3.0.0
+info:
+  title: 'API SELLER'
+  description: "Welcome to Ralali API for Seller. Ralali API is a RESTful Web Service served as a communication bridge between client to our system.\n\n<a href=\"/api/documentation\" style=\"background-color: #589638;padding: 10px;border-radius: 5px;font-weight: 600;color: white;\">Run in Swagger-ui</a>\n\n# API Keys\nYou'll need your API keys for integration, We will provide you API Keys for Sandbox to setup the integration.\nAPI Keys for production will be sent after integration success.\n\nThink of your private key like a password:\n- Store it securely\n- Don't share it with anyone outside of your organization\n- Don't put it in any code on your website or in a Url that someone could find\n\n# Making Your First Call\nMaking your first call Test that your client_key is valid and IP address has been whitelisted by making a GET request to `https://accounts.ralali.com/v2/echo` without the Authorization header.\nYou should get a HTTP 200 OK response if your request accepted.\n\n```\ncurl -X GET https://accounts.ralali.com/v2/echo -H \"Content-Type:application/json\" -d '{\n    \"client_key\": {{client_key}},\n}'\n```\n\n# Authentication\nBelow flow, look-alike:\nhttps://developers.google.com/identity/sign-in/web/server-side-flow\n\nSteps:\n1. User open 3rdpartydomain.com then click Login with Ralali button that creates popup browser using below information:\n    ```\n    <a href=\"#\" onClick=\"MyWindow=window.open('https://accounts.ralali.com/v2/login?grant_type=code&client_key=asd123&redirect_uri=3rdpartydomain.com/login','MyWindow',width=400,height=800); return false;\">Login with Ralali</a>\n    ```\n2. Popup will be shown and ask for username and password, user fill username and password, then OAuth2 server will redirect the user to redirect_uri sent from the browser, with the code as query param `3rdpartydomain.com/login?code={{xyz}}`\n3. Client receive code query param then hit OAuth2 server with below information from backend perspective:\n    ```\n    curl -X POST https://accounts.ralali.com/v2/token -H \"Content-Type:application/json\" -d '{\n        \"grant_type\": authorization_code,\n        \"client_secret\": {{client_secret}},\n        \"code\": {{code}}\n    }'\n    ```\n4. OAuth server will response to client with below information:\n    ```json\n    {\n      \"token_type\": Bearer,\n      \"expires_at\": {{unixtime}},\n      \"access_token\": {{access_token}},\n      \"refresh_token\": {{refresh_token}}\n    }\n    ```\n    Definition:\n    - The Client can use this access_token as credential to access resources from server resource by passing the token as Authorization header for every request made.\n    - The Client can use this refresh_token as credential to regenerate access_token.\n\n\n# Environments\nRALALI API can be requested through HTTP(S) Request to API Base URL endpoint. The HTTP(S) Header has to be used to allow proper authentication.\n\nEnvironment     | API Base Url\n----------------|-------------\nSandbox         | https://sandbox-apiseller.ralali.xyz\nProduction      | https://apiseller.ralali.xyz\n\nNotes:\n- Your platform will have separate API keys for each environment.\n- Data created or modified in each environment will not affect the other.\n- Data cannot be transferred from one environment to the other.\n\n# Errors\n\nThe API uses standard HTTP status codes to indicate the success or failure of the API call. The body of the response will be JSON in the following format:\n\n```\n{\n  \"name\": \"AUTHENTICATION_FAILURE\",\n  \"message\": \"Authentication failed due to invalid authentication credentials or a missing Authorization header.\"\n}\n```\nSome error will return errors hint to provide further information, the response in the following format:\n```\n{\n  \"name\": \"VALIDATION_FAILURE\",\n  \"message\": \"The given data was invalid.\",\n  \"errors\": {\n    \"key\": [\n      \"Error Description\"\n    ]\n  }\n}\n```\n"
+  contact:
+    email: willy.brordus@ralali.com
+  version: '1.0'
+  x-logo:
+    url: /logo_ralali_transparant.png
+paths:
+  /v1/register:
+    post:
+      tags:
+        - '(v1) Register Resource'
+      summary: 'Post Registration'
+      operationId: postRegistration
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+      responses:
+        200:
+          description: 'Successfully created data register'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/postRegister'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        500:
+          description: 'Internal Server Error'
+      security:
+        -
+          passport: []
+  '/v1/auth/verify/{confirmation_code}':
+    get:
+      tags:
+        - '(v1) Register Resource'
+      summary: 'Get Verify'
+      operationId: getVerify
+      parameters:
+        -
+          name: confirmation_code
+          in: path
+          description: 'verify account'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Return Verify Account'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Verify'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+        500:
+          description: 'Internal server error'
+      security:
+        -
+          passport: []
+  /v1/step-onboarding:
+    get:
+      tags:
+        - '(v1) Register Resource'
+      summary: 'Get Step onboarding'
+      operationId: getStepOnboarding
+      responses:
+        200:
+          description: 'Return Step OnBoarding'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StepOnboarding'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+  /v1/brands:
+    get:
+      tags:
+        - '(v1) Brand Resource'
+      summary: 'Get List of Seller Brands'
+      operationId: getBrands
+      responses:
+        200:
+          description: 'Return seller brands'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport:
+            - asl.brand.read
+            - asl.order.read_write
+  /v1/categories:
+    get:
+      tags:
+        - '(v1) Category Resource'
+      summary: 'Get List of Children From Parent Category'
+      operationId: getCategories
+      parameters:
+        -
+          name: parent
+          in: query
+          description: 'Parent''s Id'
+          required: false
+          schema:
+            type: integer
+          example: 7
+      responses:
+        200:
+          description: 'Return all category'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+      security:
+        -
+          passport: []
+  /v1/couriers:
+    get:
+      tags:
+        - '(v1) Courier Resource'
+      summary: 'Get List of Seller''s Couriers'
+      operationId: getListCourier
+      responses:
+        200:
+          description: 'Return available seller courier services'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Courier'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+  /v1/dashboard/report-dashboard:
+    get:
+      tags:
+        - '(v1) Report Resource'
+      summary: 'Dashboard report'
+      operationId: getDashboard
+      parameters:
+        -
+          name: start_date
+          in: query
+          description: 'Get a report within date range'
+          required: true
+          schema:
+            type: string
+          example: '2018-11-01'
+        -
+          name: end_date
+          in: query
+          description: 'Get a report within date range'
+          required: true
+          schema:
+            type: string
+          example: '2018-11-30'
+      responses:
+        200:
+          description: 'Return report information'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dashboard'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+  /v1/provinces:
+    get:
+      tags:
+        - '(v1) Location Resource'
+      summary: 'Get List of Provinces'
+      operationId: getProvinces
+      responses:
+        200:
+          description: 'Return list provinces'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Provinces'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+  '/v1/provinces/{province_id}/cities':
+    get:
+      tags:
+        - '(v1) Location Resource'
+      summary: 'Get List of Cities'
+      operationId: getCity
+      parameters:
+        -
+          name: province_id
+          in: path
+          description: 'Province''s Id'
+          required: true
+          schema:
+            type: integer
+          example: 21
+      responses:
+        200:
+          description: 'Return list city'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/City'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+      security:
+        -
+          passport: []
+  '/v1/provinces/{province_id}/cities/{city_id}/subdistricts':
+    get:
+      tags:
+        - '(v1) Location Resource'
+      summary: 'Get List of Subdistricts'
+      operationId: getSubdistricts
+      parameters:
+        -
+          name: province_id
+          in: path
+          description: 'Province''s Id'
+          required: true
+          schema:
+            type: integer
+          example: 21
+        -
+          name: city_id
+          in: path
+          description: 'City''s Id'
+          required: true
+          schema:
+            type: integer
+          example: 11
+      responses:
+        200:
+          description: 'Return list subdistricts'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subdistricts'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+        500:
+          description: 'The given data was invalid or Internal Server Error'
+      security:
+        -
+          passport: []
+  /v1/notification:
+    post:
+      tags:
+        - '(v1) Notification Resource'
+      summary: 'Process new Token'
+      operationId: postToken
+      requestBody:
+        description: 'Data for token'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Token'
+      responses:
+        200:
+          description: 'Success insert data notification'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+  /v1/notification/notif-order:
+    post:
+      tags:
+        - '(v1) Notification Resource'
+      summary: 'Push Order Status Notification'
+      operationId: pushNotifOrder
+      requestBody:
+        description: 'List of Order Detail Id to be notified'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PushNotification'
+      responses:
+        204:
+          description: 'Notification Successfully Pushed'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+  /v1/onboarding-process/information:
+    get:
+      tags:
+        - '(v1) Onboarding Resource'
+      summary: 'Get first step onboarding'
+      operationId: firstStepOnBoarding
+      responses:
+        200:
+          description: 'Return Step OnBoarding'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/firstStepOnboarding'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+    post:
+      tags:
+        - '(v1) Onboarding Resource'
+      summary: 'Store Information'
+      operationId: storeInformation
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Information'
+      responses:
+        200:
+          description: 'Successfully created data'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/storeInformation'
+        400:
+          description: 'Bad Request'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+        500:
+          description: 'Internal Server Error'
+      security:
+        -
+          passport: []
+  /v1/onboarding:
+    post:
+      tags:
+        - '(v1) Onboarding Resource'
+      summary: 'Store Vendor Survey'
+      operationId: storeVendorSurvey
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorSurvey'
+      responses:
+        200:
+          description: 'Successfully created data'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/vendorSurveyResponse'
+        400:
+          description: 'Bad Request'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+        500:
+          description: 'Internal Server Error'
+      security:
+        -
+          passport: []
+  /v1/onboarding-process/item-categories:
+    get:
+      tags:
+        - '(v1) Onboarding Resource'
+      summary: 'Get category'
+      operationId: getCategory
+      responses:
+        200:
+          description: 'Return Categories'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+  /v1/onboarding-process/detail/information:
+    get:
+      tags:
+        - '(v1) Onboarding Resource'
+      summary: 'Show Information'
+      operationId: showInformation
+      responses:
+        200:
+          description: 'Return Get Detail Information'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailInformation'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+  /v1/onboarding-process/shipping/create:
+    post:
+      tags:
+        - '(v1) Onboarding Resource'
+      summary: 'Store Shipping Information'
+      operationId: storeShippingInformation
+      requestBody:
+        description: ''
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreShippingInformation'
+      responses:
+        200:
+          description: 'Successfully created data'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/storeShippingInformationResponse'
+        400:
+          description: 'Bad Request'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+        500:
+          description: 'Internal Server Error'
+      security:
+        -
+          passport: []
+  /v1/onboarding-process/detail/shipping:
+    get:
+      tags:
+        - '(v1) Onboarding Resource'
+      summary: 'Get shipping information'
+      operationId: getShippingInformation
+      responses:
+        200:
+          description: 'Return to get detail Shipping Information'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailShipping'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+  /v1/onboarding-process/shipping/services:
+    get:
+      tags:
+        - '(v1) Onboarding Resource'
+      summary: 'Get shipping services'
+      operationId: getShippingServices
+      responses:
+        200:
+          description: 'Return to get Shipping Services'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShippingServices'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+  /v1/onboarding-process/payment:
+    get:
+      tags:
+        - '(v1) Onboarding Resource'
+      summary: 'Get payment information'
+      operationId: getPaymentInformation
+      responses:
+        200:
+          description: 'Return Payment Information'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+    post:
+      tags:
+        - '(v1) Onboarding Resource'
+      summary: 'Store Payment Information'
+      operationId: storePaymentInformation
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentInformation'
+      responses:
+        200:
+          description: 'Successfully created data'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorePaymentInformation'
+        400:
+          description: 'Bad Request'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+        500:
+          description: 'Internal Server Error'
+      security:
+        -
+          passport: []
+  /v1/onboarding-process/detail/payment:
+    get:
+      tags:
+        - '(v1) Onboarding Resource'
+      summary: 'Show Payment Information'
+      operationId: showPaymentInformation
+      responses:
+        200:
+          description: 'Return Payment Information'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailPayment'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+  /v1/onboarding-process/term-and-condition:
+    post:
+      tags:
+        - '(v1) Onboarding Resource'
+      summary: 'Save OnBoarding'
+      operationId: saveOnboarding
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/saveOnboarding'
+      responses:
+        200:
+          description: 'Successfully created data'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/saveOnboardingResponse'
+        400:
+          description: 'Bad Request'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+        500:
+          description: 'Internal Server Error'
+      security:
+        -
+          passport: []
+  /v1/onboarding-process/reminder-existing-seller:
+    get:
+      tags:
+        - '(v1) Onboarding Resource'
+      summary: 'Remainder Seller'
+      operationId: reminderExistingSeller
+      responses:
+        200:
+          description: 'Return Reminder Existing Seller'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemainderSeller'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+  /v1/onboarding-process/set-video:
+    get:
+      tags:
+        - '(v1) Onboarding Resource'
+      summary: 'Get Embed Video'
+      operationId: getEmbedVideo
+      parameters:
+        -
+          name: video_url
+          in: query
+          description: 'Video''s Url'
+          required: true
+          schema:
+            type: string
+          example: 'https://www.youtube.com/watch?v=AST6Qm5bE8g'
+      responses:
+        200:
+          description: 'Return get Set Video'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmbedVideo'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+  /v1/orders/reject-reasons:
+    get:
+      tags:
+        - '(v1) Order Resource'
+      summary: 'Get List of Order Rejection Reasons'
+      operationId: getRejectOrderReasons
+      responses:
+        200:
+          description: 'Return list of reject reasons'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RejectReasons'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+  /v1/orders/count:
+    get:
+      tags:
+        - '(v1) Order Resource'
+      summary: 'Count Order''s Group by Its Status'
+      operationId: getOrderCount
+      responses:
+        200:
+          description: 'Return list of order count'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderCount'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+  /v1/orders:
+    get:
+      tags:
+        - '(v1) Order Resource'
+      summary: 'Get List of Orders'
+      operationId: getOrderList
+      parameters:
+        -
+          name: type
+          in: query
+          description: 'Filter order by type'
+          required: false
+          schema:
+            type: string
+            enum:
+              - unprocessed
+              - accepted
+              - pick-up
+              - delivered
+              - received
+              - settlement
+              - rejected
+              - all
+      responses:
+        200:
+          description: 'Return list of orders'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+      security:
+        -
+          passport: []
+  '/v1/orders/{order_serial}/process':
+    post:
+      tags:
+        - '(v1) Order Resource'
+      summary: 'Process a New Order'
+      operationId: postProcessOrder
+      parameters:
+        -
+          name: order_serial
+          in: path
+          description: 'Formatted order serial'
+          required: true
+          schema:
+            type: string
+          example: 9027---ORD---11---05---2019
+      requestBody:
+        description: 'Data for process order'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProcessOrder'
+      responses:
+        204:
+          description: 'Order successful processed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response204'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+      security:
+        -
+          passport: []
+  '/v1/orders/{order_serial}/reject':
+    patch:
+      tags:
+        - '(v1) Order Resource'
+      summary: 'Reject an Order'
+      operationId: patchRejectOrder
+      parameters:
+        -
+          name: order_serial
+          in: path
+          description: 'Orders Serial'
+          required: true
+          schema:
+            type: string
+      responses:
+        204:
+          description: 'Order successful rejected'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+      security:
+        -
+          passport: []
+  '/v1/orders/{order_serial}/delivered':
+    patch:
+      tags:
+        - '(v1) Order Resource'
+      summary: 'Deliver an Order'
+      operationId: patchDeliverOrder
+      parameters:
+        -
+          name: order_serial
+          in: path
+          description: 'Formatted order serial'
+          required: true
+          schema:
+            type: string
+          example: 9027---ORD---11---05---2019
+      requestBody:
+        description: ''
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AirwayBill'
+      responses:
+        204:
+          description: 'Order successful delivered'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+      security:
+        -
+          passport: []
+  '/v1/orders/{order_serial}/pick-up':
+    patch:
+      tags:
+        - '(v1) Order Resource'
+      summary: 'Set Order''s Status From \''Accepted\'' to \''Ready to Pickup\'''
+      operationId: patchReadyToPickup
+      parameters:
+        -
+          name: order_serial
+          in: path
+          description: 'Formatted order serial'
+          required: true
+          schema:
+            type: string
+          example: 9027---ORD---11---05---2019
+      responses:
+        200:
+          description: 'Successful update order to pick-up'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+  '/v1/orders/{order_serial}/downloads/invoice':
+    get:
+      tags:
+        - '(v1) Order Resource'
+      summary: 'Download Order''s Invoice'
+      operationId: getInvoice
+      parameters:
+        -
+          name: order_serial
+          in: path
+          description: 'Formatted order serial'
+          required: true
+          schema:
+            type: string
+          example: 9027---ORD---11---05---2019
+      responses:
+        200:
+          description: 'Successful download invoice'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseFile'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+      security:
+        -
+          passport: []
+  '/v1/orders/{order_serial}/downloads/DO':
+    get:
+      tags:
+        - '(v1) Order Resource'
+      summary: 'Download DO'
+      operationId: getCreateDO
+      parameters:
+        -
+          name: order_serial
+          in: path
+          description: 'Formatted order serial'
+          required: true
+          schema:
+            type: string
+          example: 9027---ORD---11---05---2019
+      responses:
+        200:
+          description: 'Successful download DO'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseFile'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+      security:
+        -
+          passport: []
+  '/v1/orders/{order_serial}/detail':
+    get:
+      tags:
+        - '(v1) Order Resource'
+      summary: 'Get Order''s Detail'
+      operationId: getOrderDetail
+      parameters:
+        -
+          name: order_serial
+          in: path
+          description: 'Formatted order serial'
+          required: true
+          schema:
+            type: string
+          example: 9027---ORD---11---05---2019
+      responses:
+        200:
+          description: 'Return order detail'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetail'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+      security:
+        -
+          passport: []
+  '/v1/orders/{order_serial}/items':
+    get:
+      tags:
+        - '(v1) Order Resource'
+      summary: 'Get List of Order''s Items'
+      operationId: getOrderItems
+      parameters:
+        -
+          name: order_serial
+          in: path
+          description: 'Formatted order serial'
+          required: true
+          schema:
+            type: string
+          example: 9027---ORD---11---05---2019
+      responses:
+        200:
+          description: 'Return order items'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderItem'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+      security:
+        -
+          passport: []
+  '/v1/orders/{order_serial}/logs':
+    get:
+      tags:
+        - '(v1) Order Resource'
+      summary: 'Get List of Order''s logs'
+      operationId: getOrderLogs
+      parameters:
+        -
+          name: order_serial
+          in: path
+          description: 'Formatted order serial'
+          required: true
+          schema:
+            type: string
+          example: 9027---ORD---11---05---2019
+      responses:
+        200:
+          description: 'Return order logs'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderLogs'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+      security:
+        -
+          passport: []
+  '/v1/orders/{order_serial}/buyer':
+    get:
+      tags:
+        - '(v1) Order Resource'
+      summary: 'Get Buyer''s Information'
+      operationId: 'App\Http\Controllers\v1\Order\OrderController::getProfileBuyer'
+      parameters:
+        -
+          name: order_serial
+          in: path
+          description: 'Formatted order serial'
+          required: true
+          schema:
+            type: string
+          example: 9027---ORD---11---05---2019
+      responses:
+        200:
+          description: 'Return buyer information'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Buyer'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+      security:
+        -
+          passport: []
+  /v1/products:
+    get:
+      tags:
+        - '(v1) Item Resource'
+      summary: 'Show product list'
+      operationId: getProducts
+      parameters:
+        -
+          name: status
+          in: query
+          description: 'Filter item by status'
+          required: false
+          schema:
+            type: string
+            enum:
+              - hide
+              - show
+        -
+          name: stock_availability
+          in: query
+          description: 'Filter item by stock availability'
+          required: false
+          schema:
+            type: string
+            enum:
+              - available
+              - unavailable
+      responses:
+        200:
+          description: 'Return list product'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListProduct'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+    post:
+      tags:
+        - '(v1) Item Resource'
+      summary: 'Add a Product'
+      operationId: postAddProduct
+      requestBody:
+        description: ''
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddProduct'
+      responses:
+        200:
+          description: 'Successfully created data'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseAddProduct'
+        400:
+          description: 'Bad Request'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        500:
+          description: 'Internal Server Error'
+      security:
+        -
+          passport: []
+  '/v1/products/{id}':
+    get:
+      tags:
+        - '(v1) Item Resource'
+      summary: 'Get Product''s Detail'
+      operationId: getDetailProduct
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Item''s Id'
+          required: true
+          schema:
+            type: string
+          example: x23364u213
+      responses:
+        200:
+          description: 'Success get product data'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailProduct'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+      security:
+        -
+          passport: []
+    patch:
+      tags:
+        - '(v1) Item Resource'
+      summary: 'Edit an Item'
+      operationId: patchEditItem
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Encoded Item''s Id'
+          required: true
+          schema:
+            type: string
+          example: x23364u213
+      requestBody:
+        description: ''
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditProduct'
+      responses:
+        200:
+          description: 'Success update item'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        404:
+          description: 'Bad Request'
+        422:
+          description: 'The given data was invalid or was incomplete'
+        500:
+          description: 'Internal server error'
+      security:
+        -
+          passport: []
+  '/v1/products/{id}/stock':
+    patch:
+      tags:
+        - '(v1) Item Resource'
+      summary: 'Edit Item''s Stock'
+      operationId: patchEditStock
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Encoded Item''s Id'
+          required: true
+          schema:
+            type: string
+          example: x23364u213
+      requestBody:
+        description: ''
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditProductStock'
+      responses:
+        200:
+          description: 'Success update item'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+  /v1/account/profile:
+    get:
+      tags:
+        - '(v1) Account Resource'
+      summary: 'Show profile'
+      operationId: getProfile
+      responses:
+        200:
+          description: 'Return seller profile'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+  /v1/account/payment_method:
+    get:
+      tags:
+        - '(v1) Account Resource'
+      summary: 'Show payment method'
+      operationId: getPayment
+      responses:
+        200:
+          description: 'Return payment method'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethod'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+  /v1/account/shop:
+    patch:
+      tags:
+        - '(v1) Account Resource'
+      summary: 'Edit setting shop information profile'
+      operationId: patchEditShopInformationProfile
+      requestBody:
+        description: 'Data for edit shop information profile'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditSettingShopInformation'
+      responses:
+        200:
+          description: 'Success edit shop information profile'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+      security:
+        -
+          passport: []
+  /v1/account/shipping:
+    put:
+      tags:
+        - '(v1) Account Resource'
+      summary: 'Edit setting shipping profile'
+      operationId: patchEditShippingProfile
+      requestBody:
+        description: 'Data for edit shipping profile'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditShipping'
+      responses:
+        204:
+          description: 'Success edit shipping profile'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+      security:
+        -
+          passport: []
+  /v2/brands/search:
+    get:
+      tags:
+        - '(v2) Brand Resource'
+      summary: 'Get Brand Name'
+      operationId: getBrandName
+      parameters:
+        -
+          name: keyword
+          in: query
+          description: 'Search keyword'
+          required: false
+          schema:
+            type: string
+          example: Aqua
+        -
+          name: limit
+          in: query
+          description: 'Search limit'
+          required: false
+          schema:
+            type: integer
+          example: '10'
+      responses:
+        200:
+          description: 'Success get brand name'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/v2-GetBrandName'
+        500:
+          description: 'Internal server error'
+      security:
+        -
+          passport: []
+  /v2/categories/search:
+    get:
+      tags:
+        - '(v2) Category Resource'
+      summary: 'Get Category''s Last Child'
+      operationId: getLastChild
+      parameters:
+        -
+          name: keyword
+          in: query
+          description: 'Search keyword'
+          required: false
+          schema:
+            type: string
+          example: Kitchen
+        -
+          name: limit
+          in: query
+          description: 'Search limit'
+          required: false
+          schema:
+            type: integer
+          example: '10'
+      responses:
+        200:
+          description: 'Success get category''s last child'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/v2-GetCategoryLastChild'
+        500:
+          description: 'Internal server error'
+      security:
+        -
+          passport: []
+  /v2/catalogs/search:
+    get:
+      tags:
+        - '(v2) Catalog Resource'
+      summary: 'Get Catalog Name'
+      operationId: getCatalogName
+      parameters:
+        -
+          name: keyword
+          in: query
+          description: 'Search keyword'
+          required: false
+          schema:
+            type: string
+          example: 'Hp Samsung'
+        -
+          name: limit
+          in: query
+          description: 'Search limit'
+          required: false
+          schema:
+            type: integer
+          example: '10'
+      responses:
+        200:
+          description: 'Success get catalog name'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/v2-GetItemInitialName'
+        500:
+          description: 'Internal server error'
+      security:
+        -
+          passport: []
+  '/v2/catalogs/{id}':
+    get:
+      tags:
+        - '(v2) Catalog Resource'
+      summary: 'Get Catalog Data'
+      operationId: getCatalogData
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Encoded Item Initial''s Id'
+          required: true
+          schema:
+            type: string
+          example: w2w274030324t2v2
+      responses:
+        200:
+          description: 'Success get catalog data'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/v2-GetItemInitialData'
+        422:
+          description: 'The given data was invalid'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+        500:
+          description: 'Internal server error'
+      security:
+        -
+          passport: []
+  '/v2/items/{id}/edit':
+    put:
+      tags:
+        - '(v2) Item Resource'
+      summary: 'Edit an Item'
+      operationId: putEditItem
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Encoded Item''s Id'
+          required: true
+          schema:
+            type: string
+          example: x23364u213
+      requestBody:
+        description: ''
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/v2-EditItem'
+      responses:
+        200:
+          description: 'Success update item'
+        422:
+          description: 'The given data was invalid'
+        500:
+          description: 'Internal server error'
+      security:
+        -
+          passport: []
+  /v2/items:
+    get:
+      tags:
+        - '(v2) Item Resource'
+      summary: 'Get List of Seller''s Items'
+      operationId: getItems
+      parameters:
+        -
+          name: limit
+          in: query
+          description: 'Number of Items per Page'
+          required: false
+          schema:
+            type: string
+          example: '1'
+        -
+          name: keyword
+          in: query
+          description: 'Filter item by name'
+          required: false
+          schema:
+            type: string
+          example: codeception
+        -
+          name: status
+          in: query
+          description: 'Filter item by product status (either show or hide)'
+          required: false
+          schema:
+            type: string
+            enum:
+              - show
+              - hide
+        -
+          name: stock_availability
+          in: query
+          description: 'Filter item by stock availability (either available or unavailable)'
+          required: false
+          schema:
+            type: string
+            enum:
+              - available
+              - unavailable
+      responses:
+        200:
+          description: 'Return list of items.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/v2-Items'
+        500:
+          description: 'Internal server error'
+      security:
+        -
+          passport: []
+    post:
+      tags:
+        - '(v2) Item Resource'
+      summary: 'Add an Item'
+      operationId: postAddItem
+      requestBody:
+        description: ''
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/v2-AddItem'
+      responses:
+        204:
+          description: 'Success add item'
+        422:
+          description: 'The given data was invalid'
+        500:
+          description: 'Internal server error'
+      security:
+        -
+          passport: []
+  '/v2/items/{id}':
+    delete:
+      tags:
+        - '(v2) Item Resource'
+      summary: 'Delete Item'
+      operationId: deleteItem
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Encoded Item''s Id'
+          required: true
+          schema:
+            type: string
+          example: x2335423w2
+      responses:
+        204:
+          description: 'Success delete item'
+        422:
+          description: 'The given data was invalid'
+        500:
+          description: 'Internal server error'
+      security:
+        -
+          passport: []
+  '/v2/items/{id}/show':
+    patch:
+      tags:
+        - '(v2) Item Resource'
+      summary: 'Show Item'
+      operationId: patchShowItem
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Encoded Item''s Id'
+          required: true
+          schema:
+            type: string
+          example: x2335423w2
+      responses:
+        204:
+          description: 'Success show item'
+        422:
+          description: 'The given data was invalid'
+        500:
+          description: 'Internal server error'
+      security:
+        -
+          passport: []
+  '/v2/items/{id}/hide':
+    patch:
+      tags:
+        - '(v2) Item Resource'
+      summary: 'Hide Item'
+      operationId: patchHideItem
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Encoded Item''s Id'
+          required: true
+          schema:
+            type: string
+          example: x2335423w2
+      responses:
+        204:
+          description: 'Success hide item'
+        422:
+          description: 'The given data was invalid'
+        500:
+          description: 'Internal server error'
+      security:
+        -
+          passport: []
+  '/v2/items/promotion/prices/{item_id}':
+    put:
+      tags:
+        - '(v2) Item Resource'
+      summary: 'Insert or Update Item''s Sale Promotion'
+      operationId: putInsertOrUpdateSalesPromotion
+      parameters:
+        -
+          name: item_id
+          in: path
+          description: 'Encoded Item''s Id'
+          required: true
+          schema:
+            type: string
+          example: v203a423z254w2
+      requestBody:
+        description: ''
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/v2-UpdateSalesPromotion'
+      responses:
+        204:
+          description: 'Success update sales promotion price'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid'
+        500:
+          description: 'Internal server error'
+      security:
+        -
+          passport: []
+    delete:
+      tags:
+        - '(v2) Item Resource'
+      summary: 'Delete Item''s Sale Promotion'
+      operationId: deleteSalesPromotion
+      parameters:
+        -
+          name: item_id
+          in: path
+          description: 'Encoded Item''s Id'
+          required: true
+          schema:
+            type: string
+          example: v203a423z254w2
+      responses:
+        204:
+          description: 'Success delete sales promotion price'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid'
+        500:
+          description: 'Internal server error'
+      security:
+        -
+          passport: []
+  '/v2/orders/{order_serial}':
+    get:
+      tags:
+        - '(v2) Order Resource'
+      summary: 'Show Order Detail'
+      operationId: getOrderDetail
+      parameters:
+        -
+          name: order_serial
+          in: path
+          description: 'Formatted order serial'
+          required: true
+          schema:
+            type: string
+          example: 9027---ORD---11---05---2019
+      responses:
+        200:
+          description: 'Return order detail.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/v2-OrderDetail'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+      security:
+        -
+          passport: []
+  /v2/rating-reviews:
+    get:
+      tags:
+        - '(v2) Rating Review Resource'
+      summary: 'Get List of Seller''s Product Reviews'
+      operationId: getProductReviews
+      parameters:
+        -
+          name: limit
+          in: query
+          description: 'Number of Items per Page'
+          required: false
+          schema:
+            type: string
+          example: '1'
+        -
+          name: order_serial
+          in: query
+          description: 'Filtered by specific order_serial'
+          required: false
+          schema:
+            type: string
+          example: 0003/ORD/29/06/2015
+        -
+          name: start_date
+          in: query
+          description: 'Get reviews from start_date'
+          required: false
+        -
+          name: end_date
+          in: query
+          description: 'Get reviews until end_date'
+          required: false
+      responses:
+        200:
+          description: 'Return list of items.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/v2-Items'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+        500:
+          description: 'Internal server error'
+      security:
+        -
+          passport: []
+  /v2/seller-summary:
+    get:
+      tags:
+        - '(v2) Summary Resource'
+      summary: 'Show Seller''s Summary'
+      operationId: getSummary
+      parameters:
+        -
+          name: start_date
+          in: query
+          description: 'Date with a ''Y-m-d'' format'
+          required: true
+          schema:
+            type: string
+          example: '2018-12-31'
+        -
+          name: end_date
+          in: query
+          description: 'Date with a ''Y-m-d'' format'
+          required: true
+          schema:
+            type: string
+          example: '2019-12-31'
+      responses:
+        200:
+          description: 'Return summary.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/v2-Seller-Summary'
+        401:
+          description: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401'
+        422:
+          description: 'The given data was invalid.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error422'
+      security:
+        -
+          passport: []
+  /v2/users-fcm:
+    post:
+      tags:
+        - '(v2) User Fcm Resource'
+      summary: 'Insert Users Fcm'
+      operationId: insertUsersFcm
+      requestBody:
+        description: ''
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/v2-InsertUsersFcm'
+      responses:
+        204:
+          description: 'Success insert users fcm'
+        422:
+          description: 'The given data was invalid'
+        500:
+          description: 'Internal server error'
+      security:
+        -
+          passport: []
+      servers:
+        -
+          url: 'http://apiseller.ralali.loc/v2'
+    delete:
+      tags:
+        - '(v2) User Fcm Resource'
+      summary: 'Delete Users Fcm'
+      operationId: deleteUsersFcm
+      requestBody:
+        description: ''
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/v2-DeleteUsersFcm'
+      responses:
+        204:
+          description: 'Success delete users fcm'
+        422:
+          description: 'The given data was invalid'
+        500:
+          description: 'Internal server error'
+      security:
+        -
+          passport: []
+components:
+  schemas:
+    AddProduct:
+      required:
+        - category_cache
+        - price_type
+        - minimum_order
+        - name
+        - description
+        - retail_price
+      properties:
+        category_cache:
+          type: array
+          items:
+            type: integer
+        price_type:
+          type: string
+        minimum_order:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        retail_price:
+          type: integer
+        source:
+          type: string
+        lead_time_id:
+          type: integer
+        is_stock_available:
+          type: integer
+          enum:
+            - 0
+            - 1
+        minimum_stock:
+          type: integer
+        currency:
+          type: string
+        unit_type:
+          type: string
+        wholesale_qty:
+          type: array
+          items:
+            type: integer
+        wholesale_price:
+          type: array
+          items:
+            type: integer
+        is_new_brand:
+          type: integer
+          enum:
+            - 0
+            - 1
+        dim_uom:
+          type: string
+        dim_uom_shipping:
+          type: string
+        default_image:
+          type: string
+        brand_name:
+          type: string
+        sellernote:
+          type: string
+        referensi_sku:
+          type: string
+        weight_shipping_kg:
+          type: integer
+        height_shipping:
+          type: integer
+        length_shipping:
+          type: integer
+        width_shipping:
+          type: integer
+        brand_logo:
+          type: string
+        brand_description:
+          type: string
+        image_and_video:
+          type: array
+          items:
+            properties:
+              type:
+                type: string
+              data:
+                properties:
+                  base64: { type: string }
+                  extension: { type: string }
+                type: object
+            type: object
+      type: object
+      example:
+        category_cache:
+          - 7
+          - 1168
+          - 1169
+          - 1170
+        source: forstok
+        price_type: retail
+        minimum_order: 1
+        lead_time_id: 1
+        is_stock_available: 1
+        minimum_stock: 3
+        currency: Rp
+        unit_type: Unit
+        wholesale_qty:
+          - 4
+          - 3
+          - 2
+        wholesale_price:
+          - 7000
+          - 8000
+          - 9000
+        is_new_brand: 1
+        dim_uom: Meter
+        dim_uom_shipping: Kilogram
+        name: 'bebek mekdi kuning Indonesia'
+        default_image: '0'
+        brand_name: 'Bebek kuning merakyat'
+        description: '<p>barang baru</p>'
+        sellernote: '<p>barang baru banget</p>'
+        referensi_sku: '1234567'
+        weight_shipping_kg: 10
+        length_shipping: 30
+        width_shipping: 12
+        height_shipping: 4
+        brand_logo: 'data:image/jpeg;base64,/9j/4AAQSk...'
+        brand_description: 'merk baru'
+        retail_price: 10000
+        image_and_video:
+          -
+            type: image
+            data:
+              base64: 'data:image/jpg;base64,/9j/4AAQSkZJRgABAQEASABIAA'
+              extension: jpg
+    AirwayBill:
+      required:
+        - airway_bill
+      properties:
+        airway_bill:
+          type: string
+      type: object
+      example:
+        alamat_pengiriman: 1
+    Brand:
+      type: object
+      example:
+        current_page: 1
+        data:
+          -
+            name: Benks
+          -
+            name: KYOMITSU
+          -
+            name: Xiaomi
+          -
+            name: APLI
+          -
+            name: AQUA
+          -
+            name: 'Raksasa Elektronik'
+          -
+            name: 'No Brand'
+          -
+            name: Dekko
+          -
+            name: ASUS
+          -
+            name: 'MASUNAGA Stavol'
+          -
+            name: 'Shopping Garden'
+          -
+            name: BAGUS
+          -
+            name: 'CHRISTIAN DIOR'
+          -
+            name: Nocy
+          -
+            name: ABSOLUTE
+        first_page_url: 'http://apiseller.ralali.local/v1/brands?page=1'
+        from: 1
+        last_page: 3
+        last_page_url: 'http://apiseller.ralali.local/v1/brands?page=3'
+        next_page_url: 'http://apiseller.ralali.local/v1/brands?page=2'
+        path: 'http://apiseller.ralali.local/v1/brands'
+        per_page: 15
+        prev_page_url: null
+        to: 15
+        total: 42
+    Buyer:
+      type: object
+      example:
+        id: 10676
+        name: 'Angga Asmara'
+        email: angga.moersalin@gmail.com
+    Category:
+      type: object
+      example:
+        current_page: 1
+        data:
+          -
+            id: 7
+            name: 'Agriculture & Food'
+          -
+            id: 2
+            name: 'Automotive & Transportation'
+          -
+            id: 3
+            name: 'Beauty, Sport & Textile'
+          -
+            id: 4
+            name: 'Building Materials'
+          -
+            id: 5
+            name: 'Computer & Communication'
+          -
+            id: 6
+            name: Electronics
+          -
+            id: 8
+            name: 'Furnitures & Decorations'
+          -
+            id: 9
+            name: 'Health & Medical'
+          -
+            id: 10
+            name: Horeca
+        first_page_url: 'http://apiseller.ralali.local/v1/categories?page=1'
+        from: 1
+        last_page: 2
+        last_page_url: 'http://apiseller.ralali.local/v1/categories?page=2'
+        next_page_url: 'http://apiseller.ralali.local/v1/categories?page=2'
+        path: 'http://apiseller.ralali.local/v1/categories'
+        per_page: 15
+        prev_page_url: null
+        to: 15
+        total: 22
+    City:
+      type: object
+      example:
+        -
+          id: 31
+          name: Bangkalan
+          postal_code: '69100'
+        -
+          id: 42
+          name: Banyuwangi
+          postal_code: '68400'
+    Courier:
+      type: object
+      example:
+        -
+          name: GO-SEND
+          logo_url: 'https://img1.ralali.id/passthrough/assets/img/logistics/GO-SEND_SameDay.png'
+          courier_code: go-send
+          data:
+            -
+              id: 42
+              is_used: 1
+              service_code: Instant
+              estimated_delivery: ''
+              shipping_description: '1-2 jam waktu pengiriman'
+            -
+              id: 43
+              is_used: 1
+              service_code: SameDay
+              estimated_delivery: ''
+              shipping_description: '6-8 jam waktu pengiriman'
+        -
+          name: 'J&T'
+          logo_url: 'https://img1.ralali.id/passthrough/assets/img/logistics/J&T_EZ.png'
+          courier_code: jnt
+          data:
+            -
+              id: 23
+              is_used: 1
+              service_code: EZ
+              estimated_delivery: '1 hari'
+              shipping_description: Ekspress
+        -
+          name: JNE
+          logo_url: 'https://img1.ralali.id/passthrough/assets/img/logistics/JNE_CTCOKE.png'
+          courier_code: jne
+          data:
+            -
+              id: 44
+              is_used: 1
+              service_code: Trucking
+              estimated_delivery: ''
+              shipping_description: 'Untuk pengiriman paket dengan berat minimal 5,1 Kg. Ralali akan Settlement biaya ongkir sesuai nominal ongkir yang dibayarkan oleh buyer bersamaan dengan Settlement produk.'
+            -
+              id: 17
+              is_used: 0
+              service_code: OKE
+              estimated_delivery: ''
+              shipping_description: ' '
+            -
+              id: 16
+              is_used: 1
+              service_code: REG
+              estimated_delivery: '2-3 hari'
+              shipping_description: Reguler
+            -
+              id: 18
+              is_used: 1
+              service_code: 'YES'
+              estimated_delivery: '2-2 hari'
+              shipping_description: 'Yakin Esok Sampai'
+        -
+          name: 'Ralali Kargo'
+          logo_url: 'https://img1.ralali.id/passthrough/assets/img/logistics/Kargo.co.id_LTL.png'
+          courier_code: rkg
+          data:
+            -
+              id: 34
+              is_used: 1
+              service_code: RKG
+              estimated_delivery: '1-2 hari'
+              shipping_description: 'Untuk pengiriman paket dengan minimal berat 5,1 Kg. Ralali akan menjadwalkan Pickup dilokasi Seller setelah Seller melakukan Request Pickup di Sellerpanel. Pastikan paket telah dipacking dengan baik dan dilengkapi label DO dari Sellerpanel.'
+        -
+          name: SiCepat
+          logo_url: 'https://img1.ralali.id/passthrough/assets/img/logistics/SiCepat_Priority.png'
+          courier_code: sicepat
+          data:
+            -
+              id: 20
+              is_used: 0
+              service_code: REG
+              estimated_delivery: ''
+              shipping_description: ''
+        -
+          name: TIKI
+          logo_url: 'https://img1.ralali.id/passthrough/assets/img/logistics/TIKI_ONS.png'
+          courier_code: tiki
+          data:
+            -
+              id: 10
+              is_used: 0
+              service_code: REG
+              estimated_delivery: ''
+              shipping_description: ''
+    Dashboard:
+      type: object
+      example:
+        total_sales: 3163000
+        total_customer: 4
+        total_order: 1
+        total_produk: 5
+        total_sales_graphic:
+          x: week
+          'y': total_sales
+          dots:
+            -
+              total_products: 0
+              total_sales: 0
+              month: 11
+              week: 43
+              year: 2018
+            -
+              total_products: 0
+              total_sales: 0
+              month: 11
+              week: 44
+              year: 2018
+            -
+              total_products: 5
+              total_sales: 3163000
+              month: 11
+              week: 45
+              year: 2018
+            -
+              total_products: 0
+              total_sales: 0
+              month: 11
+              week: 46
+              year: 2018
+            -
+              total_products: 0
+              total_sales: 0
+              month: 11
+              week: 47
+              year: 2018
+    EditPaymentProfile:
+      type: object
+      example:
+        payment_id: '69'
+        cabang_bank: Intercon
+        no_rekening: '9764901928381'
+        nama_pemilik_rekening: 'Akun testing edit profil'
+    EditProduct:
+      required:
+        - stock
+      properties:
+        is_view_website:
+          type: string
+          enum:
+            - 'Y'
+            - 'N'
+        image_and_video:
+          type: array
+          items:
+            properties:
+              type:
+                type: string
+              data:
+                type: string
+            type: object
+        name:
+          type: string
+        default_image_index:
+          type: integer
+        price_type:
+          type: string
+        wholesale_qty:
+          type: array
+          items:
+            type: integer
+        wholesale_price:
+          type: array
+          items:
+            type: integer
+        minimum_order:
+          type: integer
+          minimum: '1'
+        stock:
+          type: integer
+          minimum: '0'
+      type: object
+      example:
+        is_view_website: 'Y'
+        image_and_video:
+          -
+            type: url
+            data: 'https://img1dev.ralali.id/passthrough/assets/img/Libraries/77340_Edit_API_S_0003_wu4TSvyCWvY99bvw_1556630483.png'
+        name: 'barang testing 123'
+        default_image_index: 0
+        price_type: retail
+        wholesale_qty:
+          - 12
+          - 11
+          - 10
+          - 9
+        wholesale_price:
+          - 1000
+          - 2000
+          - 3000
+          - 4000
+        minimum_order: 1
+        stock: 10
+    EditProductStock:
+      required:
+        - is_stock_available
+      properties:
+        is_view_website:
+          type: string
+          enum:
+            - 'Y'
+            - 'N'
+        is_stock_available:
+          type: integer
+          enum:
+            - 0
+            - 1
+      type: object
+      example:
+        is_view_website: 'Y'
+        is_stock_available: 1
+    EditSettingShopInformation:
+      properties:
+        name_shop:
+          type: string
+        subdistrict_id:
+          type: integer
+        category_id:
+          type: array
+          items:
+            type: integer
+        postal_code:
+          type: integer
+        shipping_address:
+          type: string
+      type: object
+      example:
+        name_shop: 'PT Cendrawasih'
+        subdistrict_id: 5464
+        category_id:
+          - 2
+          - 9
+          - 8
+          - 7
+        postal_code: 11640
+        shipping_address: 'Jl tanjung duren selatan'
+    EditShipping:
+      required:
+        - pic_name
+        - pic_phone_number
+        - warehouse_phone_number
+        - warehouse_address
+        - district_id
+        - postal_code
+        - courier_id
+      properties:
+        pic_name:
+          type: string
+          format: string
+        pic_phone_number:
+          type: string
+          format: string
+        warehouse_phone_number:
+          type: string
+          format: string
+        warehouse_address:
+          type: string
+          format: string
+        district_id:
+          type: integer
+          format: int
+        postal_code:
+          type: integer
+          format: int
+        courier_id:
+          type: array
+          format: 'int[]'
+          items:
+            type: integer
+        latitude:
+          type: integer
+          format: int
+        longitude:
+          type: integer
+          format: int
+      type: object
+      example:
+        pic_name: 'Peter Hartawan'
+        pic_phone_number: '08999990199'
+        warehouse_phone_number: '08123123126'
+        warehouse_address: 'Jl. Jati Bening'
+        district_id: 812
+        postal_code: 17412
+        courier_id:
+          - 10
+          - 16
+          - 18
+          - 20
+          - 23
+        latitude: -10.04
+        longitude: 2.14
+    Error401:
+      example:
+        name: AUTHENTICATION_FAILURE
+        message: 'Authentication failed due to invalid authentication credentials or a missing Authorization header.'
+    Error422:
+      example:
+        name: VALIDATION_FAILURE
+        message: 'The given data was invalid.'
+        errors:
+          key:
+            - 'Error Description'
+    ListProduct:
+      type: object
+      example:
+        status: success
+        message: 'proses success'
+        result:
+          count:
+            all: 129
+            show: 8
+            hide: 2
+          filter:
+            brand:
+              - GM
+              - 'No Brand'
+            category:
+              - 'Box File'
+              - 'Tas Make up & Organizer'
+          items:
+            -
+              id: x23364y2v2
+              item_initial: null
+              item_initial_alias: kalender-2019
+              currency_id: 1
+              brand: 'brand baru bikin'
+              category: 'Aksesoris Motor'
+              parent_category: null
+              stock: 100
+              sku_number: null
+              referensi_sku: null
+              name: 'kalender 2019'
+              alias: ''
+              model_number: null
+              inventory_type: infinite
+              rating_summary: null
+              default_image: 'http://img1dev.ralali.id/passthrough/assets/img/Libraries/kalender-2019_MDzWbXJ5bFLMuYjF_1547557175.jpg'
+              lowest_price: '20000.00'
+              lowest_discount: 0
+              flag_discount: null
+              discount_percentage: null
+              is_stock_available: '1'
+              is_view_website: Hide
+              price_type: retail
+              date: '18 Jan 2019'
+              on_delete: 0
+              status: Hide
+              price_locations: '-'
+    Order:
+      type: object
+      example:
+        current_page: 1
+        data:
+          -
+            name: hsfhjsfsk
+            created_at: '2019-01-04 14:18:28'
+            updated_at: '2019-01-04 14:22:18'
+            payment_status: Paid
+            order_serial: 2747/ORD/04/01/2019
+            shipping_price: 540000
+            order_serial_alias: 2747---ORD---04---01---2019
+            amount: null
+            status: Lunas
+            status_en: 'Paid off'
+            process_at: '2019-01-04 14:22:18'
+            total_price: 7740000
+            viewed_by_vendor: 0
+            item_name: 'Catalog Peter 29-11-2018 11:50d'
+            ready_pickup: 1
+            status_flag_id: 8
+            approved_due_days: 2
+            approved_due_date: '2019-01-06 14:22:18'
+            seal_shipping: 'Ralali Kargo'
+          -
+            name: hsfhjsfsk
+            created_at: '2019-01-03 16:34:12'
+            updated_at: '2019-01-03 16:36:21'
+            payment_status: Paid
+            order_serial: 8609/ORD/03/01/2019
+            shipping_price: 180000
+            order_serial_alias: 8609---ORD---03---01---2019
+            amount: null
+            status: Lunas
+            status_en: 'Paid off'
+            process_at: '2019-01-03 16:36:21'
+            total_price: 2580000
+            viewed_by_vendor: 0
+            item_name: 'Catalog Peter 29-11-2018 11:50d'
+            ready_pickup: 1
+            status_flag_id: 8
+            approved_due_days: 1
+            approved_due_date: '2019-01-05 16:36:21'
+            seal_shipping: 'Ralali Kargo'
+          -
+            name: hsfhjsfsk
+            created_at: '2019-01-03 14:51:52'
+            updated_at: '2019-01-03 14:53:11'
+            payment_status: Paid
+            order_serial: 2778/ORD/03/01/2019
+            shipping_price: 0
+            order_serial_alias: 2778---ORD---03---01---2019
+            amount: null
+            status: Lunas
+            status_en: 'Paid off'
+            process_at: '2019-01-03 14:53:11'
+            total_price: 810000
+            viewed_by_vendor: 0
+            item_name: 'Catalog Peter 29-11-2018 11:50d'
+            ready_pickup: 0
+            status_flag_id: 8
+            approved_due_days: 1
+            approved_due_date: '2019-01-05 14:53:11'
+            seal_shipping: 'Free Ongkir Nusantara'
+          -
+            name: Udin
+            created_at: '2019-01-03 11:14:55'
+            updated_at: '2019-01-03 11:16:06'
+            payment_status: Paid
+            order_serial: 9782/ORD/03/01/2019
+            shipping_price: 305000
+            order_serial_alias: 9782---ORD---03---01---2019
+            amount: null
+            status: Lunas
+            status_en: 'Paid off'
+            process_at: '2019-01-03 11:16:06'
+            total_price: 1505000
+            viewed_by_vendor: 0
+            item_name: 'Catalog Peter 26-11-2018 13:46 3'
+            ready_pickup: 1
+            status_flag_id: 8
+            approved_due_days: 1
+            approved_due_date: '2019-01-05 11:16:06'
+            seal_shipping: 'Ralali Kargo'
+        first_page_url: 'http://apiseller.ralali.local/v1/orders?page=1'
+        from: 1
+        last_page: 1
+        last_page_url: 'http://apiseller.ralali.local/v1/orders?page=1'
+        next_page_url: null
+        path: 'http://apiseller.ralali.local/v1/orders'
+        per_page: 15
+        prev_page_url: null
+        to: 4
+        total: 4
+    OrderCount:
+      type: object
+      example:
+        counts:
+          -
+            status_flag_id: 8
+            total: 1
+            order_type: UNPROCESSED
+          -
+            status_flag_id: 2
+            total: 7
+            order_type: ACCEPTED
+          -
+            status_flag_id: 3
+            total: 49
+            order_type: DELIVERED
+          -
+            status_flag_id: 10
+            total: 48
+            order_type: RECEIVED
+          -
+            status_flag_id: 13
+            total: 3
+            order_type: SETTLEMENT
+          -
+            status_flag_id: 4
+            total: 1052
+            order_type: REJECTED
+          -
+            status_flag_id: 999
+            total: 1160
+            order_type: ALL
+        total_settlement: 32396525
+        total_transaksi_berhasil: 16501558
+    OrderDetail:
+      type: object
+      example:
+        id: 310846
+        created_at: '2019-05-17 02:26:03'
+        payment_status: Paid
+        total_price: 93000
+        shipping_price: 18000
+        airway_bill: null
+        order_serial: 0095/ORD/17/05/2019
+        shipping_address:
+          name: 'Asep Suparminto'
+          address: 'Jl. Arjuna Utara No.28, RT.11/RW.2, Tj. Duren Sel.,'
+          phone: '8754855763'
+          province_id: '6'
+          province_name: 'DKI Jakarta'
+          city_id: '38'
+          city_name: 'Jakarta Barat'
+          subdistrict_id: '444'
+          subdistrict_name: 'Grogol Petamburan'
+          postal_code: '11470'
+        shipping_name: JNE
+        service_code: REG
+        message: '-'
+        name: 'Asep Suparminto'
+        user_image_profile: 'https://img1.ralali.id/passthrough/profile_8ht1emi.jpg'
+        shipping_logo: 'https://img1.ralali.id/passthrough/JNE_CTCOKE.png'
+        ready_pickup: 0
+        handphone: '+628912123123'
+    OrderItem:
+      type: object
+      example:
+        -
+          id: s2z274v223
+          item_name: 'Xiaomi Mijia Thermostatic Electric Kettles 1.5L 12 Hours Thermostat kettle Smart Control by Mobile Phone App Xiaomi smart kettle'
+          short_description: 'Xiaomi Mijia Thermostatic Electric Kettles 1.5L 12 Hours Thermostat kettle Smart Control by Mobile Phone App Xiaomi smart kettle'
+          price: 1000
+          product_quantity: 1
+          weight: '1.00'
+          total_price: 1000
+          status_flag_id: 13
+          product_image: 'http://img1dev.ralali.id/passthrough/rbiz/10857_xiaomi_xiaomi_mijia_thermostatic_elec.jpg'
+          serial_product_key: null
+          ready_pick_up: NOT_AVAILABLE
+    OrderLogs:
+      type: object
+      example:
+        -
+          name: 'Staff Ralali.com'
+          status_flag_id: 13
+          status: Settlement
+          shipping_name: 'Free Ongkir Lokal'
+          date: '05 Apr 2019'
+          time: '16:20'
+        -
+          name: 'Staff Ralali.com'
+          status_flag_id: 10
+          status: 'Pesanan Telah diterima customer'
+          shipping_name: 'Free Ongkir Lokal'
+          date: '04 Apr 2019'
+          time: '09:36'
+        -
+          name: 'UFS (Unilever Foods Solution)'
+          status_flag_id: 3
+          status: 'Pesanan telah dikirim melalui'
+          shipping_name: 'Free Ongkir Lokal'
+          date: '02 Apr 2019'
+          time: '09:43'
+        -
+          name: 'UFS (Unilever Foods Solution)'
+          status_flag_id: 2
+          status: 'Pesanan sedang diproses untuk dikirim langsung dari vendor kami.'
+          shipping_name: 'Free Ongkir Lokal'
+          date: '02 Apr 2019'
+          time: '09:43'
+        -
+          name: 'Staff Ralali.com'
+          status_flag_id: 8
+          status: Lunas
+          shipping_name: 'Free Ongkir Lokal'
+          date: '02 Apr 2019'
+          time: '00:01'
+        -
+          name: Miliantini
+          status_flag_id: 5
+          status: 'Menunggu Pelunasan Pembayaran'
+          shipping_name: 'Free Ongkir Lokal'
+          date: '01 Apr 2019'
+          time: '11:39'
+    ProcessOrder:
+      required:
+        - item_detail
+      properties:
+        item_detail:
+          type: array
+          items:
+            required:
+              - id
+              - status
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+            type: object
+      type: object
+      example:
+        item_detail:
+          -
+            id: s24354u2z2
+            status: rejected
+    Product:
+      type: object
+      example:
+        filter:
+          brand:
+            - 'Bebek kuning merakyat'
+            - 'Bebek kuning Indonesia'
+            - 'Duck starling kuning'
+            - 'No Brand'
+            - greymon
+            - BoredbranD
+            - ABSOLUTE
+            - 'CHRISTIAN DIOR'
+            - BAGUS
+            - 'MASUNAGA Stavol'
+          category:
+            - 'Gula Kastor'
+            - 'Aksesoris Motor'
+            - 'I am The Last Childs'
+            - 'Add Level 4 lagi'
+            - 'Gula Dalam Kemasan Isi Ulang'
+            - 'Gula Aren'
+            - 'Kursi Refleksi'
+            - 'Aki Mobil & Charger'
+        count:
+          pending: 293
+          reject: 0
+          hide: 28
+          all: 30
+        items:
+          -
+            id: x2335413x2
+            item_initial: null
+            item_initial_alias: Catalog-Peter-10-12-2018-13-10
+            currency_id: 1
+            brand: 'No Brand'
+            category: 'Aksesoris Motor'
+            parent_category: null
+            stock: 100
+            sku_number: null
+            referensi_sku: null
+            name: 'Catalog Peter 10-12-2018 13:10'
+            alias: ''
+            model_number: null
+            inventory_type: infinite
+            rating_summary: null
+            default_image: 'http://img1dev.ralali.id/passthrough/assets/img/Libraries/Catalog-Peter-10-12-2018-13-10_w5NLQE1cU3n8sxMn_1544436186.jpeg'
+            lowest_price: '10000.00'
+            lowest_discount: 0
+            flag_discount: null
+            discount_percentage: null
+            is_stock_available: 'Not Available'
+            is_view_website: Show
+            price_type: retail
+            date: '12 Dec 2018'
+            on_delete: 0
+            status: 'Not Available'
+            price_locations: '-'
+          -
+            id: x23354v2z2
+            item_initial: null
+            item_initial_alias: Catalog-Peter-11-22-2018-11-25-asus
+            currency_id: 1
+            brand: ASUS
+            category: 'Emergency Vehicles'
+            parent_category: null
+            stock: 100
+            sku_number: null
+            referensi_sku: null
+            name: 'Catalog Peter 11-22-2018 11:25 asus'
+            alias: ''
+            model_number: null
+            inventory_type: infinite
+            rating_summary: null
+            default_image: 'http://img1dev.ralali.id/passthrough/assets/img/Libraries/Catalog-Peter-11-22-2018-11-25-asus_CoJiCeKHVMWkVgzI_1542877492.jpg'
+            lowest_price: '100000.00'
+            lowest_discount: 0
+            flag_discount: null
+            discount_percentage: null
+            is_stock_available: 'Not Available'
+            is_view_website: Show
+            price_type: retail
+            date: '03 Dec 2018'
+            on_delete: 0
+            status: 'Not Available'
+            price_locations: '-'
+    Profile:
+      type: object
+      example:
+        alamat_pengiriman:
+          alamat_toko:
+            alamat_toko: 'Jl tanjung duren selatan'
+            nama_provinsi: 'Sulawesi Tenggara'
+            nama_kota: Bombana
+            id_kecamatan: 5464
+            nama_kecamatan: 'Poleang Selatan'
+            kode_pos: 11640
+          alamat_gudang:
+            alamat_gudang: 'Jl. Jati Bening'
+            nama_provinsi: 'DKI Jakarta'
+            nama_kota: 'Jakarta Barat'
+            id_kecamatan: 446
+            nama_kecamatan: 'Kebon Jeruk'
+            kode_pos: '11510'
+            latitude: -6.18460085
+            longitude: 106.78492647
+        data_gudang:
+          nama_pic: 'Peter Hartawan Suherman'
+          nomor_telepon_pic: '+6208999990199'
+          nomor_telpon_gudang: '081219196781'
+        data_pembayaran:
+          nama_bank: 'Mandiri Bank Transfer'
+          cabang: Intercon
+          nomor_rekening: '9764901928381'
+          nama_pemilik: 'Akun testing edit profil'
+        data_penjual:
+          user_id: 17844
+          user_gender: P
+          user_email: bajubaju@yopmail.com
+          user_name: 'Baju Baju'
+          nama_toko: 'PT. Kaderwasih'
+          verifikasi: true
+          url_toko: www.ralali.com/v/bajubaju
+          logo_toko: 'http://img1dev.ralali.id/passthrough/assets/img/microsite/logo/bajubaju-20190415132011.jpg'
+          nama_pemilik: 'Baju Baju'
+          toko_berdiri: 2000
+          jenis_usaha:
+            - null
+          nama_kategori:
+            - 'Automotive & Transportation'
+            - 'Health & Medical'
+            - 'Furnitures & Decorations'
+            - 'Agriculture & Food'
+        data_pengiriman:
+          -
+            id: 16
+            name: JNE-REG
+          -
+            id: 18
+            name: JNE-YES
+          -
+            id: 20
+            name: SiCepat-BEST
+          -
+            id: 23
+            name: Wahana-Normal
+    Provinces:
+      type: object
+      example:
+        -
+          id: 1
+          name: Bali
+        -
+          id: 2
+          name: 'Bangka Belitung'
+    PushNotification:
+      required:
+        - order_detail_id
+      properties:
+        order_detail_id:
+          type: array
+          items:
+            type: integer
+      type: object
+      example:
+        order_detail_id:
+          - '1'
+          - '2'
+    Register:
+      required:
+        - email
+        - name
+        - password
+        - newboarding
+        - source
+        - telepon_prefix
+      properties:
+        email:
+          type: string
+        name:
+          type: string
+        password:
+          type: string
+        newboarding:
+          type: string
+        source:
+          type: string
+        telepon_prefix:
+          type: string
+      type: object
+      example:
+        email: ralalitester@gmail.com
+        name: testing
+        password: '12345678'
+        newboarding: 'true'
+        source: 'Landing Page'
+        telepon_prefix: '+62'
+    RejectReasons:
+      type: object
+      example:
+        - 'Stock Habis'
+        - 'Tidak Dapat Dikirim'
+        - Lainnya
+    Response204: []
+    ResponseAddProduct:
+      type: object
+      example:
+        status: 1
+        message: 'Success add item'
+        result:
+          item:
+            vendor_id: 17844
+            brand_id: 50950
+            item_initial_id: '100000001466001'
+            name: 'Barang baru add Forstok'
+            latest_status: Approve
+            inventory_type: infinite
+            is_stock_available: '1'
+            lead_time_id: '1'
+            referensi_sku: '1234567'
+            sellernote: '<p>barang baru banget</p>'
+            description: '<p>barang baru</p>'
+            unit_type: Unit
+            length: '30'
+            width: '12'
+            height: '4'
+            weight_shipping: '10'
+            is_view_website: 'Y'
+            video_url: null
+            created_by: 17844
+            source: sp
+            dim_uom: Meter
+            weight_shipping_uom: Kilogram
+            minimum_order: '1'
+            all_stock: 100
+            minimum_stock: 1
+            seo_keyword: 'Jual Barang baru add Forstok'
+            updated_at: '2019-01-09 09:02:54'
+            created_at: '2019-01-09 09:02:54'
+            id: 77301
+    ResponseFile:
+      type: string
+      example: DownloadFile
+    StepOnboarding:
+      type: object
+      example:
+        step_onboarding: 1
+    Subdistricts:
+      type: object
+      example:
+        -
+          id: 226
+          name: Blega
+          postal_code:
+            - 22521
+            - 22522
+            - 22523
+            - 22524
+        -
+          id: 10
+          name: Burneh
+          postal_code:
+            - 22521
+            - 22522
+            - 22523
+            - 22524
+    Token:
+      required:
+        - user_id
+        - device_id
+        - fcm_token
+      properties:
+        user_id:
+          type: integer
+        device_id:
+          type: string
+        fcm_token:
+          type: string
+      type: object
+      example:
+        user_id: '54500'
+        device_id: 78E769E1-00C9-47A1-98D4-3B7FD6
+        fcm_token: 'fsoP563U0cE:APA91bEbz7wYX4Z-mNFsnCJpkhrmNKKcG48mqAi_MOx25EYpcwo6VlMhRN3ISvzuq9P50WhiWOaublIyYNC35GB4nvUajlBvRwzkcsy2OJUN-9vlq3ocbvlMMl0SPZ3Ks9_qvX7A0ERU'
+    Verify:
+      type: object
+      example:
+        status: success
+        description: 'Success verify account'
+    postRegister:
+      type: object
+      example:
+        status: success
+        message: 'Thanks for signing up! Please check your email.'
+    DetailInformation:
+      type: object
+      example:
+        status: true
+        result:
+          id: 6547
+          vendor_id: 17844
+          name_shop: null
+          owner_name: null
+          microsite_url: null
+          company_since: null
+          type: null
+          address: null
+          province_id: null
+          city_id: null
+          subdistrict_id: null
+          postal_code: null
+          description_shop: null
+          company_name: null
+          company_type: null
+          taxation_type: null
+          npwp: null
+          npwp_file: 'http://img1dev.ralali.id/passthrough/assets/img/no-image.pngassets/documents/npwp/npwp_3065_20190313165544.jpg'
+          npwp_filename: npwp_3065_20190313165544.jpg
+          ktp_file: null
+          ktp_filename: null
+          ktp_number: null
+          skdp: null
+          skdp_filename: null
+          tdp: null
+          tdp_filename: null
+          certificate: null
+          certificate_filename: null
+          siup: null
+          siup_filename: null
+          company_map: null
+          company_map_filename: null
+          logo: 'http://img1dev.ralali.id/passthrough/assets/img/microsite/logo/default_logo.jpg'
+          logo_filename: default_logo.jpg
+          company_video_url: null
+          email: bajubaju@yopmail.com
+          position: null
+          handphone: null
+          name: 'Baju Baju'
+          seller_profilling: company
+          acquisitor_name: 'Kevin Ardilles'
+          is_completed: null
+          item_categories:
+            -
+              id: 1683
+              vendor_id: 17844
+              category_id: 2
+              created_at: '2019-07-01 03:43:00'
+              updated_at: null
+              deleted_at: null
+            -
+              id: 1684
+              vendor_id: 17844
+              category_id: 9
+              created_at: '2019-07-01 03:43:00'
+              updated_at: null
+              deleted_at: null
+            -
+              id: 1685
+              vendor_id: 17844
+              category_id: 8
+              created_at: '2019-07-01 03:43:00'
+              updated_at: null
+              deleted_at: null
+            -
+              id: 1686
+              vendor_id: 17844
+              category_id: 7
+              created_at: '2019-07-01 03:43:00'
+              updated_at: null
+              deleted_at: null
+          banners: []
+          photos:
+            -
+              photo_file: 'http://img1dev.ralali.id/passthrough/assets/img/no-image.pngassets/img/microsite/media/photos/220x460-17844-1547111790.jpg'
+              photo_filename: assets/img/microsite/media/photos/220x460-17844-1547111790.jpg
+            -
+              photo_file: 'http://img1dev.ralali.id/passthrough/assets/img/no-image.pngassets/img/microsite/media/photos/7ok-17844-1548412240.jpg'
+              photo_filename: assets/img/microsite/media/photos/7ok-17844-1548412240.jpg
+            -
+              photo_file: 'http://img1dev.ralali.id/passthrough/assets/img/no-image.pngassets/img/microsite/media/photos/apple-iphone-xs-max-hands-on-3-1-980x620-17844-1548631597.jpg'
+              photo_filename: assets/img/microsite/media/photos/apple-iphone-xs-max-hands-on-3-1-980x620-17844-1548631597.jpg
+            -
+              photo_file: 'http://img1dev.ralali.id/passthrough/assets/img/no-image.pngassets/img/microsite/media/photos/inguin-17844-1550411750.jpg'
+              photo_filename: assets/img/microsite/media/photos/inguin-17844-1550411750.jpg
+            -
+              photo_file: 'http://img1dev.ralali.id/passthrough/assets/img/no-image.pngassets/img/microsite/media/photos/jerrymouse-17844-1550411756.png'
+              photo_filename: assets/img/microsite/media/photos/jerrymouse-17844-1550411756.png
+          business_type: []
+          npwp_type: false
+          ktp_type: false
+          skdp_type: false
+          tdp_type: false
+          certificate_type: false
+          siup_type: false
+          npwp_number: ''
+    DetailPayment:
+      type: object
+      example:
+        status: true
+        result:
+          id: 6547
+          payment_id: null
+          account_name: null
+          account_branch: null
+          account_number: null
+          bank_account_file: null
+          bank_account_filename: null
+    DetailProduct:
+      type: object
+      example:
+        name: 'Boneka wisuda beruang'
+        categories:
+          - 'Automotive & Transportation'
+          - Mobil
+          - Otomotif
+        images:
+          - 'http://img1dev.ralali.id/passthrough/assets/img/Libraries/77448_Boneka-wisuda-beruang_RaV5S8DvQIjox3j6_1552301869.jpg'
+          - 'http://img1dev.ralali.id/passthrough/assets/img/Libraries/77448_Boneka-wisuda-beruang_tLN0cj14rhwQ2SY8_1552301869.jpg'
+        brand_name: null
+        description: '<p>barang baru</p>'
+        video_url: null
+        sellernote: '<p>barang baru</p>'
+        price_type: wholesale
+        prices:
+          -
+            minimum_quantity: 1
+            price: 10000
+        sku_number: null
+        unit_type: Unit
+        weight_shipping_uom: Kilogram
+        weight: '10.00'
+        dim_uom: Meter
+        length: '20.0000'
+        width: '10.0000'
+        height: '10.0000'
+    DetailShipping:
+      type: object
+      example:
+        status: true
+        result:
+          id: 1
+          name: 'Hagrid Lokal'
+          telephone: '08123123126'
+          address: 'Jl. Jati Bening'
+          province_id: 9
+          city_id: 63
+          subdistrict_id: 812
+          postal_code: '17412'
+          mobile_number: '+62123412'
+          latitude: -10.05
+          longitude: 2.24
+          is_same_microsite: 0
+          microsite_address: null
+          microsite_province_id: null
+          microsite_city_id: null
+          microsite_subdistrict_id: null
+          microsite_postal_code: null
+          warehouse_map: null
+          warehouse_map_filename: null
+          shipping_services:
+            status: true
+            result:
+              -
+                id: 4
+                name: 'SAP Express'
+                service_code: SDS
+                courier_code: sap
+                estimated_delivery: '1 hari'
+                shipping_description: 'Same Day Shipping'
+                used_vendor: 0
+              -
+                id: 7
+                name: 'SAP Express'
+                service_code: ODS
+                courier_code: sap
+                estimated_delivery: '1-2 hari'
+                shipping_description: 'One Day Service'
+                used_vendor: 0
+              -
+                id: 8
+                name: 'SAP Express'
+                service_code: REG
+                courier_code: sap
+                estimated_delivery: '1-2 hari'
+                shipping_description: Reguler
+                used_vendor: 0
+              -
+                id: 11
+                name: TIKI
+                service_code: ECO
+                courier_code: tiki
+                estimated_delivery: '6-7 hari'
+                shipping_description: Economis
+                used_vendor: 0
+              -
+                id: 12
+                name: TIKI
+                service_code: ONS
+                courier_code: tiki
+                estimated_delivery: '1-2 hari'
+                shipping_description: 'Over Night Service'
+                used_vendor: 0
+              -
+                id: 14
+                name: TIKI
+                service_code: SDS
+                courier_code: tiki
+                estimated_delivery: '1-2 hari'
+                shipping_description: 'Same Day Shipping'
+                used_vendor: 0
+              -
+                id: 15
+                name: TIKI
+                service_code: HDS
+                courier_code: tiki
+                estimated_delivery: 'Hari Raya'
+                shipping_description: 'Holiday Service'
+                used_vendor: 0
+              -
+                id: 16
+                name: JNE
+                service_code: REG
+                courier_code: jne
+                estimated_delivery: '2-3 hari'
+                shipping_description: Reguler
+                used_vendor: 1
+              -
+                id: 17
+                name: JNE
+                service_code: OKE
+                courier_code: jne
+                estimated_delivery: '4-7 hari'
+                shipping_description: 'Ongkos Kirim Ekonomis'
+                used_vendor: 0
+              -
+                id: 18
+                name: JNE
+                service_code: 'YES'
+                courier_code: jne
+                estimated_delivery: '2-2 hari'
+                shipping_description: 'Yakin Esok Sampai'
+                used_vendor: 1
+              -
+                id: 20
+                name: SiCepat
+                service_code: BEST
+                courier_code: sicepat
+                estimated_delivery: '1 hari'
+                shipping_description: 'Besok Sampai Tujuan'
+                used_vendor: 1
+              -
+                id: 21
+                name: 'J&T'
+                service_code: EZ
+                courier_code: jnt
+                estimated_delivery: '1 hari'
+                shipping_description: Ekspress
+                used_vendor: 0
+              -
+                id: 22
+                name: Kargo.co.id
+                service_code: LTL
+                courier_code: kar
+                estimated_delivery: null
+                shipping_description: null
+                used_vendor: 0
+              -
+                id: 23
+                name: Wahana
+                service_code: Normal
+                courier_code: wahana
+                estimated_delivery: '3-4 hari'
+                shipping_description: Normals
+                used_vendor: 1
+              -
+                id: 34
+                name: 'Ralali Kargo'
+                service_code: RKG
+                courier_code: rkg
+                estimated_delivery: '1-2 hari'
+                shipping_description: 'Kargo hejegewes'
+                used_vendor: 0
+              -
+                id: 36
+                name: RPX
+                service_code: RGP
+                courier_code: rpx
+                estimated_delivery: null
+                shipping_description: null
+                used_vendor: 0
+              -
+                id: 39
+                name: JNE
+                service_code: CTCYES
+                courier_code: jne
+                estimated_delivery: null
+                shipping_description: '-'
+                used_vendor: 0
+              -
+                id: 40
+                name: GO-SEND
+                service_code: Instant
+                courier_code: go-send
+                estimated_delivery: null
+                shipping_description: Instant
+                used_vendor: 0
+              -
+                id: 41
+                name: GO-SEND
+                service_code: SameDay
+                courier_code: go-send
+                estimated_delivery: null
+                shipping_description: 'Same Day'
+                used_vendor: 0
+              -
+                id: 66
+                name: JNE
+                service_code: Trucking
+                courier_code: jne
+                estimated_delivery: null
+                shipping_description: 'Ini adalah layanan jne kargo yak'
+                used_vendor: 0
+              -
+                id: 70
+                name: Cobra
+                service_code: REG
+                courier_code: ninja
+                estimated_delivery: null
+                shipping_description: 'ninja expresss yoooo1'
+                used_vendor: 0
+              -
+                id: 100000
+                name: 'Alpha Logistics'
+                service_code: tesss
+                courier_code: test
+                estimated_delivery: null
+                shipping_description: 'Yes'
+                used_vendor: 0
+              -
+                id: 100002
+                name: 'Ninja Express'
+                service_code: NEX
+                courier_code: ninja
+                estimated_delivery: null
+                shipping_description: 'Ninja Express Logistic'
+                used_vendor: 0
+            count_used_vendor: 4
+    EmbedVideo:
+      type: object
+      example:
+        status: success
+        result:
+          thumbnail_width: 480
+          html: '<iframe width=480 height=270 src=https://www.youtube.com/embed/AST6Qm5bE8g?feature=oembed frameborder=0 allow=accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture allowfullscreen></iframe>'
+          thumbnail_height: 360
+          author_url: 'https://www.youtube.com/channel/UCA7tGuG-avOIEzcL97ybZqQ'
+          provider_name: YouTube
+          provider_url: 'https://www.youtube.com/'
+          thumbnail_url: 'https://i.ytimg.com/vi/AST6Qm5bE8g/hqdefault.jpg'
+          author_name: 'Ralalicom B2B Marketplace'
+          type: video
+          width: 480
+          version: '1.0'
+          height: 270
+          title: '#LifeAsRalalian Junior in BIG Academy Internship Program'
+    Information:
+      properties:
+        name_shop:
+          type: string
+        owner_name:
+          type: string
+        microsite_url:
+          type: string
+        company_since:
+          type: integer
+        address:
+          type: string
+        province_id:
+          type: integer
+        city_id:
+          type: integer
+        subdistrict_id:
+          type: integer
+        postal_code:
+          type: integer
+        description_shop:
+          type: string
+        npwp_file:
+          type: string
+        ktp_file:
+          type: string
+        ktp_number:
+          type: integer
+        logo:
+          type: string
+        logo_filename:
+          type: string
+        company_video_url:
+          type: string
+        email:
+          type: string
+        position:
+          type: string
+        handphone:
+          type: integer
+        name:
+          type: string
+        seller_profilling:
+          type: string
+        item_category:
+          type: string
+        banners:
+          type: string
+        photos:
+          type: string
+        business_type:
+          type: string
+        npwp_number:
+          type: string
+        logo_link:
+          type: string
+      type: object
+      example:
+        name_shop: 'Bersama kita sukses'
+        owner_name: Testi
+        microsite_url: bersamakitasukses
+        company_since: 2001
+        address: 'Jl. Anggrek Jakarta'
+        province_id: 15
+        city_id: 185
+        subdistrict_id: 2805
+        postal_code: 75772
+        description_shop: 'Jual Barang Apapun'
+        npwp_file: null
+        ktp_file: null
+        ktp_number: 1234567898765439
+        logo: null
+        logo_filename: default_logo.jpg
+        company_video_url: 'https://www.youtube.com/watch?v=ft1a9AC_aog&list=RDdvHZGpwyMP0&index=5'
+        email: richthonio1017@gmail.com
+        position: CEO
+        handphone: 628123123123
+        name: Rich
+        seller_profilling: personal
+        item_categories: 3
+        banners: null
+        photos: null
+        business_type: 'distributor,reseller'
+        npwp_number: 123456789098765
+        logo_link: 'https:'
+    Payment:
+      type: object
+      example:
+        status: 'true'
+        result:
+          -
+            id: 4
+            payment_name: 'BCA Bank Transfer'
+          -
+            id: 5
+            payment_name: 'Mandiri Bank Transfer'
+          -
+            id: 6
+            payment_name: 'BNI Bank Transfer '
+          -
+            id: 7
+            payment_name: 'BRI Bank Transfer '
+          -
+            id: 23
+            payment_name: 'Bank Mega'
+          -
+            id: 24
+            payment_name: 'Bank Danamon'
+          -
+            id: 25
+            payment_name: 'Citi Bank'
+          -
+            id: 26
+            payment_name: 'Permata Bank'
+          -
+            id: 27
+            payment_name: 'HSBC '
+          -
+            id: 28
+            payment_name: 'Panin Bank'
+          -
+            id: 29
+            payment_name: 'Bank BTN'
+          -
+            id: 30
+            payment_name: OCBC
+          -
+            id: 31
+            payment_name: 'Bank Muamalat'
+          -
+            id: 32
+            payment_name: Maybank
+          -
+            id: 40
+            payment_name: 'Bank CIMB Niaga'
+          -
+            id: 41
+            payment_name: 'Bank BTPN'
+          -
+            id: 42
+            payment_name: 'Bank Bukopin'
+          -
+            id: 46
+            payment_name: 'Bank BRI Syariah'
+          -
+            id: 62
+            payment_name: 'Bank UOB'
+          -
+            id: 63
+            payment_name: 'Bank DBS'
+          -
+            id: 70
+            payment_name: 'Bank BJB'
+    PaymentInformation:
+      properties:
+        account_number:
+          type: integer
+        account_name:
+          type: string
+        account_branch:
+          type: string
+        bank_account:
+          type: string
+        bank_account_file:
+          type: string
+      type: object
+      example:
+        account_number: 2200701065
+        account_name: Rich
+        account_branch: 'Bulungan (bulongan)'
+        bank_account: null
+        bank_account_file: null
+    PaymentMethod:
+      type: object
+      example:
+        -
+          id: 9
+          payment_name: 'Bca Klik Pay '
+        -
+          id: 10
+          payment_name: 'Mandiri Klik Pay '
+    RemainderSeller:
+      type: object
+      example:
+        status: 'true'
+    ResponseInformation:
+      properties:
+        status:
+          type: string
+      type: object
+      example:
+        -
+          status: 'false'
+    ResponsePayment:
+      properties:
+        status:
+          type: string
+        result:
+          type: integer
+      type: object
+      example:
+        -
+          status: 'true'
+          result: '3065'
+    ShippingServices:
+      type: object
+      example:
+        status: true
+        result:
+          -
+            id: 4
+            name: 'SAP Express'
+            service_code: SDS
+            courier_code: sap
+            estimated_delivery: '1 hari'
+            shipping_description: 'Same Day Shipping'
+            used_vendor: 0
+          -
+            id: 16
+            name: JNE
+            service_code: REG
+            courier_code: jne
+            estimated_delivery: '2-3 hari'
+            shipping_description: Reguler
+            used_vendor: 1
+        count_used_vendor: 1
+    StorePaymentInformation:
+      type: object
+      example:
+        status: 'true'
+        step_onboarding: 4
+    StoreShippingInformation:
+      required:
+        - is_same_microsite
+      properties:
+        name:
+          type: string
+        telephone:
+          type: integer
+        mobile_number:
+          type: integer
+        shipping_services:
+          type: array
+          items:
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              service_code:
+                type: string
+              courier_code:
+                type: stringg
+              estimated_delivery:
+                type: string
+              shipping_description:
+                type: string
+              used_vendor:
+                type: integer
+            type: object
+        address:
+          type: string
+        province_id:
+          type: integer
+        city_id:
+          type: integer
+        subdistrict_id:
+          type: integer
+        postal_code:
+          type: integer
+        latitude:
+          type: integer
+        longitude:
+          type: integer
+        is_same_microsite:
+          type: string
+      type: object
+      example:
+        name: abas
+        telephone: 8123123234
+        mobile_number: 6281987683123
+        shipping_services:
+          -
+            id: 40
+            name: GO-SEND
+            service_code: Instant
+            courier_code: go-send
+            shipping_description: Instant
+            used_vendor: 1
+        address: 'Jl. Anggrek Jakarta'
+        province_id: 15
+        city_id: 185
+        subdistrict_id: 2805
+        postal_code: 75772
+        latitude: -10.05
+        longitude: 2.24
+        is_same_microsite: '0'
+    VendorSurvey:
+      properties:
+        seller_profilling:
+          type: string
+        survey_name:
+          type: string
+        reference:
+          type: string
+      type: object
+      example:
+        seller_profilling: personal
+        survey_name: other
+        reference: facebook
+    firstStepOnboarding:
+      type: object
+      example:
+        user:
+          id: 17844
+          vendor_id: null
+          name: 'Baju Baju'
+          type: V
+          email: bajubaju@yopmail.com
+        seller_profilling: company
+        microsite_id: 6547
+        storehouse_id: 1
+    saveOnboarding:
+      properties:
+        term_verified:
+          type: integer
+      type: object
+      example:
+        term_verified: 1
+    saveOnboardingResponse:
+      type: object
+      example:
+        status: 'true'
+    storeInformation:
+      type: object
+      example:
+        status: 'true'
+        step_onboarding: 2
+    storeShippingInformationResponse:
+      type: object
+      example:
+        status: 'true'
+        step_onboarding: 3
+    vendorSurveyResponse:
+      example:
+        status: 'true'
+    v2-GetBrandName:
+      type: object
+      example:
+        -
+          id: r21374u2
+          name: test_thinkpad
+          logo: 'http://img1dev.ralali.id/passthrough/assets/img/brand/logo/1540-logo-Koala.jpg'
+        -
+          id: r21384u2
+          name: test_test_test
+          logo: 'http://img1dev.ralali.id/passthrough/assets/img/Libraries/brand-logo_39_test-test-test_import_2371_1488964099093940.jpg'
+        -
+          id: v2w274z203
+          name: 'test add new brand'
+          logo: 'http://img1dev.ralali.id/passthrough/assets/img/brand/logo/50456-logo-test-add-new-brand-0001.jpg'
+        -
+          id: v2w274z223
+          name: 'test new add banner part 2'
+          logo: 'http://img1dev.ralali.id/passthrough/assets/img/brand/logo/50458-logo-test-new-add-banner-part-2-0001.jpg'
+        -
+          id: v2w274z233
+          name: 'tester brand banner null'
+          logo: 'http://img1dev.ralali.id/passthrough/assets/img/brand/logo/50459-logo-tester-brand-banner-null-0001.png'
+        -
+          id: v2w2c42303
+          name: 'test add brand name 4'
+          logo: 'http://img1dev.ralali.id/passthrough/assets/img/brand/logo/50986-logo-test-add-brand-name-4-0001.png'
+        -
+          id: v2w2741313
+          name: test
+          logo: 'http://img1dev.ralali.id/passthrough/assets/img/brand/logo/50477-logo-test-0001.jpg'
+        -
+          id: v2w2741323
+          name: 'test brand 1'
+          logo: 'http://img1dev.ralali.id/passthrough/assets/img/brand/logo/50478-logo-test-brand-1-0001.png'
+        -
+          id: v2w2c433y2
+          name: 'test add brand name 14'
+          logo: 'http://img1dev.ralali.id/passthrough/assets/img/brand/logo/logo-test-add-brand-name-14-0001.png'
+        -
+          id: v2w2c433z2
+          name: 'test add brand name 15'
+          logo: 'http://img1dev.ralali.id/passthrough/assets/img/brand/logo/logo-test-add-brand-name-15-0001.png'
+    v2-GetCategoryLastChild:
+      type: object
+      example:
+        -
+          id: r2w25433
+          name: 'Test Pen'
+          parent:
+            level_1: 'Machinery & Industrial Parts'
+            level_2: 'Test & Measurement'
+            level_3: 'Linier Measurement'
+        -
+          id: r2y2c4z2
+          name: 'test aja category levi 4'
+          parent:
+            level_1: 'Building Materials'
+            level_2: Flooring
+            level_3: 'Laminate Floors'
+        -
+          id: r2y2a4v2
+          name: 'test level 4'
+          parent:
+            level_1: 'Automotive & Transportation'
+            level_2: Otomotif
+            level_3: Motor
+        -
+          id: r2y2a4y2
+          name: 'test mobil level 4'
+          parent:
+            level_1: 'Automotive & Transportation'
+            level_2: Otomotif
+            level_3: Mobil
+        -
+          id: r2w28403
+          name: 'TV & Video Test Equipment'
+          parent:
+            level_1: 'Machinery & Industrial Parts'
+            level_2: 'Test & Measurement'
+            level_3: 'Signal Generators & Analysers'
+        -
+          id: t23384
+          name: 'LAN Tester'
+          parent:
+            level_1: 'Computer & Communication'
+            level_2: 'Computer Hardware & Software'
+            level_3: Networking
+        -
+          id: t24364
+          name: 'Networking Tester'
+          parent:
+            level_1: 'Computer & Communication'
+            level_2: 'Computer Hardware & Software'
+            level_3: Networking
+        -
+          id: z213c4
+          name: 'Power Supply Testings'
+          parent:
+            level_1: 'Machinery & Industrial Parts'
+            level_2: 'Test & Measurement'
+            level_3: 'Bench Power'
+        -
+          id: z22394
+          name: 'Fiber Tester'
+          parent:
+            level_1: 'Machinery & Industrial Parts'
+            level_2: 'Test & Measurement'
+            level_3: 'Data & Networking'
+        -
+          id: z223a4
+          name: 'LAN Tester'
+          parent:
+            level_1: 'Machinery & Industrial Parts'
+            level_2: 'Test & Measurement'
+            level_3: 'Data & Networking'
+    v2-GetItemInitialData:
+      type: array
+      items:
+        type: string
+      example:
+        id: y2w234u2v224t2u2t2
+        name: 'test_thinkpad test_thinkpad_lenovo_version_two Lenovo ThinkPad'
+        description: 'test_thinkpad test_thinkpad_lenovo_version_two Lenovo ThinkPad'
+        has_brand: true
+        brand_latest_status: approved
+        brand_id: r21374u2
+        brand_name: test_thinkpad
+        brand_logo: 'http://img1dev.ralali.id/passthrough/assets/img/brand/logo/1540-logo-Koala.jpg'
+        images:
+          - 'http://img1dev.ralali.id/passthrough/assets/img/Libraries/img-78064-1540-991201234web.jpg'
+        categories:
+          -
+            category_id: v2
+            category_name: 'Computer & Communication'
+          -
+            category_id: s2x2
+            category_name: 'Computer Hardware & Software'
+          -
+            category_id: x2z2
+            category_name: Peripheral
+          -
+            category_id: t25374
+            category_name: 'Computer Cleaners'
+    v2-GetItemInitialName:
+      type: object
+      example:
+        -
+          id: y2w234u2v224t2u2t2
+          name: 'test_thinkpad test_thinkpad_lenovo_version_two Lenovo ThinkPad'
+        -
+          id: y2w234u2x274t2u2t2
+          name: 'TestNewBrand MentosTest TestBrandModel Body Chrome'
+        -
+          id: y2w234u2u2b4t2u2t2
+          name: 'test_thinkpad test_thinkPad_cleaning_kit Lenovo ThinkPad'
+        -
+          id: y2w234u2x274t2u2u2
+          name: 'TestNewBrand MentosTest TestBrandModel Sweeper'
+        -
+          id: r2y274x22344t2u2t2
+          name: 'Testo testing product nope'
+    v2-AddItem:
+      required:
+        - name
+        - is_stock_available
+        - is_new_brand
+        - category_id
+        - images
+        - default_image_index
+        - description
+        - price_type
+        - unit_type
+        - weight_shipping_uom
+        - weight_shipping
+        - dim_uom
+        - length
+        - width
+        - height
+        - source
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        is_stock_available:
+          type: string
+          enum:
+            - '0'
+            - '1'
+        vendor_id:
+          description: 'required_if:source,pim'
+          type: string
+        category_id:
+          description: 'Encoded Last Category Id'
+          type: string
+        source:
+          type: string
+          enum:
+            - mobile
+            - sp
+            - pim
+        unit_type:
+          type: string
+        weight_shipping_uom:
+          type: string
+          enum:
+            - Kilogram
+            - Gram
+        weight_shipping:
+          type: number
+        dim_uom:
+          type: string
+          enum:
+            - Meter
+            - Centimeter
+        length:
+          type: number
+        width:
+          type: number
+        height:
+          type: number
+        price_type:
+          type: string
+          enum:
+            - wholesale
+            - marketplace
+            - location
+        wholesale_data:
+          description: 'required_if:price_type,wholesale'
+          type: array
+          items:
+            required:
+              - price
+              - quantity
+            properties:
+              price:
+                type: number
+              quantity:
+                type: integer
+                minimum: 1
+            type: object
+          maximum: 4
+          minimum: 1
+        marketplace_data:
+          description: 'required_if:price_type,marketplace'
+          required:
+            - quantity
+            - minimum_price
+            - maximum_price
+          properties:
+            quantity:
+              type: integer
+              minimum: 1
+            minimum_price:
+              type: number
+            maximum_price:
+              type: number
+          type: object
+        price_location_data:
+          description: 'required_if:price_type,location'
+          type: array
+          items:
+            required:
+              - price_data
+              - province_id
+              - city_id
+              - district_id
+              - type
+              - is_stock_available
+            properties:
+              price_data:
+                type: array
+                items:
+                  required: [price, quantity]
+                  properties: { price: { type: integer }, quantity: { type: integer, minimum: 1 } }
+                  type: object
+                minimum: 1
+              province_id:
+                type: integer
+              city_id:
+                type: integer
+              district_id:
+                type: integer
+              type:
+                type: string
+                enum:
+                  - include
+                  - exclude
+              is_stock_available:
+                type: string
+                enum:
+                  - '0'
+                  - '1'
+            type: object
+          minimum: 1
+        images:
+          type: array
+          items:
+            required:
+              - type
+              - data
+            properties:
+              type:
+                type: string
+              data:
+                type: string
+            type: object
+          maximum: 8
+          minimum: 1
+        default_image_index:
+          type: integer
+          minimum: 1
+        video_url:
+          type: string
+        sellernote:
+          type: string
+        sku_number:
+          type: string
+        item_initial_id:
+          description: 'Encoded Item Initial Id'
+          type: string
+        is_new_brand:
+          type: boolean
+        brand_id:
+          description: 'Encoded Brand Id | required_with:item_initial_id'
+          type: string
+        brand_name:
+          description: 'required_if:is_new_brand,1'
+          type: string
+        brand_description:
+          description: 'required_if:is_new_brand,1'
+          type: string
+        brand_logo:
+          description: 'required_if:is_new_brand,1'
+          required:
+            - type
+            - data
+          properties:
+            type:
+              type: string
+            data:
+              type: string
+          type: object
+        brand_banner:
+          required:
+            - type
+            - data
+          properties:
+            type:
+              type: string
+            data:
+              type: string
+          type: object
+        brand_seo_description:
+          type: string
+        is_view_website:
+          type: string
+          enum:
+            - 'Y'
+            - 'N'
+        latest_status:
+          type: string
+          enum:
+            - Approve
+            - Pending
+            - Discontinue
+        inventory_type:
+          type: string
+          enum:
+            - infinite
+            - finite
+        seo_keyword:
+          type: string
+        lead_time_id:
+          type: integer
+        minimum_stock:
+          type: integer
+        all_stock:
+          type: integer
+        is_box:
+          type: string
+          enum:
+            - '0'
+            - '1'
+        item_per_box:
+          description: 'required_with:is_box'
+          type: integer
+          minimum: 1
+        is_outer_box:
+          type: string
+          enum:
+            - '0'
+            - '1'
+        item_per_outer_box:
+          description: 'required_with:is_outer_box'
+          type: integer
+          minimum: 1
+        is_moq:
+          type: string
+          enum:
+            - '0'
+            - '1'
+        moq:
+          description: 'required_with:is_moq'
+          type: integer
+          minimum: 1
+      type: object
+      example:
+        name: 'Product Name'
+        description: 'Product Description'
+        is_stock_available: '1'
+        vendor_id: '17844'
+        category_id: s23344
+        source: mobile
+        unit_type: Unit
+        weight_shipping_uom: Kilogram
+        weight_shipping: 10
+        dim_uom: Meter
+        length: 10
+        width: 10
+        height: 10
+        price_type: wholesale
+        wholesale_data:
+          -
+            price: 10000
+            quantity: 10
+          -
+            price: 9000
+            quantity: 20
+          -
+            price: 8000
+            quantity: 30
+        marketplace_data:
+          quantity: 10
+          minimum_price: 10000
+          maximum_price: 30000
+        price_location_data:
+          -
+            price_data:
+              -
+                price: 10000
+                quantity: 2
+              -
+                price: 5000
+                quantity: 3
+            province_id: 1
+            city_id: 0
+            district_id: 0
+            type: include
+            is_stock_available: '1'
+          -
+            price_data:
+              -
+                price: 30000
+                quantity: 3
+              -
+                price: 20000
+                quantity: 5
+            province_id: 0
+            city_id: 0
+            district_id: 0
+            type: exclude
+            is_stock_available: '0'
+        images:
+          -
+            type: image
+            data: iVBORw0KGgoAAAANSUhEUgAAAb0AAAGACAYAAAA5yrw3AAAABmJLR0QA/wD/AP+gvaeTAACAAElEQVR42uz9ebCl+XnXC...
+          -
+            type: url
+            data: 'https://img1dev.ralali.id/passthrough/assets/img/Libraries/77340_Edit_API_S_0003_wu4TSvyCWvY99bvw_1556630483.png'
+          -
+            type: video
+            data: 'https://www.youtube.com/embed/hw3L1cNu_7o'
+        default_image_index: 1
+        video_url: 'https://www.youtube.com/'
+        sellernote: 'Product Notes'
+        sku_number: SKU100
+        is_new_brand: false
+        is_view_website: 'Y'
+        latest_status: Approve
+        inventory_type: infinite
+        seo_keyword: 'Jual Product Name'
+        lead_time_id: 1
+        minimum_stock: 1
+        all_stock: 100
+        is_box: '0'
+        item_per_box: 1
+        is_outer_box: '0'
+        item_per_outer_box: 1
+        is_moq: '0'
+        moq: 1
+    v2-EditItem:
+      type: object
+      example:
+        is_stock_available: '1'
+        name: 'Edit Product Name'
+        description: description
+        video_url: 'https://www.youtube.com/'
+        sellernote: 'seller notes'
+        sku_number: SKU-123
+        unit_type: Unit
+        weight_shipping_uom: Kilogram
+        weight_shipping: 21.5
+        dim_uom: Meter
+        length: 2.3
+        width: 5
+        height: 7
+        price_type: wholesale
+        wholesale_data:
+          -
+            price: 30000
+            quantity: 1
+          -
+            price: 15000
+            quantity: 15
+          -
+            price: 10000
+            quantity: 48
+        marketplace_data:
+          quantity: 10
+          minimum_price: 10000
+          maximum_price: 30000
+        images:
+          -
+            type: image
+            data: iVBORw0KGgoAAAANSUhEUgAAAb0AAAGACAYAAAA5yrw3AAAABmJLR0QA/wD/AP+gvaeTAACAAElEQVR42uz9ebCl+XnXC...
+          -
+            type: url
+            data: 'https://img1dev.ralali.id/passthrough/assets/img/Libraries/77340_Edit_API_S_0003_wu4TSvyCWvY99bvw_1556630483.png'
+          -
+            type: video
+            data: 'https://www.youtube.com/embed/hw3L1cNu_7o'
+        default_image_index: 1
+    v2-Items:
+      type: object
+      example:
+        current_page: 4
+        data:
+          -
+            id: v203a423z2b4y2
+            name: 'Edit item from codeception 15-07-19 06:04:33'
+            stock: 100
+            date: '16 Jul 2019'
+            price_type: retail
+            lowest_price: 30000
+            default_image: 'https://img1.ralali.id/passthrough/assets/img/Libraries/5478595_Edit_item_from_codeception_15_07_19_05:54:36_1_vU8IYv2MD0Kojh3J_1563184481.png'
+            status: Show
+            is_stock_available: Available
+          -
+            id: v203a423z2b4x2
+            name: 'Test Add Product Trial 3 Name'
+            stock: 100
+            date: '16 Jul 2019'
+            price_type: retail
+            lowest_price: 300000
+            default_image: 'https://img1.ralali.id/passthrough/assets/img/Libraries/5478594_Test_Add_Product_Trial_3_Name_2_qyXzCxxRrsY0zh5K_1563154132.png'
+            status: Show
+            is_stock_available: Available
+          -
+            id: x23364y2u2
+            name: 'Edit Product Name'
+            stock: 100
+            date: '17 Jul 2019'
+            price_type: retail
+            lowest_price: 30000
+            default_image: 'https://img1.ralali.id/passthrough/assets/img/Libraries/77340_Edit_Product_Name_1_37hL1FNs8eCPgGpL_1563339249.png'
+            status: Show
+            is_stock_available: Available
+        first_page_url: 'http://apiseller.ralali.loc/v2/items?page=1'
+        from: 31
+        last_page: 4
+        last_page_url: 'http://apiseller.ralali.loc/v2/items?page=4'
+        next_page_url: null
+        path: 'http://apiseller.ralali.loc/v2/items'
+        per_page: '10'
+        prev_page_url: 'http://apiseller.ralali.loc/v2/items?page=3'
+        to: 33
+        total: 33
+    v2-OrderDetail:
+      type: object
+      example:
+        order_serial: 9027/ORD/11/05/2019
+        total_product_price: 68200
+        shipping_price: 40000
+        total_payment: 108200
+        total_commision: 1364
+        total_settlement: 106836
+        order_date: '11 May 2019 | 16:32'
+        buyer_name: 'MOHAMMAD IMAM BUKHARY'
+        buyer_phone_number: '085842325911'
+        shipping_name: 'Ralali Kargo'
+        pickup: true
+        requested_to_pickup: false
+        awb_number: TGR011905001563
+        order_note: 'Hadiahnya bisa dapat 2 gelas ya..., hati2 jangan pecah.'
+        receiver_name: 'MOH IMAM BUKHARY / ibu Muslih'
+        receiver_address: 'Tegalsari Barat gg.3 Nomor.27 RT.02/ 12 Kel.Tegalsari, Candisari, Semarang, Jawa Tengah 50614'
+        items:
+          -
+            id: s2037433w244
+            name: 'Bango Kecap Manis 1,6 KG - Free Squeeze Bottle'
+            image: 'https://img1.ralali.id/passthrough/assets/img/Libraries/244922_Bango-Kecap-Manis-1-6-KG-Free-Squeeze-Bottle_xXwP9Nb3j6JKoeY5_1542616698.jpg'
+            quantity: 1
+            price: 49600
+            total_price: 49600
+            commission_rate: 2
+            commission_amount: 992
+            status: unprocessed
+          -
+            id: s2037433w224
+            name: 'Sarimurni Kantong Jumbo - Free Gelas Sariwangi'
+            image: 'https://img1.ralali.id/passthrough/assets/img/Libraries/244920_Sarimurni-Kantong-Jumbo-Free-Gelas-Sariwangi_FS5zOOx2x5s5cgf7_1542615650.jpg'
+            quantity: 2
+            price: 9300
+            total_price: 18600
+            commission_rate: 2
+            commission_amount: 372
+            status: accepted
+          -
+            id: s2037433w442
+            name: 'Sarimurni Kantong'
+            image: 'https://img1.ralali.id/passthrough/assets/img/Libraries/244920_Sarimurni-Kantong-Jumbo-Free-Gelas-Sariwangi_FS5zOOx2x5s5cgf7_1542615650.jpg'
+            quantity: 2
+            price: 9300
+            total_price: 18600
+            commission_rate: 2
+            commission_amount: 372
+            status: rejected
+    v2-UpdateSalesPromotion:
+      required:
+        - start_sale
+        - end_sale
+        - prices
+      properties:
+        wholesale_data:
+          type: array
+          items:
+            required:
+              - price
+              - discount
+              - quantity
+            properties:
+              price:
+                type: string
+              discount:
+                type: string
+              quantity:
+                type: string
+            type: object
+        start_sale:
+          type: string
+        end_sale:
+          type: string
+      type: object
+      example:
+        start_sale: '2019-07-15'
+        end_sale: '2019-07-20'
+        wholesale_data:
+          -
+            price: 30000
+            discount: 9000
+            quantity: 1
+          -
+            price: 15000
+            discount: 8666
+            quantity: 15
+          -
+            price: 10000
+            discount: 7978
+            quantity: 48
+    v2-Seller-Summary:
+      type: object
+      example:
+        total_settlement: 354771117
+        total_sales: 360554902
+        total_sales_graphic:
+          dots:
+            -
+              total_sales: 360554902
+              month: August
+        total_commission: 9013710
+        total_commission_graphic:
+          dots:
+            -
+              total_commission: 9013710
+              month: August
+        total_buyer: 459
+        total_buyer_graphic:
+          dots:
+            -
+              total_buyer: 459
+              month: August
+        total_transaction: 1120
+        total_transaction_graphic:
+          dots:
+            -
+              total_transaction: 1120
+              month: August
+        total_process_time_hours: 87
+        total_process_time_hours_graphic:
+          dots:
+            -
+              total_process_time_hours: 81
+              month: August
+        total_rq: 0
+        total_rq_graphic:
+          dots:
+            -
+              total_rq: 0
+              month: August
+    v2-DeleteUsersFcm:
+      required:
+        - device_id
+        - fcm_token
+      properties:
+        device_id:
+          type: string
+        fcm_token:
+          type: string
+      type: object
+      example:
+        device_id: 78E769E1-00C9-47A1-98D4-3B7FD6
+        fcm_token: 'fBmyTHOUwE8:APA91bFi6mJTYdAIO2ITD12qbquF1Wb6Alp6uui8T02FhmYyp_vmNJ7UVr_5_9IifDqWU-yCasCS5Z6W9MZ9JHUyMPmRvNLQ0dSd1qX9gTb4375R4kvjqoOUWnileeaHgTt7NXd7RG3Q'
+    v2-InsertUsersFcm:
+      required:
+        - device_id
+        - fcm_token
+      properties:
+        device_id:
+          type: string
+        fcm_token:
+          type: string
+      type: object
+      example:
+        device_id: 78E769E1-00C9-47A1-98D4-3B7FD6
+        fcm_token: 'fBmyTHOUwE8:APA91bFi6mJTYdAIO2ITD12qbquF1Wb6Alp6uui8T02FhmYyp_vmNJ7UVr_5_9IifDqWU-yCasCS5Z6W9MZ9JHUyMPmRvNLQ0dSd1qX9gTb4375R4kvjqoOUWnileeaHgTt7NXd7RG3Q'
+tags:
+  -
+    name: '(v1) Account Resource'
+    description: 'Manage Seller Account'
+  -
+    name: '(v1) Brand Resource'
+    description: 'Manage Seller Brands'
+  -
+    name: '(v1) Category Resource'
+    description: 'Manage Ralali Category'
+  -
+    name: '(v1) Courier Resource'
+    description: 'Manage Seller Couriers'
+  -
+    name: '(v1) Item Resource'
+    description: 'Manage Seller Products'
+  -
+    name: '(v1) Location Resource'
+    description: 'Get Administrative Location Data'
+  -
+    name: '(v1) Notification Resource'
+    description: 'Push Order Status Notification'
+  -
+    name: '(v1) Onboarding Resource'
+    description: 'Create and Manage Onboarding Process'
+  -
+    name: '(v1) Order Resource'
+    description: 'Create and Manage Seller Orders'
+  -
+    name: '(v1) Register Resource'
+    description: 'Manage Register'
+  -
+    name: '(v1) Report Resource'
+    description: 'Manage Seller Report'
+  -
+    name: '(v2) Item Resource'
+    description: 'Manage Seller Products'
+  -
+    name: '(v2) Order Resource'
+    description: 'Create and Manage Seller Orders'
+  -
+    name: '(v2) User Fcm Resource'
+    description: 'Manage Seller Account'
+x-tagGroups:
+  -
+    name: 'Version 1.0'
+    tags:
+      - '(v1) Account Resource'
+      - '(v1) Brand Resource'
+      - '(v1) Category Resource'
+      - '(v1) Courier Resource'
+      - '(v1) Item Resource'
+      - '(v1) Notification Resource'
+      - '(v1) Onboarding Resource'
+      - '(v1) Order Resource'
+      - '(v1) Register Resource'
+      - '(v1) Report Resource'
+  -
+    name: 'Version 2.0'
+    tags:
+      - '(v2) Item Resource'
+      - '(v2) Order Resource'
+      - '(v2) Promotion Resource'
+      - '(v2) User Fcm Resource'
+      - '(v2) Brand Resource'
+      - '(v2) Catalog Resource'
+      - '(v2) Category Resource'
+      - '(v2) Summary Resource'
+      - '(v2) Sales Report Resource'

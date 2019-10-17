@@ -1,0 +1,18 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      nodejs: 10
+  pre_build:
+    commands:
+      - echo Check AWS, Git, Python version
+      - aws --version && git --version && python --version
+      - echo Check ENV Variable
+      - printenv
+      - cd $CODEBUILD_SRC_DIR
+      - pwd
+      - aws s3 cp s3://rll-api-seller-dev/qa/.env $CODEBUILD_SRC_DIR/qa_test
+      - cd qa_test
+      - rm -f package-lock.json
+      - npm install
+      - npm run test-api -- --grep @skip --invert

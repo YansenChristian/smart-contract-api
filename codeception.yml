@@ -1,0 +1,37 @@
+# suite config
+suites:
+    api:
+        actor: ApiTester
+        path: .
+        modules:
+            enabled:
+                - REST:
+                    url: http://api-seller.ralali.local
+                    depends: PhpBrowser
+                    part: Json
+
+paths:
+    tests: tests
+    output: tests/_output
+    data: tests/_data
+    support: tests/_support
+
+settings:
+    shuffle: false
+    lint: true
+
+params:
+    - .env
+
+env:
+    dev:
+        modules:
+            config:
+                REST:
+                    url: https://api-sellerdev.ralali.xyz
+
+    stg:
+        modules:
+            config:
+                REST:
+                    url: https://api-sellerstaging.ralali.xyz

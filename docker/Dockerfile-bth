@@ -1,0 +1,25 @@
+FROM 013933205356.dkr.ecr.ap-southeast-1.amazonaws.com/bth-project-builder/bigth_builder_php_7.2_fpm_alpine:latest
+
+# Getting code into container 
+RUN mkdir /var/www/php/
+RUN mkdir /var/www/php/apiseller
+ADD . /var/www/php/apiseller
+WORKDIR /var/www/php/apiseller
+COPY ./docker/nginx.conf /etc/nginx/
+COPY ./docker/site-bth.conf /etc/nginx/conf.d/
+RUN cd /var/www/php/apiseller
+RUN chmod 777 storage/ -R
+
+# Install composer
+RUN cd /var/www/php/apiseller
+RUN chmod +x composer-install.sh
+RUN ./composer-install.sh
+
+# Install project PHP depedency
+RUN cd /var/www/php/apiseller
+RUN composer install
+RUN chmod 777 vendor/ -R
+
+EXPOSE 80
+
+CMD nginx && php-fpm

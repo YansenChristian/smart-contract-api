@@ -1,0 +1,118 @@
+info:
+  x-logo:
+    url: "/logo_ralali_transparant.png"
+  description: |
+    Welcome to Ralali API for Seller. Ralali API is a RESTful Web Service served as a communication bridge between client to our system.
+
+    <a href="/api/documentation" style="background-color: #589638;padding: 10px;border-radius: 5px;font-weight: 600;color: white;">Run in Swagger-ui</a>
+
+    # API Keys
+    You'll need your API keys for integration, We will provide you API Keys for Sandbox to setup the integration.
+    API Keys for production will be sent after integration success.
+
+    Think of your private key like a password:
+    - Store it securely
+    - Don't share it with anyone outside of your organization
+    - Don't put it in any code on your website or in a Url that someone could find
+
+    # Making Your First Call
+    Making your first call Test that your client_key is valid and IP address has been whitelisted by making a GET request to `https://accounts.ralali.com/v2/echo` without the Authorization header.
+    You should get a HTTP 200 OK response if your request accepted.
+
+    ```
+    curl -X GET https://accounts.ralali.com/v2/echo -H "Content-Type:application/json" -d '{
+        "client_key": {{client_key}},
+    }'
+    ```
+
+    # Authentication
+    Below flow, look-alike:
+    https://developers.google.com/identity/sign-in/web/server-side-flow
+
+    Steps:
+    1. User open 3rdpartydomain.com then click Login with Ralali button that creates popup browser using below information:
+        ```
+        <a href="#" onClick="MyWindow=window.open('https://accounts.ralali.com/v2/login?grant_type=code&client_key=asd123&redirect_uri=3rdpartydomain.com/login','MyWindow',width=400,height=800); return false;">Login with Ralali</a>
+        ```
+    2. Popup will be shown and ask for username and password, user fill username and password, then OAuth2 server will redirect the user to redirect_uri sent from the browser, with the code as query param `3rdpartydomain.com/login?code={{xyz}}`
+    3. Client receive code query param then hit OAuth2 server with below information from backend perspective:
+        ```
+        curl -X POST https://accounts.ralali.com/v2/token -H "Content-Type:application/json" -d '{
+            "grant_type": authorization_code,
+            "client_secret": {{client_secret}},
+            "code": {{code}}
+        }'
+        ```
+    4. OAuth server will response to client with below information:
+        ```json
+        {
+          "token_type": Bearer,
+          "expires_at": {{unixtime}},
+          "access_token": {{access_token}},
+          "refresh_token": {{refresh_token}}
+        }
+        ```
+        Definition:
+        - The Client can use this access_token as credential to access resources from server resource by passing the token as Authorization header for every request made.
+        - The Client can use this refresh_token as credential to regenerate access_token.
+
+
+    # Environments
+    RALALI API can be requested through HTTP(S) Request to API Base URL endpoint. The HTTP(S) Header has to be used to allow proper authentication.
+
+    Environment     | API Base Url
+    ----------------|-------------
+    Sandbox         | https://sandbox-apiseller.ralali.xyz
+    Production      | https://apiseller.ralali.xyz
+
+    Notes:
+    - Your platform will have separate API keys for each environment.
+    - Data created or modified in each environment will not affect the other.
+    - Data cannot be transferred from one environment to the other.
+
+    # Errors
+
+    The API uses standard HTTP status codes to indicate the success or failure of the API call. The body of the response will be JSON in the following format:
+
+    ```
+    {
+      "name": "AUTHENTICATION_FAILURE",
+      "message": "Authentication failed due to invalid authentication credentials or a missing Authorization header."
+    }
+    ```
+    Some error will return errors hint to provide further information, the response in the following format:
+    ```
+    {
+      "name": "VALIDATION_FAILURE",
+      "message": "The given data was invalid.",
+      "errors": {
+        "key": [
+          "Error Description"
+        ]
+      }
+    }
+    ```
+x-tagGroups:
+  - name: Version 1.0
+    tags:
+      - (v1) Account Resource
+      - (v1) Brand Resource
+      - (v1) Category Resource
+      - (v1) Courier Resource
+      - (v1) Item Resource
+      - (v1) Notification Resource
+      - (v1) Onboarding Resource
+      - (v1) Order Resource
+      - (v1) Register Resource
+      - (v1) Report Resource
+  - name: Version 2.0
+    tags:
+      - (v2) Item Resource
+      - (v2) Order Resource
+      - (v2) Promotion Resource
+      - (v2) User Fcm Resource
+      - (v2) Brand Resource
+      - (v2) Catalog Resource
+      - (v2) Category Resource
+      - (v2) Summary Resource
+      - (v2) Sales Report Resource

@@ -23,26 +23,19 @@ class SmartContractController extends Controller
 
     public function getSmartContracts(Request $request, SmartContractService $smartContractService)
     {
-        $payloads = [
-            'user_id' => $request->get('user_id'),
-            'role' => $request->get('role'),
-            'smart_contract_serial' => $request->get('smart_contract_serial', null),
-            'status' => $request->get('status', null),
-            'start_date' => $request->get('start_date', null),
-            'end_date' => $request->get('end_date', null),
-            'page' => $request->get('page', 1),
-            'limit' => $request->get('page', 10),
-        ];
-
         $rules = [
-            'user_id' => 'required',
-            'role' => 'required|in:Admin,Seller,Buyer',
+            'user_id' => 'required|string',
+            'role' => 'required|string|in:Admin,Seller,Buyer',
             'page' => 'int',
             'limit' => 'int'
         ];
 
+        if($request->has('smart_contract_serial')) {
+            $rules['smart_contract_serial'] = 'required|string';
+        }
+
         if($request->has('status')) {
-            $rules['status'] = 'in:WAITING,APPROVED,REJECTED,IN_PROGRESS,CANCELED,ENDED';
+            $rules['status'] = 'required|string|in:WAITING,APPROVED,REJECTED,IN_PROGRESS,CANCELED,ENDED';
         }
 
         if($request->has('start_date') || $request->has('end_date')) {
@@ -50,7 +43,7 @@ class SmartContractController extends Controller
             $rules['end_date'] = 'required|date_format:Y-m-d';
         }
 
-        $validator = Validator::make($payloads, $rules);
+        $validator = Validator::make($request->all(), $rules);
         if($validator->fails()){
             throw new \Exception($validator->getMessageBag());
         }
@@ -60,23 +53,29 @@ class SmartContractController extends Controller
 
         $perPage = $request->get('limit', 10);
 
-        $filters['user_id'] = $request->get('user_id');
         if($request->has('smart_contract_serial')) {
             $filters['smart_contract_serial'] = $request->get('smart_contract_serial');
         }
-        if(isset($payloads['status'])) {
-            $filters['smart_contract_status_id'] = SmartContractStatus::getByName($payloads['status'])['id'];
+        if($request->has('status')) {
+            $filters['smart_contract_status_id'] = SmartContractStatus::getByName(
+                $request->get('status')
+            )['id'];
         }
-        switch ($payloads['role']) {
+
+        switch ($request->get('role')) {
             case 'Buyer':
-                $filters['buyer_user_id'] = $payloads['user_id'];
+                $filters['buyer_user_id'] = $request->get('user_id');
+                $response = '';
                 break;
             case 'Seller':
-                $filters['vendor_id'] = $payloads['user_id'];
+                $filters['vendor_id'] = $request->get('user_id');
+                $response = $smartContractService->getSellerSmartContracts($authorizationDTO, $filters, $perPage);
+                break;
+            default:
+                $response = '';
                 break;
         }
 
-        $response = $smartContractService->getSellerSmartContracts($authorizationDTO, $filters, $perPage);
         return response()->json($response, 200);
     }
 }

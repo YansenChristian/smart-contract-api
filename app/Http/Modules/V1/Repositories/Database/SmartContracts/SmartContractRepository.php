@@ -41,7 +41,7 @@ class SmartContractRepository
                 'smart_contracts.smart_contract_status_id',
                 '=',
                 'smart_contract_status.id')
-            ->where('vendor_id', '=', $filters['user_id'])
+            ->where('vendor_id', '=', $filters['vendor_id'])
             ->select($columns);
 
         if(isset($filters['smart_contract_serial'])) {

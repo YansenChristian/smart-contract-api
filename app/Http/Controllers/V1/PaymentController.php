@@ -13,13 +13,8 @@ class PaymentController
     public function getConfirmOrderPaymentViaEmail(Request $request, PaymentService $paymentService)
     {
         $rules = [
-            'order_serial' => 'required',
+            'order_serial' => 'required|string',
             'transfer_nominal' => 'required|int'
-        ];
-
-        $payloads = [
-            'order_serial' => $request->get('order_serial'),
-            'transfer_nominal' => $request->get('transfer_nominal')
         ];
 
         $headers = [
@@ -27,12 +22,12 @@ class PaymentController
             'content-type' => 'application/json'
         ];
 
-        $validator = Validator::make($payloads, $rules);
+        $validator = Validator::make($request->all(), $rules);
         if($validator->fails()){
             throw new \Exception($validator->getMessageBag());
         }
 
-        $response = $paymentService->confirmOrderPayment($headers, $payloads);
+        $response = $paymentService->confirmOrderPayment($headers, $request->all());
         return response()->json([
             'message' => 'successful!',
         ], 200);

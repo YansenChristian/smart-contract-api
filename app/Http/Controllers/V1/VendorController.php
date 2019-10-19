@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1;
 
 
 use App\Http\Controllers\Controller;
+use App\Http\Modules\V1\DataTransferObjects\Users\VendorDTO;
 use App\Http\Modules\V1\Services\VendorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -18,7 +19,7 @@ class VendorController extends Controller
         ];
 
         $rules = [
-            'vendor_id' => 'required|int'
+            'vendor_id' => 'required|string'
         ];
 
         $validator = Validator::make($payload, $rules);
@@ -26,7 +27,10 @@ class VendorController extends Controller
             throw new \Exception($validator->getMessageBag());
         }
 
-        $result = $vendorService->checkIfVendorIsSmartContract($payload);
+        $vendorDTO = new VendorDTO();
+        $vendorDTO->setId(decode($vendor_id));
+
+        $result = $vendorService->checkIfVendorIsSmartContract($vendorDTO);
         return response()->json([
             $vendor_id => $result
         ], 200);

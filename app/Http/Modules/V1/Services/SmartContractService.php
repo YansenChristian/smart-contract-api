@@ -6,8 +6,7 @@ namespace App\Http\Modules\V1\Services;
 
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSellerSmartContractsLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSmartContractCounterLogic;
-use App\Http\Modules\V1\DataTransferObjects\AuthorizationDTO;
-use App\Http\Modules\V1\DataTransferObjects\UserDTO;
+use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
 use App\Http\Modules\V1\Enumerations\SmartContracts\SmartContractStatus;
 use App\Http\Modules\V1\Service;
 

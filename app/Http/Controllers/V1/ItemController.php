@@ -16,30 +16,25 @@ class ItemController extends Controller
     public function postToggleItemActivation(Request $request, ItemService $itemService)
     {
         $rules = [
-            'item_id' => 'required',
-            'seller_id' => 'required'
+            'item_id' => 'required|string',
+            'seller_id' => 'required|string'
         ];
 
-        $payloads = [
-            'item_id' => $request->get('item_id'),
-            'seller_id' => $request->get('seller_id')
-        ];
-
-        $validator = Validator::make($payloads, $rules);
+        $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             throw new \Exception($validator->getMessageBag());
         }
 
         $itemDTO = new ItemDTO();
-        $itemDTO->setItemId($payloads['item_id']);
+        $itemDTO->setItemId(decode($request->get('item_id')));
 
         $sellerDTO = new SellerDTO();
-        $sellerDTO->setSellerUserId($payloads['seller_id']);
+        $sellerDTO->setSellerUserId(decode($request->get('seller_id')));
 
         $currentStatus = $itemService->toggleItemActivation($itemDTO, $sellerDTO);
         $message = ($currentStatus)
-            ? "Successfully activate item: " . $payloads['item_id'] . " as a Smart Contract's item!"
-            : "Successfully deactivate item: " . $payloads['item_id'] . " from being part of Smart Contract's items!";
+            ? "Successfully activate item: " . $request->get('item_id') . " as a Smart Contract's item!"
+            : "Successfully deactivate item: " . $request->get('item_id') . " from being part of Smart Contract's items!";
 
         return response()->json([
             'message' => $message
@@ -48,20 +43,19 @@ class ItemController extends Controller
 
     public function getCheckIfItemsAreSmartContract(Request $request,ItemService $itemService)
     {
-        $payloads = [
-            'item_ids' => $request->get('item_ids')
-        ];
 
         $rules = [
             'item_ids' => 'required|array'
         ];
 
-        $validator = Validator::make($payloads, $rules);
+        $validator = Validator::make($request->all(), $rules);
         if($validator->fails()){
             throw new \Exception($validator->getMessageBag());
         }
 
-        $response = $itemService->checkIfItemsAreSmartContract($payloads['item_ids']);
+        $itemIds = array_map("decode", $request->get('item_ids'));
+        dd($itemIds);
+        $response = $itemService->checkIfItemsAreSmartContract($itemIds);
 
         return response()->json($response, 200);
     }

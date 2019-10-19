@@ -3,8 +3,7 @@
 
 namespace App\Http\Controllers\V1;
 
-use App\Http\Modules\V1\DataTransferObjects\AuthorizationDTO;
-use App\Http\Modules\V1\DataTransferObjects\UserDTO;
+use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
 use App\Http\Modules\V1\Enumerations\SmartContracts\SmartContractStatus;
 use App\Http\Modules\V1\Services\SmartContractService;
 use Illuminate\Http\Request;
@@ -64,11 +63,11 @@ class SmartContractController extends Controller
 
         switch ($request->get('role')) {
             case 'Buyer':
-                $filters['buyer_user_id'] = $request->get('user_id');
+                $filters['buyer_user_id'] = decode($request->get('user_id'));
                 $response = '';
                 break;
             case 'Seller':
-                $filters['vendor_id'] = $request->get('user_id');
+                $filters['vendor_id'] = decode($request->get('user_id'));
                 $response = $smartContractService->getSellerSmartContracts($authorizationDTO, $filters, $perPage);
                 break;
             default:

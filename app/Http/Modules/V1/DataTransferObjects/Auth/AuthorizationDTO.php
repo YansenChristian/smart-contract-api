@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Http\Modules\V1\DataTransferObjects;
+namespace App\Http\Modules\V1\DataTransferObjects\Auth;
 
 
 class AuthorizationDTO

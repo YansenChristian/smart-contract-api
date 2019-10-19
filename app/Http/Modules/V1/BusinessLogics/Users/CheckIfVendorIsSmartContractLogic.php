@@ -24,12 +24,12 @@ class CheckIfVendorIsSmartContractLogic extends BusinessLogic
     public function run()
     {
         $this->validateScopes([
-            'INPUT::VendorId' => 'required'
+            'INPUT::VendorDTO' => 'required'
         ]);
 
-        $vendorId = $this->getScope('INPUT::VendorId');
+        $vendorDTO = $this->getScope('INPUT::VendorDTO');
         $conditions = [
-            'vendor_id' =>   $vendorId
+            'vendor_id' =>   $vendorDTO->getId()
         ];
 
         return $this->vendorRepository

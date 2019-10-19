@@ -66,9 +66,13 @@ class Handler extends ExceptionHandler
             return $exception->getResponse();
         }
 
-        if($exception->getCode() == 403 || $exception instanceof ClientException || $exception instanceof SignatureInvalidException) {
+        if($exception->getCode() == 403 || $exception instanceof SignatureInvalidException) {
             $exception = new AuthenticationException();
             return $exception->getResponse();
+        }
+
+        if($exception instanceof ClientException) {
+            return $exception->getMessage();
         }
 
         if($exception instanceof ExpiredException) {

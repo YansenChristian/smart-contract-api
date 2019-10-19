@@ -46,7 +46,7 @@ class ItemController extends Controller
         ], 200);
     }
 
-    public function postCheckIfItemsAreSmartContract(Request $request, ItemService $itemService)
+    public function getCheckIfItemsAreSmartContract(Request $request,ItemService $itemService)
     {
         $payloads = [
             'item_ids' => $request->get('item_ids')

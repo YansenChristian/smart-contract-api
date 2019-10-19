@@ -26,16 +26,16 @@ class SmartContractStatus extends Enumeration
         'description' => 'SmartContracts/status.REJECTED'
     ];
 
-    const IN_PROGRESS = [
-        'id' => 4,
-        'name' => 'IN_PROGRESS',
-        'description' => 'SmartContracts/status.IN_PROGRESS'
-    ];
-
     const CANCELED = [
-        'id' => 5,
+        'id' => 4,
         'name' => 'CANCELED',
         'description' => 'SmartContracts/status.CANCELED'
+    ];
+
+    const IN_PROGRESS = [
+        'id' => 5,
+        'name' => 'IN_PROGRESS',
+        'description' => 'SmartContracts/status.IN_PROGRESS'
     ];
 
     const ENDED = [

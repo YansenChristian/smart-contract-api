@@ -19,11 +19,12 @@ class SmartContractService extends Service
         return ($response[GetSmartContractCounterLogic::class]);
     }
 
-    public function getSellerSmartContracts(AuthorizationDTO $authorizationDTO, UserDTO $userDTO)
+    public function getSellerSmartContracts(AuthorizationDTO $authorizationDTO, $filters, $perPage)
     {
         $scopes = [
             'INPUT::AuthorizationDTO' => $authorizationDTO,
-            'INPUT::UserDTO' => $userDTO
+            'INPUT::Filters' => $filters,
+            'INPUT::PerPage' => $perPage
         ];
 
         $response = $this->execute([

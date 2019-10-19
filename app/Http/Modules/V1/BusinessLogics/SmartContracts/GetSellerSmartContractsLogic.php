@@ -28,14 +28,16 @@ class GetSellerSmartContractsLogic extends BusinessLogic
     {
         $this->validateScopes([
             'INPUT::AuthorizationDTO' => 'required',
-            'INPUT::UserDTO' => 'required'
+            'INPUT::Filters' => 'required',
+            'INPUT::PerPage' => 'required',
         ]);
 
         $authorizationDTO = $this->getScope('INPUT::AuthorizationDTO');
-        $userDTO = $this->getScope('INPUT::UserDTO');
+        $filters = $this->getScope('INPUT::Filters');
+        $perPage = $this->getScope('INPUT::PerPage');
 
         $smartContracts = $this->smartContractRepository
-            ->getSellerSmartContracts($userDTO->getId());
+            ->getSellerSmartContracts($filters, $perPage);
 
         $buyerUserIds = array_column($smartContracts->getCollection()->toArray(), 'buyer_user_id');
 

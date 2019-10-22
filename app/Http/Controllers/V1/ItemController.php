@@ -41,7 +41,7 @@ class ItemController extends Controller
         ], 200);
     }
 
-    public function getCheckIfItemsAreSmartContract(Request $request,ItemService $itemService)
+    public function postCheckIfItemsAreSmartContract(Request $request,ItemService $itemService)
     {
 
         $rules = [

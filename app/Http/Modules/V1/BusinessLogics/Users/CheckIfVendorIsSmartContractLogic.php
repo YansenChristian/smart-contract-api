@@ -29,7 +29,7 @@ class CheckIfVendorIsSmartContractLogic extends BusinessLogic
 
         $vendorDTO = $this->getScope('INPUT::VendorDTO');
         $conditions = [
-            'vendor_id' =>   $vendorDTO->getId()
+            'vendor_id' =>   $vendorDTO->id
         ];
 
         return $this->vendorRepository

@@ -4,23 +4,14 @@
 namespace App\Http\Modules\V1\DataTransferObjects\Auth;
 
 
-class AuthorizationDTO
+use App\Http\Modules\V1\DTO;
+
+class AuthorizationDTO extends DTO
 {
-    private $bearerToken;
+    public $bearer;
 
-    /**
-     * @return mixed
-     */
-    public function getBearerToken()
+    public function __construct()
     {
-        return $this->bearerToken;
-    }
-
-    /**
-     * @param mixed $bearerToken
-     */
-    public function setBearerToken($bearerToken): void
-    {
-        $this->bearerToken = $bearerToken;
+        parent::__construct($this);
     }
 }

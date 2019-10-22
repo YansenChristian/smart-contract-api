@@ -28,7 +28,7 @@ class VendorController extends Controller
         }
 
         $vendorDTO = new VendorDTO();
-        $vendorDTO->setId(decode($vendor_id));
+        $vendorDTO->id = decode($vendor_id);
 
         $result = $vendorService->checkIfVendorIsSmartContract($vendorDTO);
         return response()->json([

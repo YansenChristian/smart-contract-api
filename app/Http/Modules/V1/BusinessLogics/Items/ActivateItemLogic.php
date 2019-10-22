@@ -34,21 +34,22 @@ class ActivateItemLogic extends BusinessLogic
 
         $itemDTO = $this->getScope('INPUT::ItemDTO');
         $itemExists = $this->itemRepository->exists([
-            'item_id' => $itemDTO->getItemId()
+            'item_id' => $itemDTO->item_id
         ]);
 
         if($itemExists) {
             $itemData = ['deleted_at' => null];
-            $conditions = ['item_id' => $itemDTO->getItemId()];
+            $conditions = ['item_id' => $itemDTO->item_id];
 
             $this->itemRepository->update($itemData, $conditions);
         } else {
             $this->itemRepository->add([
-                'item_id' => $itemDTO->getItemId()
+                'item_id' => $itemDTO->item_id
             ]);
         }
 
         $this->createLog();
+        return;
     }
 
     public function createLog()
@@ -57,9 +58,9 @@ class ActivateItemLogic extends BusinessLogic
         $itemDTO = $this->getScope('INPUT::ItemDTO');
 
         $itemLogDTO = new ItemLogDTO();
-        $itemLogDTO->setItemId($itemDTO->getItemId());
-        $itemLogDTO->setSellerUserId($sellerDTO->getSellerUserId());
-        $itemLogDTO->setAction('Activate');
+        $itemLogDTO->item_id = $itemDTO->item_id;
+        $itemLogDTO->seller_user_id = $sellerDTO->seller_user_id;
+        $itemLogDTO->action ='Activate';
 
         $this->logRepository->addItemLog($itemLogDTO->toArray());
     }

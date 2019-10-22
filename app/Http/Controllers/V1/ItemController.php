@@ -26,10 +26,10 @@ class ItemController extends Controller
         }
 
         $itemDTO = new ItemDTO();
-        $itemDTO->setItemId(decode($request->get('item_id')));
+        $itemDTO->item_id = decode($request->get('item_id'));
 
         $sellerDTO = new SellerDTO();
-        $sellerDTO->setSellerUserId(decode($request->get('seller_id')));
+        $sellerDTO->seller_user_id = decode($request->get('seller_id'));
 
         $currentStatus = $itemService->toggleItemActivation($itemDTO, $sellerDTO);
         $message = ($currentStatus)
@@ -54,7 +54,7 @@ class ItemController extends Controller
         }
 
         $itemIds = array_map("decode", $request->get('item_ids'));
-        dd($itemIds);
+
         $response = $itemService->checkIfItemsAreSmartContract($itemIds);
 
         return response()->json($response, 200);

@@ -31,12 +31,12 @@ class CheckIfItemsAreSmartContractLogic extends BusinessLogic
 
         $itemIdsExist = [];
         foreach ($itemIds as $itemId) {
-            $itemIdsExist[$itemId] = false;
+            $itemIdsExist[encode($itemId)] = false;
         }
 
         $existingItemIds = $this->itemRepository->getExistingItemIds($itemIds);
         foreach ($existingItemIds as $id) {
-            $itemIdsExist[$id->item_id] = true;
+            $itemIdsExist[encode($id->item_id)] = true;
         }
 
         $this->putScope('DB::ItemIdsExist', $itemIdsExist);

@@ -28,7 +28,7 @@ class GetItemLogic extends BusinessLogic
         ]);
 
         $itemDTO = $this->getScope('INPUT::ItemDTO');
-        $item = $this->itemRepository->getById($itemDTO->getItemId());
+        $item = $this->itemRepository->getById($itemDTO->item_id);
 
         $this->putScope('DB::Item', $item);
         return $item;

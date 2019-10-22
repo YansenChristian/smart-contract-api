@@ -4,23 +4,14 @@
 namespace App\Http\Modules\V1\DataTransferObjects\Users;
 
 
-class VendorDTO
+use App\Http\Modules\V1\DTO;
+
+class VendorDTO extends DTO
 {
-    private $id;
+    public $id;
 
-    /**
-     * @return mixed
-     */
-    public function getId()
+    public function __construct()
     {
-        return $this->id;
-    }
-
-    /**
-     * @param mixed $id
-     */
-    public function setId($id): void
-    {
-        $this->id = $id;
+        parent::__construct($this);
     }
 }

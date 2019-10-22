@@ -34,11 +34,11 @@ class DeactivateItemLogic extends BusinessLogic
 
         $itemDTO = $this->getScope('INPUT::ItemDTO');
         $itemExists = $this->itemRepository->exists([
-            'item_id' => $itemDTO->getItemId()
+            'item_id' => $itemDTO->item_id
         ]);
 
         if($itemExists) {
-            $this->itemRepository->softDelete($itemDTO->getItemId());
+            $this->itemRepository->softDelete($itemDTO->item_id);
         }
 
         $this->createLog();
@@ -50,9 +50,9 @@ class DeactivateItemLogic extends BusinessLogic
         $itemDTO = $this->getScope('INPUT::ItemDTO');
 
         $itemLogDTO = new ItemLogDTO();
-        $itemLogDTO->setItemId($itemDTO->getItemId());
-        $itemLogDTO->setSellerUserId($sellerDTO->getSellerUserId());
-        $itemLogDTO->setAction('Deactivate');
+        $itemLogDTO->item_id = $itemDTO->item_id;
+        $itemLogDTO->seller_user_id = $sellerDTO->seller_user_id;
+        $itemLogDTO->action = 'Deactivate';
 
         $this->logRepository->addItemLog($itemLogDTO->toArray());
     }

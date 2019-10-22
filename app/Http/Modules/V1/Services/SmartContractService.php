@@ -4,6 +4,7 @@
 namespace App\Http\Modules\V1\Services;
 
 
+use App\Http\Modules\V1\BusinessLogics\SmartContracts\GenerateSmartContractSerial;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSellerSmartContractsLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSmartContractCounterLogic;
 use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
@@ -56,7 +57,7 @@ class SmartContractService extends Service
                 ];
                 $newValue->status_detail = trans('SmartContracts/misc.status_detail', $statusDetailParams);
                 $newValue->view_smart_contract_legal_link = env('SELLER_PANEL_URL')
-                    .'/#/legal?smart_contract_serial='
+                    .'#/legal?smart_contract_serial='
                     .smartContractSerialToAlias($value->smart_contract_serial);
             }
 
@@ -64,5 +65,11 @@ class SmartContractService extends Service
         });
 
         return $smartContracts;
+    }
+
+    public function createSmartContract()
+    {
+        $response = $this->execute([GenerateSmartContractSerial::class]);
+        return $response[GenerateSmartContractSerial::class];
     }
 }

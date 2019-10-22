@@ -13,7 +13,7 @@ abstract class DTO
         $this->child = $child;
     }
 
-    public function toArray($withEmptyAttributes = true): array
+    public function toArray($withEmptyAttributes = false): array
     {
         $dto = clone $this->child;
         unset($dto->child);

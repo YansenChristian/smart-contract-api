@@ -3,11 +3,8 @@
 
 namespace App\Http\Controllers\V1;
 
-use App\Http\Modules\V1\CollectionOfDTO;
 use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
-use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDetailDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDTO;
-use App\Http\Modules\V1\DataTransferObjects\Users\SellerDTO;
 use App\Http\Modules\V1\Enumerations\SmartContracts\SmartContractStatus;
 use App\Http\Modules\V1\Services\SmartContractService;
 use Illuminate\Http\Request;

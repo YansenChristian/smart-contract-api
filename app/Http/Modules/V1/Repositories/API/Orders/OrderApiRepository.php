@@ -1,22 +1,22 @@
 <?php
 
 
-namespace App\Http\Modules\V1\Repositories\API\SmartContracts;
+namespace App\Http\Modules\V1\Repositories\API\Orders;
 
 
 use GuzzleHttp\Client;
 
-class SmartContractApiRepository
+class OrderApiRepository
 {
-    public function getUsersByIds($payloads)
+    public function generateOrderSerialsBasedOnDates($payloads)
     {
         $client = new Client();
-        $request_api = $client->get(env('API_CORE_URL') . '/api/v4/users', [
+        $request_api = $client->get(env('API_CORE_URL') . '/v4/orders/serial-numbers', [
             'headers' => [
                 'Authorization' => $payloads['authorization']
             ],
             'query' => [
-                'user_ids' => $payloads['user_ids']
+                'order_dates' => $payloads['order_dates']
             ]
         ]);
 

@@ -8,6 +8,12 @@ use App\Http\Modules\V1\Enumeration;
 
 class SmartContractStatus extends Enumeration
 {
+    const CREATED = [
+        'id' => 0,
+        'name' => 'CREATED',
+        'description' => 'SmartContracts/status.CREATED'
+    ];
+
     const WAITING = [
         'id' => 1,
         'name' => 'WAITING',
@@ -52,6 +58,7 @@ class SmartContractStatus extends Enumeration
     {
         Enumeration::$childClass = self::class;
         return [
+            self::CREATED,
             self::WAITING,
             self::APPROVED,
             self::REJECTED,

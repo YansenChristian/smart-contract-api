@@ -3,7 +3,11 @@
 
 namespace App\Http\Controllers\V1;
 
+use App\Http\Modules\V1\CollectionOfDTO;
 use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
+use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDetailDTO;
+use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDTO;
+use App\Http\Modules\V1\DataTransferObjects\Users\SellerDTO;
 use App\Http\Modules\V1\Enumerations\SmartContracts\SmartContractStatus;
 use App\Http\Modules\V1\Services\SmartContractService;
 use Illuminate\Http\Request;
@@ -38,7 +42,7 @@ class SmartContractController extends Controller
         }
 
         if($request->has('start_date') || $request->has('end_date')) {
-            $rules['start_date'] = 'required|date_format:Y-m-d|';
+            $rules['start_date'] = 'required|date_format:Y-m-d';
             $rules['end_date'] = 'required|date_format:Y-m-d';
         }
 
@@ -48,7 +52,7 @@ class SmartContractController extends Controller
         }
 
         $authorizationDTO = new AuthorizationDTO();
-        $authorizationDTO->setBearerToken($request->header('authorization'));
+        $authorizationDTO->bearer = $request->header('authorization');
 
         $perPage = $request->get('limit', 10);
 
@@ -76,5 +80,35 @@ class SmartContractController extends Controller
         }
 
         return response()->json($response, 200);
+    }
+
+    public function postCreateSmartContract(Request $request, SmartContractService $smartContractService)
+    {
+        $rules = [
+            'buyer_id' => 'required|string',
+            'vendor_id' => 'required|string',
+            'total_order' => 'required|int',
+            'order_dates' => 'required|array',
+            'order_dates.*' => 'date_format:d-m-Y'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if($validator->fails()){
+            throw new \Exception($validator->getMessageBag());
+        }
+
+        $smartContractDTO = new SmartContractDTO();
+        $smartContractDTO->vendor_id = $request->get('vendor_id');
+        $smartContractDTO->buyer_user_id = $request->get('buyer_id');
+        $smartContractDTO->total_order = $request->get('total_order');
+
+        $authorizationDTO = new AuthorizationDTO();
+        $authorizationDTO->bearer = $request->header('authorization');
+
+        $orderDates = $request->get('order_dates');
+
+        $smartContractService->createSmartContract($authorizationDTO, $smartContractDTO, $orderDates);
+
+        return response()->json(null, 201);
     }
 }

@@ -70,4 +70,25 @@ class SmartContractRepository
 
         return $smart_contracts->paginate($perPage);
     }
+
+    public function exists(array $conditions)
+    {
+        $smartContract = DB::table('smart_contracts');
+        foreach ($conditions as $column => $value) {
+            $smartContract->where($column, '=', $value);
+        }
+        return $smartContract->exists();
+    }
+
+    public function create($smartContracts)
+    {
+        return DB::table('smart_contracts')
+            ->insertGetId($smartContracts);
+    }
+
+    public function createDetail($smartContractDetails)
+    {
+        return DB::table('smart_contract_details')
+            ->insert($smartContractDetails);
+    }
 }

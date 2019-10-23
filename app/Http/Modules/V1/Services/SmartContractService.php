@@ -4,10 +4,12 @@
 namespace App\Http\Modules\V1\Services;
 
 
-use App\Http\Modules\V1\BusinessLogics\SmartContracts\GenerateSmartContractSerial;
+use App\Http\Modules\V1\BusinessLogics\SmartContracts\CreateSmartContractLogic;
+use App\Http\Modules\V1\BusinessLogics\SmartContracts\GenerateSmartContractSerialLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSellerSmartContractsLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSmartContractCounterLogic;
 use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
+use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDTO;
 use App\Http\Modules\V1\Enumerations\SmartContracts\SmartContractStatus;
 use App\Http\Modules\V1\Service;
 
@@ -67,9 +69,18 @@ class SmartContractService extends Service
         return $smartContracts;
     }
 
-    public function createSmartContract()
+    public function createSmartContract(AuthorizationDTO $authorizationDTO, SmartContractDTO $smartContractDTO, $orderDates)
     {
-        $response = $this->execute([GenerateSmartContractSerial::class]);
-        return $response[GenerateSmartContractSerial::class];
+        $scopes = [
+            'INPUT::AuthorizationDTO' => $authorizationDTO,
+            'INPUT::SmartContractDTO' => $smartContractDTO,
+            'INPUT::OrderDates' => $orderDates
+        ];
+
+        $response = $this->execute([
+            GenerateSmartContractSerialLogic::class,
+            CreateSmartContractLogic::class
+        ], $scopes);
+        return $response;
     }
 }

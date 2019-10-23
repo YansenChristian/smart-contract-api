@@ -13,4 +13,10 @@ class LogRepository
         return DB::table('smart_contract_item_logs')
             ->insert($logData);
     }
+
+    public function addSmartContractLog(array $logData)
+    {
+        return DB::table('smart_contract_logs')
+            ->insert($logData);
+    }
 }

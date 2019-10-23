@@ -33,7 +33,8 @@ $router->group([
     });
 
     $router->group(['prefix' => 'smart-contracts'], function () use ($router) {
-        $router->get('counter', 'SmartContractController@getCounter');
         $router->get('/', 'SmartContractController@getSmartContracts');
+        $router->post('/', 'SmartContractController@postCreateSmartContract');
+        $router->get('counter', 'SmartContractController@getCounter');
     });
 });

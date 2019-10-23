@@ -7,7 +7,7 @@ namespace App\Http\Modules\V1\BusinessLogics\SmartContracts;
 use App\Http\Modules\V1\BusinessLogic;
 use App\Http\Modules\V1\Repositories\Database\SmartContracts\SmartContractRepository;
 
-class GenerateSmartContractSerial extends BusinessLogic
+class GenerateSmartContractSerialLogic extends BusinessLogic
 {
     private $smartContractRepository;
 
@@ -26,7 +26,7 @@ class GenerateSmartContractSerial extends BusinessLogic
         do {
             $smartContractAbbreviation = 'SC';
             $createdDate = str_replace('-', '/', date('d-m-Y'));
-            $randomNumber = $this->generateRandomNumber(1, 100000);
+            $randomNumber = $this->generateRandomNumber(100000);
 
             $smartContractSerial =
                 $randomNumber . '/'
@@ -34,15 +34,16 @@ class GenerateSmartContractSerial extends BusinessLogic
                 . $createdDate;
         } while ($this->checkIfSerialNumberAlreadyExists($smartContractSerial));
 
+        $this->putScope('DB::SmartContractSerial', $smartContractSerial);
         return $smartContractSerial;
     }
 
-    private function generateRandomNumber($start, $end)
+    private function generateRandomNumber($maxNumber)
     {
-        $randomNumber =  mt_rand($start, $end);
-        $gapLength = strlen($randomNumber) - strlen($end);
-        for ($i = 0; $i < $gapLength; $i++) {
-            $randomNumber = '0' . $randomNumber;
+        $randomNumber = '';
+        for ($i = 1; $i < strlen($maxNumber); $i++) {
+            $random = mt_rand(0, 9);
+            $randomNumber .= (string) $random;
         }
 
         return $randomNumber;

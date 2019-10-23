@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'CREATED' => 'Telah Dibuatkan',
     'WAITING' => "Menunggu Persetujuan",
     'APPROVED' => "Telah Disetujui",
     'REJECTED' => 'Ditolak',

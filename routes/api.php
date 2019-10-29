@@ -36,5 +36,6 @@ $router->group([
         $router->get('/', 'SmartContractController@getSmartContracts');
         $router->post('/', 'SmartContractController@postCreateSmartContract');
         $router->get('counter', 'SmartContractController@getCounter');
+        $router->get('{smart_contract_serial}', 'SmartContractController@getSmartContractDetail');
     });
 });

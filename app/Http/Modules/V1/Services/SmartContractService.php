@@ -6,12 +6,14 @@ namespace App\Http\Modules\V1\Services;
 
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\CreateSmartContractLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GenerateSmartContractSerialLogic;
+use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSellerSmartContractDetailLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSellerSmartContractsLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSmartContractCounterLogic;
 use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDTO;
 use App\Http\Modules\V1\Enumerations\SmartContracts\SmartContractStatus;
 use App\Http\Modules\V1\Service;
+use stdClass;
 
 class SmartContractService extends Service
 {
@@ -67,6 +69,56 @@ class SmartContractService extends Service
         });
 
         return $smartContracts;
+    }
+
+    public function getSellerSmartContractDetail(AuthorizationDTO $authorizationDTO, SmartContractDTO $smartContractDTO)
+    {
+        $scopes = [
+            'INPUT::SmartContractDTO' => $smartContractDTO,
+            'INPUT::AuthorizationDTO' => $authorizationDTO
+        ];
+
+        $response = $this->execute([GetSellerSmartContractDetailLogic::class], $scopes);
+        $response = $response[GetSellerSmartContractDetailLogic::class];
+
+        $smartContractDetail = new stdClass();
+        $smartContractDetail->smart_contract_serial = $response->smart_contract_serial;
+        $smartContractDetail->order_date = date('d-m-Y', strtotime($response->created_at));
+        $smartContractDetail->total_price = $response->total_price;
+        $smartContractDetail->status = $response->status;
+        $statusDetailParams = [
+            'on_going_order' => $response->on_going_order,
+            'total_order' => $response->total_order
+        ];
+        $smartContractDetail->status_detail = trans('SmartContracts/misc.status_detail', $statusDetailParams);
+        $smartContractDetail->buyer = $response->buyer;
+        $smartContractDetail->shipping_detail = $response->shipping_detail;
+        $smartContractDetail->buyer_notes = $response->buyer_notes;
+        $smartContractDetail->item = $response->item;
+        $smartContractDetail->orders = $response->orders;
+
+        foreach ($smartContractDetail->orders as $order) {
+            $order['print_delivery_order_link'] = env('SMART_CONTRACT_URL')
+                . 'tokosaya/penjualan/delivery-order/'
+                . $smartContractDetail->smart_contract_serial;
+
+            $order['print_invoice_link'] = env('SMART_CONTRACT_URL')
+                . 'tokosaya/penjualan/invoice/'
+                . $smartContractDetail->smart_contract_serial;
+        }
+
+        $smartContractDetail->logs = [];
+        foreach ($response->logs as $log) {
+            $smartContractLog = new stdClass();
+            $smartContractLog->user_name = $log->user_name;
+            $smartContractLog->created_at = $log->created_at;
+            $smartContractLog->status = $log->smart_contract_status;
+            $smartContractLog->information = $log->information;
+
+            $smartContractDetail->logs[] = $smartContractLog;
+        }
+
+        return $smartContractDetail;
     }
 
     public function createSmartContract(AuthorizationDTO $authorizationDTO, SmartContractDTO $smartContractDTO, $orderDates)

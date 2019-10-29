@@ -79,6 +79,19 @@ class SmartContractController extends Controller
         return response()->json($response, 200);
     }
 
+    public function getSmartContractDetail(Request $request, $smart_contract_serial, SmartContractService $smartContractService)
+    {
+        $smartContractDTO = new SmartContractDTO();
+        $smartContractDTO->smart_contract_serial = smartContractSerialToOriginal($smart_contract_serial);
+
+        $authorizationDTO = new AuthorizationDTO();
+        $authorizationDTO->bearer = $request->header('Authorization');
+
+        $response = $smartContractService->getSellerSmartContractDetail($authorizationDTO, $smartContractDTO);
+
+        return response()->json($response, 200);
+    }
+
     public function postCreateSmartContract(Request $request, SmartContractService $smartContractService)
     {
         $rules = [

@@ -5,19 +5,19 @@ namespace App\Http\Modules\V1\BusinessLogics\SmartContracts;
 
 
 use App\Http\Modules\V1\BusinessLogic;
-use App\Http\Modules\V1\Repositories\API\SmartContracts\SmartContractApiRepository;
+use App\Http\Modules\V1\Repositories\API\Users\UserApiRepository;
 use App\Http\Modules\V1\Repositories\Database\SmartContracts\SmartContractRepository;
 
 class GetSellerSmartContractsLogic extends BusinessLogic
 {
     private $smartContractRepository;
-    private $smartContractApiRepository;
+    private $userApiRepository;
 
     public function __construct($scopes)
     {
         $this->scopes = $scopes;
         $this->smartContractRepository = new SmartContractRepository();
-        $this->smartContractApiRepository = new SmartContractApiRepository();
+        $this->userApiRepository = new UserApiRepository();
     }
 
     /**
@@ -44,10 +44,10 @@ class GetSellerSmartContractsLogic extends BusinessLogic
         if(count($buyerUserIds) > 0) {
             $buyerUserIds = array_map("encode", $buyerUserIds);
             $payloads = [
-                'authorization' => $authorizationDTO->getBearerToken(),
+                'authorization' => $authorizationDTO->bearer,
                 'user_ids' => $buyerUserIds
             ];
-            $buyers = $this->smartContractApiRepository
+            $buyers = $this->userApiRepository
                 ->getUsersByIds($payloads);
 
             $smartContracts->getCollection()->transform(function ($smartContract) use ($buyers){

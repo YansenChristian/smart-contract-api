@@ -19,4 +19,11 @@ class LogRepository
         return DB::table('smart_contract_logs')
             ->insert($logData);
     }
+
+    public function getSmartContractLog($smartContractId)
+    {
+        return DB::table('smart_contract_logs')
+            ->where('smart_contract_id', '=', $smartContractId)
+            ->get();
+    }
 }

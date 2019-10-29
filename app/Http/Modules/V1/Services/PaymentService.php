@@ -33,7 +33,7 @@ class PaymentService extends Service
         try{
             $apiCall = new Client();
             $response = $apiCall->post(
-                env('API_CORE_URL').'/api/v2/payment-buyer/handle-transfer',
+                env('API_CORE_URL').'api/v2/payment-buyer/handle-transfer',
                 [
                     'headers' => $headers,
                     'body' => json_encode($requestBody)

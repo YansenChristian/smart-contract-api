@@ -11,7 +11,7 @@ class OrderApiRepository
     public function generateOrderSerialsBasedOnDates($payloads)
     {
         $client = new Client();
-        $request_api = $client->get(env('API_CORE_URL') . '/v4/orders/serial-numbers', [
+        $request_api = $client->get(env('API_CORE_URL') . 'v4/orders/serial-numbers', [
             'headers' => [
                 'Authorization' => $payloads['authorization']
             ],

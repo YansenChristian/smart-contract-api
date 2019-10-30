@@ -1,22 +1,23 @@
 <?php
 
 
-namespace App\Http\Modules\V1\BusinessLogics\SmartContracts;
+namespace App\Http\Modules\V1\BusinessLogics\Legals;
 
 
 use App\Http\Modules\V1\BusinessLogic;
 use App\Http\Modules\V1\Repositories\API\Orders\OrderApiRepository;
+use App\Http\Modules\V1\Repositories\Database\Legals\LegalRepository;
 use App\Http\Modules\V1\Repositories\Database\SmartContracts\SmartContractRepository;
 
-class GetSmartContractLegalContentLogic extends BusinessLogic
+class GetLegalContentLogic extends BusinessLogic
 {
-    private $smartContractRepository;
+    private $legalRepository;
     private $orderApiRepository;
 
     public function __construct($scopes)
     {
         $this->scopes = $scopes;
-        $this->smartContractRepository = new SmartContractRepository();
+        $this->legalRepository = new LegalRepository();
         $this->orderApiRepository = new OrderApiRepository();
     }
 
@@ -27,21 +28,29 @@ class GetSmartContractLegalContentLogic extends BusinessLogic
     public function run()
     {
         $this->validateScopes([
-            'INPUT::SmartContractSerial' => 'required',
+            'INPUT::SmartContractDTO' => 'required',
             'INPUT::AuthorizationDTO' => 'required'
         ]);
 
-        $smartContractSerial = $this->getScope('INPUT::SmartContractSerial');
+        $smartContractDTO = $this->getScope('INPUT::SmartContractDTO');
         $authorizationDTO = $this->getScope('INPUT::AuthorizationDTO');
 
-        $legalContent = $this->smartContractRepository->getLegalContent($smartContractSerial);
+        $smartContractDetails = $this->legalRepository
+            ->getContent($smartContractDTO->smart_contract_serial)
+            ->toArray();
+
+        $orderSerials = array_column($smartContractDetails, 'order_serial');
 
         $payloads = [
             'authorization' => $authorizationDTO->bearer,
-            'order_serial' => $legalContent->pluck('order_serial')[0]
+            'order_serial' => $orderSerials[0]
         ];
         $order = $this->orderApiRepository->getOrderForSmartContractLegalContent($payloads);
 
-        //TODO merge $legalContent and $order, and then return it
+        $legalContent = (object) $order;
+        $legalContent->order_serials = $orderSerials;
+
+        $this->putScope('DB::LegalContent', $legalContent);
+        return $legalContent;
     }
 }

@@ -135,15 +135,4 @@ class SmartContractService extends Service
         ], $scopes);
         return $response;
     }
-
-    public function getSmartContractLegalContent()
-    {
-        $scopes = [
-
-        ];
-
-        $response = $this->execute([
-
-        ]);
-    }
 }

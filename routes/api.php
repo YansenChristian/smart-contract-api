@@ -38,4 +38,8 @@ $router->group([
         $router->get('counter', 'SmartContractController@getCounter');
         $router->get('{smart_contract_serial}', 'SmartContractController@getSmartContractDetail');
     });
+
+    $router->group(['prefix' => 'legals'], function () use ($router) {
+        $router->get('/', 'LegalController@getContent');
+    });
 });

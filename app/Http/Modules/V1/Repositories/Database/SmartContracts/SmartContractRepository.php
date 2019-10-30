@@ -106,21 +106,6 @@ class SmartContractRepository
             ->get();
     }
 
-    public function getLegalContent($smartContractSerial)
-    {
-        $columns = [
-            'smart_contracts.smart_contract_serial',
-            'smart_contracts.created_at',
-            'smart_contract_details.order_serial'
-        ];
-
-        return DB::table('smart_contracts')
-            ->join('smart_contract_details', 'smart_contracts.id', '=', 'smart_contract_details.smart_contract_id')
-            ->where('smart_contracts.smart_contract_serial', '=', $smartContractSerial)
-            ->select($columns)
-            ->get();
-    }
-
     public function exists(array $conditions)
     {
         $smartContract = DB::table('smart_contracts');

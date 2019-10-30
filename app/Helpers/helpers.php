@@ -1323,14 +1323,15 @@ function accessTokenWebsite($email, $password, $byVerify = 0){
     }
 }
 
-function smartContractSerialToOriginal($order_serial_alias) {
-    $order_serial = str_replace('---', '/', $order_serial_alias);
-
-    return $order_serial;
+function smartContractSerialToOriginal($smartContractSerialAlias) {
+    return str_replace('---', '/', $smartContractSerialAlias);
 }
 
-function smartContractSerialToAlias($order_serial_original) {
-    $order_serial = str_replace('/', '---', $order_serial_original);
+function smartContractSerialToAlias($smartContractSerial) {
+    return str_replace('/', '---', $smartContractSerial);
+}
 
-    return $order_serial;
+function getOrderDateByOrderSerial($orderSerial) {
+    $orderDate = substr($orderSerial, strpos($orderSerial, 'ORD/') + 4);
+    return str_replace('/', '-', $orderDate);
 }

@@ -38,44 +38,57 @@ class GetSellerSmartContractDetailLogic extends BusinessLogic
         ]);
 
         $smartContractDTO = $this->getScope('INPUT::SmartContractDTO');
+
+        # Get Smart Contract Detail Data
         $smartContract = $this->smartContractRepository->getSellerSmartContract(
             $smartContractDTO->smart_contract_serial
         );
+        $smartContractOrders = $this->getSmartContractOrders($smartContract->id);
+        $smartContractLogs = $this->getSmartContractLogs($smartContract->id);
 
-        $authorizationDTO = $this->getScope('INPUT::AuthorizationDTO');
-
-        # Get Smart Contract Detail from API Core
-        $orderSerials = $this->smartContractRepository
-            ->getDetail($smartContract->id)
-            ->pluck('order_serial')
-            ->toArray();
-        $payloads = [
-            'authorization' => $authorizationDTO->bearer,
-            'order_serials' => $orderSerials
-        ];
-        $smartContractDetails = $this->smartContractApiRepository->getSmartContractDetail($payloads);
-
-        # Get & Render Smart Contract Log
-        $smartContractLogs = $this->logRepository
-            ->getSmartContractLog($smartContract->id);
-        $userIds = $smartContractLogs->pluck('user_id')->toArray();
-        $payloads = [
-            'authorization' => $authorizationDTO->bearer,
-            'user_ids' => $userIds
-        ];
-        $users = $this->userApiRepository->getUsersByIds($payloads);
-
-        foreach ($smartContractLogs as $log) {
-            $log->user_name = $users[$log->user_id];
-        }
-
+        # Merging Data
         $smartContractDetail = (object) array_merge(
-            (array)$smartContractDetails,
+            (array)$smartContractOrders,
             (array)$smartContract
         );
         $smartContractDetail->logs = $smartContractLogs->toArray();
 
         $this->putScope('DB::SmartContractDetail', $smartContractDetail);
         return $smartContractDetail;
+    }
+
+    private function getSmartContractOrders($smartContractId)
+    {
+        $authorizationDTO = $this->getScope('INPUT::AuthorizationDTO');
+        $orderSerials = $this->smartContractRepository
+            ->getDetail($smartContractId)
+            ->pluck('order_serial')
+            ->toArray();
+
+        $payloads = [
+            'authorization' => $authorizationDTO->bearer,
+            'order_serials' => $orderSerials
+        ];
+
+        return $this->smartContractApiRepository->getSmartContractDetail($payloads);
+    }
+
+    private function getSmartContractLogs($smartContractId)
+    {
+        $smartContractLogs = $this->logRepository->getSmartContractLog($smartContractId);
+        $authorizationDTO = $this->getScope('INPUT::AuthorizationDTO');
+        $userIds = $smartContractLogs->pluck('user_id')->toArray();
+
+        # Append User Data by using User Id
+        $payloads = [
+            'authorization' => $authorizationDTO->bearer,
+            'user_ids' => $userIds
+        ];
+        $users = $this->userApiRepository->getUsersByIds($payloads);
+        foreach ($smartContractLogs as $log) {
+            $log->user_name = $users[$log->user_id];
+        }
+
+        return$smartContractLogs;
     }
 }

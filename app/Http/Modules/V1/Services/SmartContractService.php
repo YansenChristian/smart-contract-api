@@ -95,9 +95,9 @@ class SmartContractService extends Service
         $smartContractDetail->shipping_detail = $response->shipping_detail;
         $smartContractDetail->buyer_notes = $response->buyer_notes;
         $smartContractDetail->item = $response->item;
-        $smartContractDetail->orders = $response->orders;
 
-        foreach ($smartContractDetail->orders as $order) {
+        $smartContractDetail->orders = $response->orders;
+        foreach ($smartContractDetail->orders as &$order) {
             $order['print_delivery_order_link'] = env('SMART_CONTRACT_URL')
                 . 'tokosaya/penjualan/delivery-order/'
                 . $smartContractDetail->smart_contract_serial;
@@ -134,5 +134,16 @@ class SmartContractService extends Service
             CreateSmartContractLogic::class
         ], $scopes);
         return $response;
+    }
+
+    public function getSmartContractLegalContent()
+    {
+        $scopes = [
+
+        ];
+
+        $response = $this->execute([
+
+        ]);
     }
 }

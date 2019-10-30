@@ -84,7 +84,7 @@ class SmartContractService extends Service
         $smartContractDetail = new stdClass();
         $smartContractDetail->smart_contract_serial = $response->smart_contract_serial;
         $smartContractDetail->order_date = date('d-m-Y', strtotime($response->created_at));
-        $smartContractDetail->total_price = $response->total_price;
+        $smartContractDetail->total_price = 'Rp ' . $response->total_price;
         $smartContractDetail->status = $response->status;
         $statusDetailParams = [
             'on_going_order' => $response->on_going_order,

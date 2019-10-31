@@ -37,39 +37,29 @@ class SmartContractRepository
             'smart_contract_status.name as status'
         ];
 
-        $smart_contracts = DB::table('smart_contracts')
+        $smartContracts = DB::table('smart_contracts')
             ->join('smart_contract_status',
                 'smart_contracts.smart_contract_status_id',
                 '=',
                 'smart_contract_status.id')
-            ->where('vendor_id', '=', $filters['vendor_id'])
             ->select($columns);
 
-        if(isset($filters['smart_contract_serial'])) {
-            $smart_contracts->where(
-                'smart_contracts.smart_contract_serial',
-                '=',
-                $filters['smart_contract_serial']
-            );
+        foreach ($filters as $filter) {
+            if($filter['operator'] == 'Between') {
+                $smartContracts->whereBetween(
+                    $filter['column'],
+                    $filter['value']
+                );
+            } else {
+                $smartContracts->where(
+                    $filter['column'],
+                    $filter['operator'],
+                    $filter['value']
+                );
+            }
         }
 
-        if(isset($filters['smart_contract_status_id'])) {
-            $smart_contracts->where(
-                'smart_contracts.smart_contract_status_id',
-                '=',
-                $filters['smart_contract_status_id']
-            );
-        }
-
-        if(isset($filters['start_date']) && isset($filters['end_date'])) {
-            $smart_contracts->whereBetween(
-                'smart_contracts.created_at', [
-                $filters['start_date'],
-                $filters['end_date']
-            ]);
-        }
-
-        return $smart_contracts->paginate($perPage);
+        return $smartContracts->paginate($perPage);
     }
 
     public function getSellerSmartContract($smartContractSerial)
@@ -125,5 +115,12 @@ class SmartContractRepository
     {
         return DB::table('smart_contract_details')
             ->insert($smartContractDetails);
+    }
+
+    public function orderExists($orderSerial)
+    {
+        return DB::table('smart_contract_details')
+            ->where('order_serial', '=', $orderSerial)
+            ->exists();
     }
 }

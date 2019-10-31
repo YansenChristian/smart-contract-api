@@ -40,18 +40,18 @@ class GetSellerSmartContractsLogic extends BusinessLogic
             ->getSellerSmartContracts($filters, $perPage);
 
         $buyerUserIds = array_column($smartContracts->getCollection()->toArray(), 'buyer_user_id');
-
         if(count($buyerUserIds) > 0) {
             $buyerUserIds = array_map("encode", $buyerUserIds);
             $payloads = [
                 'authorization' => $authorizationDTO->bearer,
                 'user_ids' => $buyerUserIds
             ];
+
             $buyers = $this->userApiRepository
                 ->getUsersByIds($payloads);
 
             $smartContracts->getCollection()->transform(function ($smartContract) use ($buyers){
-                $smartContract->buyer_name = $buyers[$smartContract->buyer_user_id];
+                $smartContract->buyer_name = $buyers[encode($smartContract->buyer_user_id)];
                 return $smartContract;
             });
         }

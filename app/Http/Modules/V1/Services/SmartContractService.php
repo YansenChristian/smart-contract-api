@@ -4,12 +4,14 @@
 namespace App\Http\Modules\V1\Services;
 
 
+use App\Http\Modules\V1\BusinessLogics\Orders\CheckIfOrderIsSmartContractLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\CreateSmartContractLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GenerateSmartContractSerialLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSellerSmartContractDetailLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSellerSmartContractsLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSmartContractCounterLogic;
 use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
+use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDetailDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDTO;
 use App\Http\Modules\V1\Enumerations\SmartContracts\SmartContractStatus;
 use App\Http\Modules\V1\Service;
@@ -134,5 +136,18 @@ class SmartContractService extends Service
             CreateSmartContractLogic::class
         ], $scopes);
         return $response;
+    }
+
+    public function checkIfOrderIsSmartContract(SmartContractDetailDTO $smartContractDetailDTO)
+    {
+        $scopes = [
+            'INPUT::SmartContractDetailDTO' => $smartContractDetailDTO
+        ];
+
+        $response = $this->execute([
+            CheckIfOrderIsSmartContractLogic::class
+        ], $scopes);
+
+        return $response[CheckIfOrderIsSmartContractLogic::class];
     }
 }

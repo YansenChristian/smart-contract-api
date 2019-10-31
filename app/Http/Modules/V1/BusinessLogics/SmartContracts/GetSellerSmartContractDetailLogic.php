@@ -78,6 +78,7 @@ class GetSellerSmartContractDetailLogic extends BusinessLogic
         $smartContractLogs = $this->logRepository->getSmartContractLog($smartContractId);
         $authorizationDTO = $this->getScope('INPUT::AuthorizationDTO');
         $userIds = $smartContractLogs->pluck('user_id')->toArray();
+        $userIds = array_map('encode', $userIds);
 
         # Append User Data by using User Id
         $payloads = [
@@ -86,7 +87,7 @@ class GetSellerSmartContractDetailLogic extends BusinessLogic
         ];
         $users = $this->userApiRepository->getUsersByIds($payloads);
         foreach ($smartContractLogs as $log) {
-            $log->user_name = $users[$log->user_id];
+            $log->user_name = $users[encode($log->user_id)];
         }
 
         return$smartContractLogs;

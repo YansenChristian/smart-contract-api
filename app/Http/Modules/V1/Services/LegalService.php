@@ -30,6 +30,7 @@ class LegalService extends Service
         $newValue->quantity = $legalContent->quantity;
         $newValue->shipping_price = $legalContent->shipping_price;
         $newValue->shipping_address = $legalContent->shipping_address;
+        $newValue->order_date = date('j F Y', strtotime($legalContent->order_date));
         $newValue->smart_contract_serial = $smartContractDTO->smart_contract_serial;
         $newValue->smart_contract_details = [];
 

@@ -49,6 +49,7 @@ class GetLegalContentLogic extends BusinessLogic
 
         $legalContent = (object) $order;
         $legalContent->order_serials = $orderSerials;
+        $legalContent->order_date = $smartContractDetails[0]->created_at;
 
         $this->putScope('DB::LegalContent', $legalContent);
         return $legalContent;

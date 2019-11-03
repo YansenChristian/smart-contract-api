@@ -11,6 +11,7 @@ class LegalRepository
     public function getContent($smartContractSerial)
     {
         $columns = [
+            'smart_contract_details.created_at',
             'smart_contract_details.order_serial'
         ];
 

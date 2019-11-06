@@ -25,7 +25,12 @@ class LegalController extends Controller
         }
 
         $authorizationDTO = new AuthorizationDTO();
-        $authorizationDTO->bearer = $request->header('Authorization');
+        if($request->hasHeader('Authorization')) {
+            $authorizationDTO->bearer = $request->header('Authorization');
+        }
+        if($request->hasHeader('x-access-token')) {
+            $authorizationDTO->x_access_token = $request->header('x-access-token');
+        }
 
         $smartContractDTO = new SmartContractDTO();
         $smartContractDTO->smart_contract_serial = $request->get('smart_contract_serial');

@@ -42,10 +42,14 @@ class GetLegalContentLogic extends BusinessLogic
         $orderSerials = array_column($smartContractDetails, 'order_serial');
 
         $payloads = [
-            'authorization' => $authorizationDTO->bearer,
             'order_serial' => $orderSerials[0]
         ];
-        $order = $this->orderApiRepository->getOrderForSmartContractLegalContent($payloads);
+
+        $headers = [
+            'x-access-token' => $authorizationDTO->x_access_token
+        ];
+
+        $order = $this->orderApiRepository->getOrderForSmartContractLegalContent($payloads, $headers);
 
         $legalContent = (object) $order;
         $legalContent->order_serials = $orderSerials;

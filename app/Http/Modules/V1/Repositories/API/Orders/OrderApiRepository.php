@@ -32,21 +32,6 @@ class OrderApiRepository
         return json_decode($request_api->getBody()->getContents(), true);
     }
 
-    public function reviveSmartContractOrders($payloads)
-    {
-        $client = new Client();
-        $request_api = $client->get(env('API_CORE_URL') . 'v4/orders/smart-contract-legal', [
-            'headers' => [
-                'Authorization' => $payloads['authorization']
-            ],
-            'query' => [
-                'order_serial' => $payloads['order_serial']
-            ]
-        ]);
-
-        return json_decode($request_api->getBody()->getContents(), true);
-    }
-
     public function createSmartContractOrders($payloads, $header)
     {
         $client = new Client();

@@ -31,8 +31,6 @@ class VendorController extends Controller
         $vendorDTO->id = decode($vendor_id);
 
         $result = $vendorService->checkIfVendorIsSmartContract($vendorDTO);
-        return response()->json([
-             $result
-        ], 200);
+        return response()->json($result, 200);
     }
 }

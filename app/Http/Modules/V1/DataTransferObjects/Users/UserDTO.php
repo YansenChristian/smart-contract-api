@@ -6,7 +6,7 @@ namespace App\Http\Modules\V1\DataTransferObjects\Users;
 
 use App\Http\Modules\V1\DTO;
 
-class SellerDTO extends DTO
+class UserDTO extends DTO
 {
     public $id;
 

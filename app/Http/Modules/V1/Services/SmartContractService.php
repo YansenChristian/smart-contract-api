@@ -5,6 +5,7 @@ namespace App\Http\Modules\V1\Services;
 
 
 use App\Http\Modules\V1\BusinessLogics\Orders\CheckIfOrderIsSmartContractLogic;
+use App\Http\Modules\V1\BusinessLogics\Orders\CreateSmartContractOrdersLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\CreateSmartContractLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GenerateSmartContractSerialLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSellerSmartContractDetailLogic;
@@ -13,16 +14,29 @@ use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSmartContractCounterLog
 use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDetailDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDTO;
+use App\Http\Modules\V1\DataTransferObjects\Users\VendorDTO;
 use App\Http\Modules\V1\Enumerations\SmartContracts\SmartContractStatus;
 use App\Http\Modules\V1\Service;
 use stdClass;
 
 class SmartContractService extends Service
 {
-    public function getCounter()
+    public function getCounter(VendorDTO $vendorDTO)
     {
-        $response = $this->execute([GetSmartContractCounterLogic::class]);
-        return ($response[GetSmartContractCounterLogic::class]);
+        $scopes = [
+            'INPUT::VendorDTO' => $vendorDTO
+        ];
+
+        $response = $this->execute([GetSmartContractCounterLogic::class], $scopes);
+        $counter = $response[GetSmartContractCounterLogic::class]->toArray();
+
+        foreach (SmartContractStatus::getConstants() as $status) {
+            if(!isset($counter[$status['name']])) {
+                $counter[$status['name']] = 0;
+            }
+        }
+
+        return $counter;
     }
 
     public function getSellerSmartContracts(AuthorizationDTO $authorizationDTO, $filters, $perPage)
@@ -123,17 +137,24 @@ class SmartContractService extends Service
         return $smartContractDetail;
     }
 
-    public function createSmartContract(AuthorizationDTO $authorizationDTO, SmartContractDTO $smartContractDTO, $orderDates)
+    public function createSmartContract(
+        AuthorizationDTO $authorizationDTO,
+        SmartContractDTO $smartContractDTO,
+        $orderDates,
+        $checkoutData
+    )
     {
         $scopes = [
             'INPUT::AuthorizationDTO' => $authorizationDTO,
             'INPUT::SmartContractDTO' => $smartContractDTO,
-            'INPUT::OrderDates' => $orderDates
+            'INPUT::OrderDates' => $orderDates,
+            'INPUT::CheckoutData' => $checkoutData,
         ];
 
         $response = $this->execute([
             GenerateSmartContractSerialLogic::class,
-            CreateSmartContractLogic::class
+            CreateSmartContractLogic::class,
+            CreateSmartContractOrdersLogic::class,
         ], $scopes);
         return $response;
     }

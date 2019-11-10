@@ -23,8 +23,14 @@ class GetSmartContractCounterLogic extends BusinessLogic
      */
     public function run()
     {
+        $this->validateScopes([
+            'INPUT::VendorDTO' => 'required'
+        ]);
+
+        $vendorDTO = $this->getScope('INPUT::VendorDTO');
+
         $counterPerStatusName = $this->smartContractRepository
-            ->getCounter()
+            ->getCounter($vendorDTO->id)
             ->pluck('subtotal', 'name');
 
         #calculate total count from each status

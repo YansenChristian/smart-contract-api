@@ -41,15 +41,7 @@ class GetLegalContentLogic extends BusinessLogic
 
         $orderSerials = array_column($smartContractDetails, 'order_serial');
 
-        $payloads = [
-            'order_serial' => $orderSerials[0]
-        ];
-
-        $headers = [
-            'x-access-token' => $authorizationDTO->x_access_token
-        ];
-
-        $order = $this->orderApiRepository->getOrderForSmartContractLegalContent($payloads, $headers);
+        $order = $this->getOrder($authorizationDTO, $orderSerials[0]);
 
         $legalContent = (object) $order;
         $legalContent->order_serials = $orderSerials;
@@ -57,5 +49,22 @@ class GetLegalContentLogic extends BusinessLogic
 
         $this->putScope('DB::LegalContent', $legalContent);
         return $legalContent;
+    }
+
+    private function getOrder($authorizationDTO, $orderSerial)
+    {
+        $payloads = [
+            'order_serial' => $orderSerial
+        ];
+
+        $headers = [];
+        if(isset($authorizationDTO->bearer)) {
+            $headers['Authorization'] = $authorizationDTO->bearer;
+        }
+        if(isset($authorizationDTO->access_token)) {
+            $headers['x-access-token'] = $authorizationDTO->access_token;
+        }
+
+        return $this->orderApiRepository->getOrderForSmartContractLegalContent($payloads, $headers);
     }
 }

@@ -44,7 +44,7 @@ class GetSellerSmartContractDetailLogic extends BusinessLogic
             $smartContractDTO->smart_contract_serial
         );
         $smartContractOrders = $this->getSmartContractOrders($smartContract->id);
-        $smartContractLogs = $this->getSmartContractLogs($smartContract->id);
+        $smartContractLogs = $this->getSmartContractLogs($smartContract->smart_contract_serial);
 
         # Merging Data
         $smartContractDetail = (object) array_merge(
@@ -73,9 +73,9 @@ class GetSellerSmartContractDetailLogic extends BusinessLogic
         return $this->smartContractApiRepository->getSmartContractDetail($payloads);
     }
 
-    private function getSmartContractLogs($smartContractId)
+    private function getSmartContractLogs($smartContractSerial)
     {
-        $smartContractLogs = $this->logRepository->getSmartContractLog($smartContractId);
+        $smartContractLogs = $this->logRepository->getSmartContractLog($smartContractSerial);
         $authorizationDTO = $this->getScope('INPUT::AuthorizationDTO');
         $userIds = $smartContractLogs->pluck('user_id')->toArray();
         $userIds = array_map('encode', $userIds);

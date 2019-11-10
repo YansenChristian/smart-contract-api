@@ -6,7 +6,10 @@ namespace App\Http\Controllers\V1;
 use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDetailDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDTO;
+use App\Http\Modules\V1\DataTransferObjects\Users\UserDTO;
+use App\Http\Modules\V1\DataTransferObjects\Users\VendorDTO;
 use App\Http\Modules\V1\Enumerations\SmartContracts\SmartContractStatus;
+use App\Http\Modules\V1\Services\LegalService;
 use App\Http\Modules\V1\Services\SmartContractService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -16,16 +19,26 @@ class SmartContractController extends Controller
 {
     public function getCounter(Request $request, SmartContractService $smartContractService)
     {
-        $counters = $smartContractService->getCounter();
-        return response()->json([
-            $counters
-        ], 200);
+        $rules = [
+            'vendor_id' => 'required'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if($validator->fails()){
+            throw new \Exception($validator->getMessageBag());
+        }
+
+        $vendorDTO = new VendorDTO();
+        $vendorDTO->id = decode($request->get('vendor_id'));
+
+        $counters = $smartContractService->getCounter($vendorDTO);
+        return response()->json($counters, 200);
     }
 
     public function getSmartContracts(Request $request, SmartContractService $smartContractService)
     {
         $rules = [
-            'user_id' => 'required|string',
+            'vendor_id' => 'required|string',
             'role' => 'required|string|in:Admin,Seller,Buyer',
             'page' => 'int',
             'limit' => 'int'
@@ -125,7 +138,7 @@ class SmartContractController extends Controller
                 $filters[] = [
                     'column' => 'smart_contracts.vendor_id',
                     'operator' => '=',
-                    'value' => decode($request->get('user_id'))
+                    'value' => decode($request->get('vendor_id'))
                 ];
 
                 $response = $smartContractService->getSellerSmartContracts($authorizationDTO, $filters, $perPage);
@@ -154,8 +167,6 @@ class SmartContractController extends Controller
     public function postCreateSmartContract(Request $request, SmartContractService $smartContractService)
     {
         $rules = [
-            'buyer_id' => 'required|string',
-            'vendor_id' => 'required|string',
             'total_order' => 'required|int',
             'order_dates' => 'required|array',
             'order_dates.*' => 'date_format:d-m-Y'
@@ -167,16 +178,33 @@ class SmartContractController extends Controller
         }
 
         $smartContractDTO = new SmartContractDTO();
-        $smartContractDTO->vendor_id = $request->get('vendor_id');
-        $smartContractDTO->buyer_user_id = $request->get('buyer_id');
+        $smartContractDTO->vendor_id = $request->get('cart_data')[0]['vendor_id'];
+        $smartContractDTO->buyer_user_id = $request->get('user_id');
+        $smartContractDTO->payment_method_id = $request->get('payment_id');
+        $smartContractDTO->smart_contract_status_id = SmartContractStatus::WAITING['id'];
         $smartContractDTO->total_order = $request->get('total_order');
+        $smartContractDTO->buyer_notes = isset($request->get('cart_data')[0]['comment'])
+            ? $request->get('cart_data')[0]['comment']
+            : '';
+        $smartContractDTO->total_price = $request->get('grand_total') * $request->get('total_order');
 
         $authorizationDTO = new AuthorizationDTO();
-        $authorizationDTO->bearer = $request->header('authorization');
+        if($request->hasHeader('Authorization')) {
+            $authorizationDTO->bearer = $request->header('Authorization');
+        }
+        if($request->hasHeader('x-access-token')) {
+            $authorizationDTO->access_token = $request->header('x-access-token');
+        }
 
         $orderDates = $request->get('order_dates');
+        $checkoutData = $request->all();
 
-        $smartContractService->createSmartContract($authorizationDTO, $smartContractDTO, $orderDates);
+        $smartContractService->createSmartContract(
+            $authorizationDTO,
+            $smartContractDTO,
+            $orderDates,
+            $checkoutData
+        );
 
         return response()->json(null, 201);
     }
@@ -197,6 +225,43 @@ class SmartContractController extends Controller
 
         $response = $smartContractService->checkIfOrderIsSmartContract($smartContractDetailDTO);
 
+        return response()->json($response, 200);
+    }
+
+    public function patchUpdateStatus(Request $request, $smart_contract_serial, LegalService $legalService)
+    {
+        $rules = [
+            'status' => 'required|in:APPROVED,REJECTED,IN_PROGRESS,CANCELED,ENDED',
+            'user_id' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if($validator->fails()){
+            throw new \Exception($validator->getMessageBag());
+        }
+
+        $smartContractDTO = new SmartContractDTO();
+        $smartContractDTO->smart_contract_serial = smartContractSerialToOriginal($smart_contract_serial);
+        $smartContractDTO->smart_contract_status_id = SmartContractStatus::getByName($request->get('status'))['id'];
+
+        $userDTO = new UserDTO();
+        $userDTO->id = decode($request->get('user_id'));
+
+        switch($smartContractDTO->smart_contract_status_id) {
+            case SmartContractStatus::APPROVED['id']:
+                break;
+            case SmartContractStatus::REJECTED['id']:
+                break;
+            case SmartContractStatus::CANCELED['id']:
+                break;
+        }
+
+        $response = [
+            "message" => trans(
+                'SmartContracts/update_status_response.' . SmartContractStatus::getByName($request->get('status'))['name'],
+                ['smart_contract_serial' => $smartContractDTO->smart_contract_serial]
+            )
+        ];
         return response()->json($response, 200);
     }
 }

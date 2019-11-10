@@ -20,10 +20,10 @@ class LogRepository
             ->insert($logData);
     }
 
-    public function getSmartContractLog($smartContractId)
+    public function getSmartContractLog($smartContractSerial)
     {
         return DB::table('smart_contract_logs')
-            ->where('smart_contract_id', '=', $smartContractId)
+            ->where('smart_contract_serial', '=', $smartContractSerial)
             ->get();
     }
 }

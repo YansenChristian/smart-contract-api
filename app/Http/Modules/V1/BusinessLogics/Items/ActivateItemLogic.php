@@ -59,7 +59,7 @@ class ActivateItemLogic extends BusinessLogic
 
         $itemLogDTO = new ItemLogDTO();
         $itemLogDTO->item_id = $itemDTO->item_id;
-        $itemLogDTO->seller_user_id = $sellerDTO->seller_user_id;
+        $itemLogDTO->seller_user_id = $sellerDTO->id;
         $itemLogDTO->action ='Activate';
 
         $this->logRepository->addItemLog($itemLogDTO->toArray());

@@ -34,7 +34,7 @@ class CreateSmartContractLogic extends BusinessLogic
         $this->validateScopes([
             'INPUT::OrderDates' => 'required',
             'INPUT::SmartContractDTO' => 'required',
-            'INPUT::AuthorizationDTO' => 'required'
+            'INPUT::AuthorizationDTO' => 'required',
         ]);
 
         $smartContractSerial = $this->getScope('DB::SmartContractSerial');
@@ -48,13 +48,28 @@ class CreateSmartContractLogic extends BusinessLogic
         $smartContractDTO->id = $smartContractId;
 
         $payloads = [
-            'authorization' => $authorizationDTO->bearer,
             'order_dates' => $orderDates
         ];
-        $orderSerials = $this->orderApiRepository->generateOrderSerialsBasedOnDates($payloads);
+
+        $orderSerials = $this->generateOrderSerial($authorizationDTO, $payloads);
+
+        $this->putScope('API::OrderSerials', $orderSerials);
 
         $this->createDetail($smartContractDTO, $orderSerials);
         $this->createLog($smartContractDTO);
+    }
+
+    private function generateOrderSerial($authorizationDTO, $payloads)
+    {
+        $headers = [];
+        if(isset($authorizationDTO->bearer)) {
+            $headers['Authorization'] = $authorizationDTO->bearer;
+        }
+        if(isset($authorizationDTO->access_token)) {
+            $headers['x-access-token'] = $authorizationDTO->access_token;
+        }
+
+        return $this->orderApiRepository->generateOrderSerialsBasedOnDates($payloads, $headers);
     }
 
     private function createDetail($smartContractDTO, $orderSerials)
@@ -72,12 +87,12 @@ class CreateSmartContractLogic extends BusinessLogic
 
     private function createLog($smartContractDTO)
     {
-        $smartContractlogDTO = new SmartContractLogDTO();
-        $smartContractlogDTO->smart_contract_id = $smartContractDTO->id;
-        $smartContractlogDTO->smart_contract_serial = $smartContractDTO->smart_contract_serial;
-        $smartContractlogDTO->smart_contract_status = SmartContractStatus::CREATED['name'];
-        $smartContractlogDTO->information = trans(SmartContractStatus::CREATED['description']) ;
+        $smartContractLogDTO = new SmartContractLogDTO();
+        $smartContractLogDTO->smart_contract_serial = $smartContractDTO->smart_contract_serial;
+        $smartContractLogDTO->smart_contract_status = SmartContractStatus::WAITING['name'];
+        $smartContractLogDTO->information = trans(SmartContractStatus::WAITING['description']) ;
+        $smartContractLogDTO->user_id = $smartContractDTO->buyer_user_id;
 
-        $this->logRepository->addSmartContractLog($smartContractlogDTO->toArray());
+        $this->logRepository->addSmartContractLog($smartContractLogDTO->toArray());
     }
 }

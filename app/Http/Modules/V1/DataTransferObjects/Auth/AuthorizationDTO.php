@@ -9,7 +9,7 @@ use App\Http\Modules\V1\DTO;
 class AuthorizationDTO extends DTO
 {
     public $bearer;
-    public $x_access_token;
+    public $access_token;
 
     public function __construct()
     {

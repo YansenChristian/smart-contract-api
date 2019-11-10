@@ -4,23 +4,24 @@
 namespace App\Http\Modules\V1\Repositories\Database\SmartContracts;
 
 
+use App\Http\Modules\V1\Enumerations\SmartContracts\SmartContractStatus;
 use Illuminate\Support\Facades\DB;
-use stdClass;
 
 class SmartContractRepository
 {
-    public function getCounter()
+    public function getCounter($vendorId)
     {
         $selectStatement = [
             'smart_contract_status.name',
             DB::raw('COUNT(*) AS subtotal')
         ];
-        return DB::table('smart_contracts')
-            ->join('smart_contract_status',
+        return DB::table('smart_contract_status')
+            ->leftJoin('smart_contracts',
                 'smart_contracts.smart_contract_status_id',
                 '=',
                 'smart_contract_status.id')
             ->groupBy('smart_contract_status_id')
+            ->where('vendor_id', '=', $vendorId)
             ->select($selectStatement)
             ->get();
     }

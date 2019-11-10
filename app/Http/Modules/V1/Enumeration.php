@@ -14,7 +14,7 @@ abstract class Enumeration
      */
     public static function getById($id)
     {
-        return call_user_func(self::$childClass.'::getConstants')[--$id];
+        return call_user_func(self::$childClass.'::getConstants')[$id];
     }
 
     /**

@@ -34,11 +34,6 @@ class CreateSmartContractOrdersLogic extends BusinessLogic
         $checkoutData = $this->getScope('INPUT::CheckoutData');
 
         $checkoutData['order_serials'] = $orderSerials;
-        $checkoutData['user_id'] = decode($checkoutData['user_id']);
-        $checkoutData['cart_id'] = decode($checkoutData['cart_id']);
-        $checkoutData['shipping_address_id'] = decode($checkoutData['shipping_address_id']);
-        $checkoutData['billing_address_id'] = decode($checkoutData['billing_address_id']);
-        $checkoutData['payment_id'] = decode($checkoutData['payment_id']);
 
         $headers = [];
         if(isset($authorizationDTO->bearer)) {

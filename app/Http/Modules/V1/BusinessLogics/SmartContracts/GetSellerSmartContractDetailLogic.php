@@ -85,9 +85,18 @@ class GetSellerSmartContractDetailLogic extends BusinessLogic
             'authorization' => $authorizationDTO->bearer,
             'user_ids' => $userIds
         ];
-        $users = $this->userApiRepository->getUsersByIds($payloads);
+
+        $headers = [];
+        if(isset($authorizationDTO->bearer)) {
+            $headers['Authorization'] = $authorizationDTO->bearer;
+        }
+        if(isset($authorizationDTO->access_token)) {
+            $headers['x-access-token'] = $authorizationDTO->access_token;
+        }
+
+        $users = $this->userApiRepository->getUsersByIds($payloads, $headers);
         foreach ($smartContractLogs as $log) {
-            $log->user_name = $users[encode($log->user_id)];
+            $log->user_name = $users[encode($log->user_id)]['name'];
         }
 
         return$smartContractLogs;

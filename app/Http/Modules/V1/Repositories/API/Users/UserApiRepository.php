@@ -8,13 +8,11 @@ use GuzzleHttp\Client;
 
 class UserApiRepository
 {
-    public function getUsersByIds($payloads)
+    public function getUsersByIds($payloads, $headers)
     {
         $client = new Client();
         $request_api = $client->get(env('API_CORE_URL') . 'api/v4/users', [
-            'headers' => [
-                'Authorization' => $payloads['authorization']
-            ],
+            'headers' => $headers,
             'query' => [
                 'user_ids' => $payloads['user_ids']
             ]

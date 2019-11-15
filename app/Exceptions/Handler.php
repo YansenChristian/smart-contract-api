@@ -62,7 +62,7 @@ class Handler extends ExceptionHandler
 
     public function render($request, Exception $exception)
     {
-        dd($exception->getMessage(), 'Handler');
+        dd($exception);
         if($exception instanceof RLException) {
             return $exception->getResponse();
         }

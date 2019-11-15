@@ -46,4 +46,15 @@ class OrderApiRepository
 
         return json_decode($request_api->getBody()->getContents(), true);
     }
+
+    public function activateSmartContractOrder($payloads, $header)
+    {
+        $client = new Client();
+        $request_api = $client->post(env('API_CORE_URL') . 'v4/orders/activate', [
+            'headers' => $header,
+            'form_params' => $payloads
+        ]);
+
+        return json_decode($request_api->getBody()->getContents(), true);
+    }
 }

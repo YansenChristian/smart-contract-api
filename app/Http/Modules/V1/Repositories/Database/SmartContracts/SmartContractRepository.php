@@ -84,6 +84,13 @@ class SmartContractRepository
             ->first();
     }
 
+    public function getBySerialNumber(array $columns, $smartContractSerial)
+    {
+        return DB::table('smart_contracts')
+            ->where('smart_contract_serial', '=', $smartContractSerial)
+            ->first();
+    }
+
     public function getDetail($smartContractId)
     {
         $columns = [
@@ -123,5 +130,23 @@ class SmartContractRepository
         return DB::table('smart_contract_details')
             ->where('order_serial', '=', $orderSerial)
             ->exists();
+    }
+
+    public function updateStatusBySerialNumber($smartContractSerial, array $status)
+    {
+        return DB::table('smart_contracts')
+            ->where('smart_contract_serial', '=', $smartContractSerial)
+            ->update([
+                'smart_contract_status_id' => $status['id']
+            ]);
+    }
+
+    public function getSmartContractFirstOrderSerial($smartContractSerial)
+    {
+        return DB::table('smart_contracts')
+            ->join('smart_contract_details', 'smart_contracts.id', '=', 'smart_contract_details.smart_contract_id')
+            ->where('smart_contracts.smart_contract_serial', '=', $smartContractSerial)
+            ->select(['order_serial'])
+            ->first();
     }
 }

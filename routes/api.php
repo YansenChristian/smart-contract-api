@@ -38,7 +38,7 @@ $router->group([
         $router->get('counter', 'SmartContractController@getCounter');
         $router->get('orders/exists', 'SmartContractController@getCheckIfOrderIsSmartContract');
         $router->get('{smart_contract_serial}', 'SmartContractController@getSmartContractDetail');
-        $router->patch('{smart_contract_serial}/status', 'SmartContractController@patchUpdateStatus');
+        $router->post('{smart_contract_serial}/approve', 'SmartContractController@postApproveSmartContract');
     });
 
     $router->group(['prefix' => 'legals'], function () use ($router) {

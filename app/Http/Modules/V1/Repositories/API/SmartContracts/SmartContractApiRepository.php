@@ -4,6 +4,7 @@
 namespace App\Http\Modules\V1\Repositories\API\SmartContracts;
 
 
+use App\Http\Modules\V1\DataTransferObjects\Emails\UserDTO;
 use GuzzleHttp\Client;
 
 class SmartContractApiRepository

@@ -6,6 +6,7 @@ namespace App\Http\Modules\V1\Services;
 
 use App\Http\Modules\V1\BusinessLogics\Orders\CheckIfOrderIsSmartContractLogic;
 use App\Http\Modules\V1\BusinessLogics\Orders\CreateSmartContractOrdersLogic;
+use App\Http\Modules\V1\BusinessLogics\SmartContracts\ApproveSmartContractRequestLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\CreateSmartContractLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GenerateSmartContractSerialLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSellerSmartContractDetailLogic;
@@ -14,6 +15,7 @@ use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSmartContractCounterLog
 use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDetailDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDTO;
+use App\Http\Modules\V1\DataTransferObjects\Users\SellerDTO;
 use App\Http\Modules\V1\DataTransferObjects\Users\VendorDTO;
 use App\Http\Modules\V1\Enumerations\SmartContracts\SmartContractStatus;
 use App\Http\Modules\V1\Service;
@@ -170,5 +172,20 @@ class SmartContractService extends Service
         ], $scopes);
 
         return $response[CheckIfOrderIsSmartContractLogic::class];
+    }
+
+    public function approveSmartContract(AuthorizationDTO $authorizationDTO, SmartContractDTO $smartContractDTO, SellerDTO $sellerDTO)
+    {
+        $scopes = [
+            'INPUT::AuthorizationDTO' => $authorizationDTO,
+            'INPUT::SmartContractDTO' => $smartContractDTO,
+            'INPUT::SellerDTO' => $sellerDTO
+        ];
+
+        $response = $this->execute([
+            ApproveSmartContractRequestLogic::class
+        ], $scopes);
+
+        return $response[ApproveSmartContractRequestLogic::class];
     }
 }

@@ -6,10 +6,10 @@ namespace App\Http\Controllers\V1;
 use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDetailDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDTO;
+use App\Http\Modules\V1\DataTransferObjects\Users\SellerDTO;
 use App\Http\Modules\V1\DataTransferObjects\Users\UserDTO;
 use App\Http\Modules\V1\DataTransferObjects\Users\VendorDTO;
 use App\Http\Modules\V1\Enumerations\SmartContracts\SmartContractStatus;
-use App\Http\Modules\V1\Services\LegalService;
 use App\Http\Modules\V1\Services\SmartContractService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -179,9 +179,9 @@ class SmartContractController extends Controller
 
         $smartContractDTO = new SmartContractDTO();
         $smartContractDTO->vendor_id = $request->get('cart_data')[0]['vendor_id'];
-        $smartContractDTO->buyer_user_id = $request->get('user_id');
+        $smartContractDTO->buyer_user_id = decode($request->get('user_id'));
         $smartContractDTO->payment_method_id = $request->get('payment_id');
-        $smartContractDTO->smart_contract_status_id = SmartContractStatus::WAITING['id'];
+        $smartContractDTO->smart_contract_status = SmartContractStatus::WAITING;
         $smartContractDTO->total_order = $request->get('total_order');
         $smartContractDTO->buyer_notes = isset($request->get('cart_data')[0]['comment'])
             ? $request->get('cart_data')[0]['comment']
@@ -228,10 +228,9 @@ class SmartContractController extends Controller
         return response()->json($response, 200);
     }
 
-    public function patchUpdateStatus(Request $request, $smart_contract_serial, LegalService $legalService)
+    public function postApproveSmartContract(Request $request, $smart_contract_serial, SmartContractService $smartContractService)
     {
         $rules = [
-            'status' => 'required|in:APPROVED,REJECTED,IN_PROGRESS,CANCELED,ENDED',
             'user_id' => 'required',
         ];
 
@@ -240,25 +239,26 @@ class SmartContractController extends Controller
             throw new \Exception($validator->getMessageBag());
         }
 
+        $authorizationDTO = new AuthorizationDTO();
+        if($request->hasHeader('Authorization')) {
+            $authorizationDTO->bearer = $request->header('Authorization');
+        }
+        if($request->hasHeader('x-access-token')) {
+            $authorizationDTO->access_token = $request->header('x-access-token');
+        }
+
         $smartContractDTO = new SmartContractDTO();
         $smartContractDTO->smart_contract_serial = smartContractSerialToOriginal($smart_contract_serial);
-        $smartContractDTO->smart_contract_status_id = SmartContractStatus::getByName($request->get('status'))['id'];
+        $smartContractDTO->smart_contract_status = SmartContractStatus::APPROVED;
 
-        $userDTO = new UserDTO();
-        $userDTO->id = decode($request->get('user_id'));
+        $sellerDTO = new SellerDTO();
+        $sellerDTO->id = decode($request->get('user_id'));
 
-        switch($smartContractDTO->smart_contract_status_id) {
-            case SmartContractStatus::APPROVED['id']:
-                break;
-            case SmartContractStatus::REJECTED['id']:
-                break;
-            case SmartContractStatus::CANCELED['id']:
-                break;
-        }
+        $smartContractService->approveSmartContract($authorizationDTO, $smartContractDTO, $sellerDTO);
 
         $response = [
             "message" => trans(
-                'SmartContracts/update_status_response.' . SmartContractStatus::getByName($request->get('status'))['name'],
+                'SmartContracts/update_status_response.' . SmartContractStatus::APPROVED['name'],
                 ['smart_contract_serial' => $smartContractDTO->smart_contract_serial]
             )
         ];

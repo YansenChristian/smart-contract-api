@@ -8,6 +8,7 @@ use App\Http\Modules\V1\BusinessLogic;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractLogDTO;
 use App\Http\Modules\V1\Enumerations\SmartContracts\SmartContractStatus;
 use App\Http\Modules\V1\Repositories\API\Orders\OrderApiRepository;
+use App\Http\Modules\V1\Repositories\Database\Legals\LegalRepository;
 use App\Http\Modules\V1\Repositories\Database\Logs\LogRepository;
 use App\Http\Modules\V1\Repositories\Database\SmartContracts\SmartContractRepository;
 
@@ -15,6 +16,7 @@ class CreateSmartContractLogic extends BusinessLogic
 {
     private $smartContractRepository;
     private $orderApiRepository;
+    private $legalRepository;
     private $logRepository;
 
     public function __construct($scopes)
@@ -22,6 +24,7 @@ class CreateSmartContractLogic extends BusinessLogic
         $this->scopes = $scopes;
         $this->smartContractRepository = new SmartContractRepository();
         $this->orderApiRepository = new OrderApiRepository();
+        $this->legalRepository = new LegalRepository();
         $this->logRepository = new LogRepository();
     }
 
@@ -35,6 +38,7 @@ class CreateSmartContractLogic extends BusinessLogic
             'INPUT::OrderDates' => 'required',
             'INPUT::SmartContractDTO' => 'required',
             'INPUT::AuthorizationDTO' => 'required',
+            'DB::SmartContractSerial' => 'required',
         ]);
 
         $smartContractSerial = $this->getScope('DB::SmartContractSerial');
@@ -50,16 +54,15 @@ class CreateSmartContractLogic extends BusinessLogic
         $payloads = [
             'order_dates' => $orderDates
         ];
-
-        $orderSerials = $this->generateOrderSerial($authorizationDTO, $payloads);
-
+        $orderSerials = $this->generateOrderSerials($authorizationDTO, $payloads);
         $this->putScope('API::OrderSerials', $orderSerials);
 
         $this->createDetail($smartContractDTO, $orderSerials);
+        $this->createLegal($smartContractDTO);
         $this->createLog($smartContractDTO);
     }
 
-    private function generateOrderSerial($authorizationDTO, $payloads)
+    private function generateOrderSerials($authorizationDTO, $payloads)
     {
         $headers = [];
         if(isset($authorizationDTO->bearer)) {
@@ -83,6 +86,17 @@ class CreateSmartContractLogic extends BusinessLogic
         }
 
         $this->smartContractRepository->createDetail($smartContractDetailData);
+    }
+
+    private function createLegal($smartContractDTO)
+    {
+        $legalData = [
+            'smart_contract_serial' => $smartContractDTO->smart_contract_serial,
+            'buyer_user_id' => $smartContractDTO->buyer_user_id,
+            'buyer_approved_on' => date('d-m-Y')
+        ];
+
+        $this->legalRepository->create($legalData);
     }
 
     private function createLog($smartContractDTO)

@@ -12,6 +12,7 @@ use App\Http\Modules\V1\BusinessLogics\SmartContracts\GenerateSmartContractSeria
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSellerSmartContractDetailLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSellerSmartContractsLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSmartContractCounterLogic;
+use App\Http\Modules\V1\BusinessLogics\SmartContracts\RejectSmartContractRequestLogic;
 use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDetailDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDTO;
@@ -187,5 +188,20 @@ class SmartContractService extends Service
         ], $scopes);
 
         return $response[ApproveSmartContractRequestLogic::class];
+    }
+
+    public function rejectSmartContract(AuthorizationDTO $authorizationDTO, SmartContractDTO $smartContractDTO, SellerDTO $sellerDTO)
+    {
+        $scopes = [
+            'INPUT::AuthorizationDTO' => $authorizationDTO,
+            'INPUT::SmartContractDTO' => $smartContractDTO,
+            'INPUT::SellerDTO' => $sellerDTO
+        ];
+
+        $response = $this->execute([
+            RejectSmartContractRequestLogic::class
+        ], $scopes);
+
+        return $response[RejectSmartContractRequestLogic::class];
     }
 }

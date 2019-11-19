@@ -256,12 +256,45 @@ class SmartContractController extends Controller
 
         $smartContractService->approveSmartContract($authorizationDTO, $smartContractDTO, $sellerDTO);
 
-        $response = [
-            "message" => trans(
-                'SmartContracts/update_status_response.' . SmartContractStatus::APPROVED['name'],
-                ['smart_contract_serial' => $smartContractDTO->smart_contract_serial]
-            )
+        $response = trans(
+            'SmartContracts/update_status_response.' . SmartContractStatus::APPROVED['name'],
+            ['smart_contract_serial' => $smartContractDTO->smart_contract_serial]
+        );
+        return response()->json($response, 200);
+    }
+
+    public function postRejectSmartContract(Request $request, $smart_contract_serial, SmartContractService $smartContractService)
+    {
+        $rules = [
+            'user_id' => 'required',
         ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if($validator->fails()){
+            throw new \Exception($validator->getMessageBag());
+        }
+
+        $authorizationDTO = new AuthorizationDTO();
+        if($request->hasHeader('Authorization')) {
+            $authorizationDTO->bearer = $request->header('Authorization');
+        }
+        if($request->hasHeader('x-access-token')) {
+            $authorizationDTO->access_token = $request->header('x-access-token');
+        }
+
+        $smartContractDTO = new SmartContractDTO();
+        $smartContractDTO->smart_contract_serial = smartContractSerialToOriginal($smart_contract_serial);
+        $smartContractDTO->smart_contract_status = SmartContractStatus::REJECTED;
+
+        $sellerDTO = new SellerDTO();
+        $sellerDTO->id = decode($request->get('user_id'));
+
+        $smartContractService->rejectSmartContract($authorizationDTO, $smartContractDTO, $sellerDTO);
+
+        $response = trans(
+            'SmartContracts/update_status_response.' . SmartContractStatus::REJECTED['name'],
+            ['smart_contract_serial' => $smartContractDTO->smart_contract_serial]
+        );
         return response()->json($response, 200);
     }
 }

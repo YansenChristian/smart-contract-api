@@ -23,6 +23,10 @@ class SmartContractDTO extends DTO
 
     public function __construct()
     {
+        $this->hiddenFields = [
+            'smart_contract_status'
+        ];
+
         parent::__construct($this);
     }
 

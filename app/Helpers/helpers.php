@@ -58,12 +58,6 @@ function removeWhiteSpaceAndSymbol(string $string, string $replacement = '_')
     return $string;
 }
 
-function orderSerialToOriginal($order_serial_alias) {
-    $order_serial = str_replace('---', '/', $order_serial_alias);
-
-    return $order_serial;
-}
-
 function parseNumber($number)
 {
     if ($number && intval($number) != $number) {
@@ -1027,13 +1021,13 @@ function currency($v, $currency = 'Rp') {
     return sprintf('%s %s', $currency, $formatted);
 }
 
-function order_serial_to_original($order_serial_alias) {
+function orderSerialToOriginal($order_serial_alias) {
     $order_serial = str_replace('---', '/', $order_serial_alias);
 
     return $order_serial;
 }
 
-function order_serial_to_alias($order_serial_original) {
+function orderSerialToAlias($order_serial_original) {
     $order_serial = str_replace('/', '---', $order_serial_original);
 
     return $order_serial;

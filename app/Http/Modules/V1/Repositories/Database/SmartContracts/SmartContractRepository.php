@@ -147,6 +147,7 @@ class SmartContractRepository
             ->join('smart_contract_details', 'smart_contracts.id', '=', 'smart_contract_details.smart_contract_id')
             ->where('smart_contracts.smart_contract_serial', '=', $smartContractSerial)
             ->select(['order_serial'])
-            ->first();
+            ->first()
+            ->order_serial;
     }
 }

@@ -14,19 +14,6 @@ class VendorController extends Controller
 {
     public function getCheckVendorExists(Request $request, $vendor_id, VendorService $vendorService)
     {
-        $payload = [
-            'vendor_id' => $vendor_id
-        ];
-
-        $rules = [
-            'vendor_id' => 'required|string'
-        ];
-
-        $validator = Validator::make($payload, $rules);
-        if($validator->fails()){
-            throw new \Exception($validator->getMessageBag());
-        }
-
         $vendorDTO = new VendorDTO();
         $vendorDTO->id = decode($vendor_id);
 

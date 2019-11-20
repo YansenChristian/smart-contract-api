@@ -19,6 +19,12 @@ $router->group([
     'namespace' => 'V1',
     'prefix' => 'v1'
 ], function () use ($router){
+    $router->group(['prefix' => 'carts'], function () use ($router) {
+        $router->post('/', 'CartController@postSmartContractCart');
+        $router->delete('/{cart_id}', 'CartController@deleteSmartContractCart');
+        $router->get('{cart_id}/exists', 'CartController@getCheckIfCartIsSmartContract');
+    });
+
     $router->group(['prefix' => 'payments'], function () use ($router) {
         $router->get('confirmation-via-email', 'PaymentController@getConfirmOrderPaymentViaEmail');
     });

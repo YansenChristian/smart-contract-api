@@ -28,6 +28,16 @@ class AddSmartContractCartLogic extends BusinessLogic
         ]);
 
         $cartDTO = $this->getScope('INPUT::CartDTO');
+
+        $cart = $this->cartRepository->get($cartDTO->cart_id);
+
+        if(isset($cart)) {
+            if(!is_null($cart->deleted_at)) {
+                $this->cartRepository->reviveCart($cartDTO->cart_id);
+            }
+            return encode($cartDTO->cart_id);
+        }
+
         return encode($this->cartRepository->add($cartDTO->toArray()));
     }
 }

@@ -28,6 +28,6 @@ class CheckIfCartIsSmartContractLogic extends BusinessLogic
         ]);
 
         $cartDTO = $this->getScope('INPUT::CartDTO');
-        return $this->cartRepository->cartExists($cartDTO->cart_id);
+        return $this->cartRepository->exists($cartDTO->cart_id);
     }
 }

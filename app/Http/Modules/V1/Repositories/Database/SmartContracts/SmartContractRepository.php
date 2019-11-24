@@ -150,4 +150,20 @@ class SmartContractRepository
             ->first()
             ->order_serial;
     }
+
+    public function getItemsTotalOrder()
+    {
+        $columns = [
+            'item_id',
+            DB::raw('COUNT(item_id) AS total_order')
+        ];
+
+        return DB::table('smart_contracts')
+            ->select($columns)
+            ->groupBy('item_id')
+            ->orderByDesc(DB::raw('COUNT(item_id)'))
+            ->take(12)
+            ->get()
+            ->toArray();
+    }
 }

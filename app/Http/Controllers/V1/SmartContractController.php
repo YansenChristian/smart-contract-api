@@ -296,4 +296,18 @@ class SmartContractController extends Controller
         );
         return response()->json($response, 200);
     }
+
+    public function getSmartContractProductRecommendation(Request $request, SmartContractService $smartContractService)
+    {
+        $authorizationDTO = new AuthorizationDTO();
+        if($request->hasHeader('Authorization')) {
+            $authorizationDTO->bearer = $request->header('Authorization');
+        }
+        if($request->hasHeader('x-access-token')) {
+            $authorizationDTO->access_token = $request->header('x-access-token');
+        }
+
+        $response = $smartContractService->getSmartContractProductRecommendation($authorizationDTO);
+        return response()->json($response, 200);
+    }
 }

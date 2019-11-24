@@ -41,6 +41,7 @@ $router->group([
     $router->group(['prefix' => 'smart-contracts'], function () use ($router) {
         $router->get('/', 'SmartContractController@getSmartContracts');
         $router->post('/', 'SmartContractController@postCreateSmartContract');
+        $router->get('product-recommendation', 'SmartContractController@getSmartContractProductRecommendation');
         $router->get('counter', 'SmartContractController@getCounter');
         $router->get('orders/exists', 'SmartContractController@getCheckIfOrderIsSmartContract');
         $router->get('{smart_contract_serial}', 'SmartContractController@getSmartContractDetail');

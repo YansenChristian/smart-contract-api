@@ -166,4 +166,59 @@ class SmartContractRepository
             ->get()
             ->toArray();
     }
+    
+    public function getBuyerSmartContracts($filters, $perPage)
+    {
+        $columns = [
+            'smart_contracts.id',
+            'smart_contracts.smart_contract_serial',
+            'smart_contracts.on_going_order',
+            'smart_contracts.total_order',
+            'smart_contract_status.name AS status',
+        ];
+
+        $smartContracts = DB::table('smart_contracts')
+            ->join('smart_contract_status',
+                'smart_contracts.smart_contract_status_id',
+                '=',
+                'smart_contract_status.id'
+            )
+            ->select($columns);
+
+        foreach ($filters as $filter) {
+            if($filter['operator'] == 'Between') {
+                $smartContracts->whereBetween(
+                    $filter['column'],
+                    $filter['value']
+                );
+            } else {
+                $smartContracts->where(
+                    $filter['column'],
+                    $filter['operator'],
+                    $filter['value']
+                );
+            }
+        }
+
+        return $smartContracts->paginate($perPage);
+    }
+
+    public function getSmartContractsDetailBySerialNumbers(array $smartContractSerials)
+    {
+        $columns = [
+            'smart_contract_details.*'
+        ];
+
+        return DB::table('smart_contracts')
+            ->join('smart_contract_details',
+                'smart_contracts.id',
+                '=',
+                'smart_contract_details.smart_contract_id'
+            )
+            ->whereIn('smart_contracts.smart_contract_serial', $smartContractSerials)
+            ->select($columns)
+            ->get()
+            ->groupBy('smart_contract_id')
+            ->toArray();
+    }
 }

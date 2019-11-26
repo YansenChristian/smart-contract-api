@@ -9,6 +9,7 @@ use App\Http\Modules\V1\BusinessLogics\Orders\CreateSmartContractOrdersLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\ApproveSmartContractRequestLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\CreateSmartContractLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GenerateSmartContractSerialLogic;
+use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetBuyerSmartContractsLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSellerSmartContractDetailLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSellerSmartContractsLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSmartContractCounterLogic;
@@ -217,5 +218,40 @@ class SmartContractService extends Service
         ], $scopes);
 
         return $response[GetSmartContractProductRecommendationLogic::class];
+    }
+
+    public function getBuyerSmartContracts($filters, $perPage)
+    {
+        $scopes = [
+            'INPUT::Filters' => $filters,
+            'INPUT::PerPage' => $perPage,
+        ];
+
+        $response = $this->execute([
+            GetBuyerSmartContractsLogic::class
+        ], $scopes);
+
+        $smartContracts = $response[GetBuyerSmartContractsLogic::class];
+
+        $smartContracts->getCollection()->transform(function ($smartContract) {
+            $newValue = new stdClass();
+
+            $newValue->smart_contract_serial = $smartContract->smart_contract_serial;
+            $newValue->status_detail = 'Order '.$smartContract->on_going_order.' of '.$smartContract->total_order;
+            $newValue->status = $smartContract->status;
+
+            $nextOrderDate = getOrderDateByOrderSerial($smartContract->order_serial_of_next_order);
+            $nextOrderDate = date('d F Y, H:i' ,strtotime($nextOrderDate)) . ' WIB';
+            $newValue->next_order_payment_due_date = $nextOrderDate;
+            $newValue->view_smart_contract_detail_link = env('WEBSITE_URL').'#/smart_contracts/'.smartContractSerialToAlias($smartContract->smart_contract_serial);
+
+            if($smartContract->on_going_order != $smartContract->total_order) {
+                $newValue->confirm_next_order_payment_link =  env('API_CORE_URL').'api/v1/payment/'.orderSerialToAlias($smartContract->order_serial_of_next_order).'/confirm';
+            }
+
+            return $newValue;
+        });
+
+        return $smartContracts;
     }
 }

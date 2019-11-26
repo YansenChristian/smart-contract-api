@@ -37,7 +37,8 @@ class SmartContractController extends Controller
     public function getSmartContracts(Request $request, SmartContractService $smartContractService)
     {
         $rules = [
-            'vendor_id' => 'required|string',
+            'vendor_id' => 'required_without:user_id|string',
+            'user_id' => 'required_without:vendor_id|string',
             'role' => 'required|string|in:Admin,Seller,Buyer',
             'page' => 'int',
             'limit' => 'int'
@@ -124,14 +125,15 @@ class SmartContractController extends Controller
             }
         }
 
-        switch ($request->get('role')) {
+        switch ($request->get('role', '')) {
             case 'Buyer':
                 $filters[] = [
                     'column' => 'smart_contracts.buyer_user_id',
                     'operator' => '=',
                     'value' => decode($request->get('user_id'))
                 ];
-                $response = '';
+
+                $response = $smartContractService->getBuyerSmartContracts($filters, $perPage);
                 break;
             case 'Seller':
                 $filters[] = [

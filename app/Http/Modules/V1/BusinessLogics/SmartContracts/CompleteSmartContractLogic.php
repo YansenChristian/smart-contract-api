@@ -9,14 +9,12 @@ use App\Http\Modules\V1\DataTransferObjects\Emails\UserDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractLogDTO;
 use App\Http\Modules\V1\Enumerations\SmartContracts\SmartContractStatus;
 use App\Http\Modules\V1\Repositories\API\Users\UserApiRepository;
-use App\Http\Modules\V1\Repositories\Database\Legals\LegalRepository;
 use App\Http\Modules\V1\Repositories\Database\Logs\LogRepository;
 use App\Http\Modules\V1\Repositories\Database\SmartContracts\SmartContractRepository;
 
-class ApproveSmartContractRequestLogic extends BusinessLogic
+class CompleteSmartContractLogic extends BusinessLogic
 {
     private $smartContractRepository;
-    private $legalRepository;
     private $userApiRepository;
     private $logRepository;
 
@@ -24,7 +22,6 @@ class ApproveSmartContractRequestLogic extends BusinessLogic
     {
         $this->scopes = $scopes;
         $this->smartContractRepository = new SmartContractRepository();
-        $this->legalRepository = new LegalRepository();
         $this->userApiRepository = new UserApiRepository();
         $this->logRepository = new LogRepository();
     }
@@ -36,29 +33,26 @@ class ApproveSmartContractRequestLogic extends BusinessLogic
     public function run()
     {
         $this->validateScopes([
-            'INPUT::AuthorizationDTO' => 'required',
             'INPUT::SmartContractDTO' => 'required',
-            'INPUT::SellerDTO' => 'required'
+            'INPUT::AuthorizationDTO' => 'required',
         ]);
 
-        $authorizationDTO = $this->getScope('INPUT::AuthorizationDTO');
         $smartContractDTO = $this->getScope('INPUT::SmartContractDTO');
-        $sellerDTO = $this->getScope('INPUT::SellerDTO');
+        $authorizationDTO = $this->getScope('INPUT::AuthorizationDTO');
 
-        $this->smartContractRepository->updateStatusBySerialNumber($smartContractDTO->smart_contract_serial, $smartContractDTO->smart_contract_status);
-        $this->createSmartContractApprovedLog($smartContractDTO, $sellerDTO);
-        $this->legalRepository->signContractAsSeller($smartContractDTO->smart_contract_serial, $sellerDTO);
-
-        $smartContract = $this->smartContractRepository->getBySerialNumber(['buyer_user_id'], $smartContractDTO->smart_contract_serial);
+        $smartContract = $this->smartContractRepository->getBySerialNumber(['*'], $smartContractDTO->smart_contract_serial);
         $smartContractDTO->buyer_user_id = $smartContract->buyer_user_id;
-        $this->sendSmartContractApprovalEmailToBuyer($smartContractDTO, $authorizationDTO);
 
-        $smartContractDTO->smart_contract_status = SmartContractStatus::IN_PROGRESS;
-        $this->smartContractRepository->updateStatusBySerialNumber($smartContractDTO->smart_contract_serial, $smartContractDTO->smart_contract_status);
-        $this->createSmartContractInProgressLog($smartContractDTO, $sellerDTO);
+        $this->smartContractRepository->updateStatusBySerialNumber(
+            $smartContractDTO->smart_contract_serial,
+            $smartContractDTO->smart_contract_status
+        );
+
+        $this->sendSmartContractCompletionEmailToBuyer($smartContractDTO, $authorizationDTO);
+        $this->createLog($smartContractDTO);
     }
 
-    private function sendSmartContractApprovalEmailToBuyer($smartContractDTO, $authorizationDTO)
+    private function sendSmartContractCompletionEmailToBuyer($smartContractDTO, $authorizationDTO)
     {
         $payloads = [
             'user_ids' => [encode($smartContractDTO->buyer_user_id)]
@@ -84,7 +78,6 @@ class ApproveSmartContractRequestLogic extends BusinessLogic
 
         $emailParameters = json_encode([
             '-buyer_name-' => $user['name'],
-            '-view_legal_link-' => env('SMART_CONTRACT_URL').'v1/legals?smart_contract_serial='.$smartContractDTO->smart_contract_serial
         ]);
 
         return sendgridMail(
@@ -95,28 +88,17 @@ class ApproveSmartContractRequestLogic extends BusinessLogic
             null,
             'd-9e191fb0317b4735ba3ba2191985dc15',
             $emailParameters,
-            'Smart Contract Telah Disetujui'
+            'Smart Contract Telah Selesai'
         );
     }
 
-    public function createSmartContractApprovedLog($smartContractDTO, $sellerDTO)
+    public function createLog($smartContractDTO)
     {
         $smartContractLogDTO = new SmartContractLogDTO();
-        $smartContractLogDTO->user_id = $sellerDTO->id;
+        $smartContractLogDTO->user_id = 0;
         $smartContractLogDTO->smart_contract_serial = $smartContractDTO->smart_contract_serial;
-        $smartContractLogDTO->smart_contract_status = SmartContractStatus::APPROVED['name'];
-        $smartContractLogDTO->information = 'SmartContracts/status_detail.approved';
-
-        $this->logRepository->addSmartContractLog($smartContractLogDTO->toArray());
-    }
-
-    public function createSmartContractInProgressLog($smartContractDTO, $sellerDTO)
-    {
-        $smartContractLogDTO = new SmartContractLogDTO();
-        $smartContractLogDTO->user_id = $sellerDTO->id;
-        $smartContractLogDTO->smart_contract_serial = $smartContractDTO->smart_contract_serial;
-        $smartContractLogDTO->smart_contract_status = SmartContractStatus::IN_PROGRESS['name'];
-        $smartContractLogDTO->information = 'SmartContracts/status_detail.in_progress_1';
+        $smartContractLogDTO->smart_contract_status = SmartContractStatus::ENDED['name'];
+        $smartContractLogDTO->information = 'SmartContracts/status_detail.ended';
 
         $this->logRepository->addSmartContractLog($smartContractLogDTO->toArray());
     }

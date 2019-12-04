@@ -67,10 +67,11 @@ class GetSellerSmartContractDetailLogic extends BusinessLogic
 
         $payloads = [
             'authorization' => $authorizationDTO->bearer,
-            'order_serials' => $orderSerials
+            'order_serials' => $orderSerials,
+            'role' => 'Seller'
         ];
 
-        return $this->smartContractApiRepository->getSmartContractDetail($payloads);
+        return $this->smartContractApiRepository->getSellerSmartContractDetail($payloads);
     }
 
     private function getSmartContractLogs($smartContractSerial)
@@ -83,7 +84,7 @@ class GetSellerSmartContractDetailLogic extends BusinessLogic
         # Append User Data by using User Id
         $payloads = [
             'authorization' => $authorizationDTO->bearer,
-            'user_ids' => $userIds
+            'user_ids' => $userIds,
         ];
 
         $headers = [];

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1;
 
 
 use App\Http\Controllers\Controller;
+use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
 use App\Http\Modules\V1\DataTransferObjects\Users\VendorDTO;
 use App\Http\Modules\V1\Services\VendorService;
 use Illuminate\Http\Request;
@@ -18,6 +19,29 @@ class VendorController extends Controller
         $vendorDTO->id = decode($vendor_id);
 
         $result = $vendorService->checkIfVendorIsSmartContract($vendorDTO);
+        return response()->json($result, 200);
+    }
+
+    public function getSmartContractVendors(Request $request, VendorService $vendorService)
+    {
+        $rules = [
+            'limit' => 'required|int'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if($validator->fails()){
+            throw new \Exception($validator->getMessageBag());
+        }
+
+        $authorizationDTO = new AuthorizationDTO();
+        if($request->hasHeader('Authorization')) {
+            $authorizationDTO->bearer = $request->header('Authorization');
+        }
+        if($request->hasHeader('x-access-token')) {
+            $authorizationDTO->access_token = $request->header('x-access-token');
+        }
+
+        $result = $vendorService->getSmartContractVendors($authorizationDTO, $request->get('limit'));
         return response()->json($result, 200);
     }
 }

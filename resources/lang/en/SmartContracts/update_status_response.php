@@ -11,7 +11,7 @@ return [
         "message" => "Smart contract's with serial number :smart_contract_serial has been Rejected."
     ],
     "IN_PROGRESS" => [
-        "message" => "Smart contract's status with serial number :smart_contract_serial starts to Progress."
+        "message" => "Ready to process next smart contract's order for smart contract serial number :smart_contract_serial."
     ],
     "CANCELED" => [
         "message" => "Smart contract's status with serial number :smart_contract_serial has been Canceled."

@@ -46,7 +46,7 @@ class SmartContractRepository
             ->select($columns);
 
         foreach ($filters as $filter) {
-            if($filter['operator'] == 'Between') {
+            if ($filter['operator'] == 'Between') {
                 $smartContracts->whereBetween(
                     $filter['column'],
                     $filter['value']
@@ -87,7 +87,12 @@ class SmartContractRepository
     public function getBySerialNumber(array $columns, $smartContractSerial)
     {
         return DB::table('smart_contracts')
+            ->join('smart_contract_status',
+                'smart_contracts.smart_contract_status_id',
+                '=',
+                'smart_contract_status.id')
             ->where('smart_contract_serial', '=', $smartContractSerial)
+            ->select($columns)
             ->first();
     }
 
@@ -166,7 +171,7 @@ class SmartContractRepository
             ->get()
             ->toArray();
     }
-    
+
     public function getBuyerSmartContracts($filters, $perPage)
     {
         $columns = [
@@ -186,7 +191,7 @@ class SmartContractRepository
             ->select($columns);
 
         foreach ($filters as $filter) {
-            if($filter['operator'] == 'Between') {
+            if ($filter['operator'] == 'Between') {
                 $smartContracts->whereBetween(
                     $filter['column'],
                     $filter['value']
@@ -220,5 +225,107 @@ class SmartContractRepository
             ->get()
             ->groupBy('smart_contract_id')
             ->toArray();
+    }
+
+    public function getSmartContracts($filters, $perPage)
+    {
+        $columns = [
+            'smart_contracts.smart_contract_serial',
+            'smart_contracts.created_at AS start_date',
+            'smart_contracts.buyer_user_id',
+            'smart_contracts.vendor_id',
+            'smart_contracts.total_price',
+            'smart_contract_status.name AS status',
+            'smart_contract_details.order_serial',
+        ];
+
+        $smartContracts = DB::table('smart_contracts')
+            ->join('smart_contract_details',
+                'smart_contracts.id',
+                '=',
+                'smart_contract_details.smart_contract_id'
+            )
+            ->join('smart_contract_status',
+                'smart_contracts.smart_contract_status_id',
+                '=',
+                'smart_contract_status.id'
+            )
+            ->groupBy('smart_contracts.smart_contract_serial')
+            ->orderBy('smart_contracts.created_at', 'DESC')
+            ->select($columns);
+
+        foreach ($filters as $filter) {
+            if ($filter['operator'] == 'Between') {
+                $smartContracts->whereBetween(
+                    $filter['column'],
+                    $filter['value']
+                );
+            } else {
+                $smartContracts->where(
+                    $filter['column'],
+                    $filter['operator'],
+                    $filter['value']
+                );
+            }
+        }
+
+        return $smartContracts->paginate($perPage);
+    }
+
+    public function getSmartContract($smartContractSerial)
+    {
+        $columns = [
+            'smart_contracts.id',
+            'smart_contracts.smart_contract_serial',
+            'smart_contracts.buyer_user_id',
+            'smart_contracts.vendor_id',
+            'smart_contracts.payment_method_id',
+            'smart_contracts.item_id',
+            'smart_contracts.on_going_order',
+            'smart_contracts.total_order',
+            'smart_contracts.total_price',
+            'smart_contracts.created_at',
+            'smart_contract_status.name AS status'
+        ];
+
+        return DB::table('smart_contracts')
+            ->join('smart_contract_status',
+                'smart_contracts.smart_contract_status_id',
+                '=',
+                'smart_contract_status.id'
+            )
+            ->where('smart_contracts.smart_contract_serial', '=', $smartContractSerial)
+            ->select($columns)
+            ->first();
+    }
+
+    public function getByOrderSerial($orderSerial)
+    {
+        $columns = [
+            'smart_contracts.smart_contract_serial',
+            'smart_contracts.created_at AS start_date',
+            'smart_contracts.buyer_user_id',
+            'smart_contracts.vendor_id',
+            'smart_contracts.on_going_order',
+            'smart_contracts.total_order',
+            'smart_contracts.total_price',
+        ];
+
+        return DB::table('smart_contracts')
+            ->join('smart_contract_details',
+                'smart_contracts.id',
+                '=',
+                'smart_contract_details.smart_contract_id'
+            )
+            ->select($columns)
+            ->where('smart_contract_details.order_serial', '=', $orderSerial)
+            ->first();
+    }
+
+    public function update($smartContractSerial, array $smartContractData)
+    {
+        return DB::table('smart_contracts')
+            ->where('smart_contracts.smart_contract_serial', '=', $smartContractSerial)
+            ->update($smartContractData);
     }
 }

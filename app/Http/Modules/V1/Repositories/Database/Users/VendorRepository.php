@@ -16,4 +16,10 @@ class VendorRepository
         }
         return $sellers->exists();
     }
+
+    public function getVendors($perPage)
+    {
+        return DB::table('smart_contract_vendors')
+            ->paginate($perPage);
+    }
 }

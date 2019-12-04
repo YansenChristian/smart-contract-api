@@ -104,7 +104,7 @@ class CreateSmartContractLogic extends BusinessLogic
         $smartContractLogDTO = new SmartContractLogDTO();
         $smartContractLogDTO->smart_contract_serial = $smartContractDTO->smart_contract_serial;
         $smartContractLogDTO->smart_contract_status = SmartContractStatus::WAITING['name'];
-        $smartContractLogDTO->information = trans(SmartContractStatus::WAITING['description']) ;
+        $smartContractLogDTO->information = 'SmartContracts/status_detail.waiting' ;
         $smartContractLogDTO->user_id = $smartContractDTO->buyer_user_id;
 
         $this->logRepository->addSmartContractLog($smartContractLogDTO->toArray());

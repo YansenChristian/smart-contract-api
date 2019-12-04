@@ -67,6 +67,6 @@ class SmartContractStatus extends Enumeration
             $statusName,
             array_column(self::getConstants(), 'name')
         );
-        return self::getById(++$indexOfEnum);
+        return self::getById($indexOfEnum);
     }
 }

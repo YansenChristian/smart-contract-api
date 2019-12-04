@@ -21,4 +21,16 @@ class UserApiRepository
         return json_decode($request_api->getBody()->getContents(), true);
     }
 
+    public function getVendorsByIds($payloads, $headers)
+    {
+        $client = new Client();
+        $request_api = $client->get(env('API_CORE_URL') . 'v4/vendors', [
+            'headers' => $headers,
+            'query' => [
+                'vendor_ids' => $payloads['vendor_ids']
+            ]
+        ]);
+
+        return json_decode($request_api->getBody()->getContents(), true);
+    }
 }

@@ -7,21 +7,30 @@ namespace App\Http\Modules\V1\Services;
 use App\Http\Modules\V1\BusinessLogics\Orders\CheckIfOrderIsSmartContractLogic;
 use App\Http\Modules\V1\BusinessLogics\Orders\CreateSmartContractOrdersLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\ApproveSmartContractRequestLogic;
+use App\Http\Modules\V1\BusinessLogics\SmartContracts\CancelSmartContractLogic;
+use App\Http\Modules\V1\BusinessLogics\SmartContracts\CompleteSmartContractLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\CreateSmartContractLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GenerateSmartContractSerialLogic;
+use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetBuyerSmartContractDetailLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetBuyerSmartContractsLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSellerSmartContractDetailLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSellerSmartContractsLogic;
+use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSmartContractByOrderSerialLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSmartContractCounterLogic;
+use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSmartContractDetailLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSmartContractProductRecommendationLogic;
+use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSmartContractsLogic;
+use App\Http\Modules\V1\BusinessLogics\SmartContracts\ProcessSmartContractLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\RejectSmartContractRequestLogic;
 use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDetailDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDTO;
+use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractLogDTO;
 use App\Http\Modules\V1\DataTransferObjects\Users\SellerDTO;
 use App\Http\Modules\V1\DataTransferObjects\Users\VendorDTO;
 use App\Http\Modules\V1\Enumerations\SmartContracts\SmartContractStatus;
 use App\Http\Modules\V1\Service;
+use Illuminate\Support\Facades\DB;
 use stdClass;
 
 class SmartContractService extends Service
@@ -220,11 +229,12 @@ class SmartContractService extends Service
         return $response[GetSmartContractProductRecommendationLogic::class];
     }
 
-    public function getBuyerSmartContracts($filters, $perPage)
+    public function getBuyerSmartContracts($authorizationDTO, $filters, $perPage)
     {
         $scopes = [
             'INPUT::Filters' => $filters,
             'INPUT::PerPage' => $perPage,
+            'INPUT::AuthorizationDTO' => $authorizationDTO,
         ];
 
         $response = $this->execute([
@@ -253,5 +263,159 @@ class SmartContractService extends Service
         });
 
         return $smartContracts;
+    }
+
+    public function getBuyerSmartContractDetail(AuthorizationDTO $authorizationDTO, SmartContractDTO $smartContractDTO)
+    {
+        $scopes = [
+            'INPUT::SmartContractDTO' =>  $smartContractDTO,
+            'INPUT::AuthorizationDTO' => $authorizationDTO,
+        ];
+
+        $response = $this->execute([
+            GetBuyerSmartContractDetailLogic::class
+        ], $scopes);
+
+        $smartContract = $response[GetBuyerSmartContractDetailLogic::class];
+
+        $smartContract['total_price'] = displayNumeric($smartContract['total_price']);
+        $smartContract['id'] = encode($smartContract['id']);
+        $smartContract['buyer_user_id'] = encode($smartContract['buyer_user_id']);
+
+        if($smartContract['on_going_order'] == $smartContract['total_order']) {
+            $smartContract['view_cashback_voucher_link'] = env('WEBSITE_URL')."ralalipoin?tab=my-voucher";
+        }
+
+        return $smartContract;
+    }
+
+    public function getSmartContracts(AuthorizationDTO $authorizationDTO, $filters, $perPage)
+    {
+        $scopes = [
+            'INPUT::Filters' => $filters,
+            'INPUT::PerPage' => $perPage,
+            'INPUT::AuthorizationDTO' => $authorizationDTO,
+        ];
+
+        $response = $this->execute([
+            GetSmartContractsLogic::class
+        ], $scopes);
+
+        $response = $response[GetSmartContractsLogic::class];
+
+        $smartContractsDetail = $response['smart_contracts_detail'];
+        $orderSerials = array_column($response['smart_contracts_detail'], 'order_serial');
+
+        foreach ($response['smart_contracts'] as $smartContract) {
+            $smartContractDetail = $smartContractsDetail[array_search($smartContract->order_serial, $orderSerials)];
+
+            $smartContract->payment_method = $smartContractDetail['payment_method'];
+            $smartContract->buyer = $smartContractDetail['buyer'];
+            $smartContract->vendor = $smartContractDetail['vendor'];
+            $smartContract->total_price = displayNumeric($smartContract->total_price);
+            $smartContract->view_smart_contract_detail_link = env('WEBSITE_URL')
+                .'#/smart_contracts/'
+                .smartContractSerialToAlias($smartContract->smart_contract_serial);
+
+            if($smartContract->status != SmartContractStatus::WAITING['name']) {
+                $smartContract->view_smart_contract_legal_link = env('SELLER_PANEL_URL')
+                    .'#/legal?smart_contract_serial='
+                    .smartContractSerialToAlias($smartContract->smart_contract_serial);
+            }
+
+            unset($smartContract->buyer_user_id);
+            unset($smartContract->vendor_id);
+        }
+
+        return $response['smart_contracts'];
+    }
+
+    public function getSmartContractDetail(AuthorizationDTO $authorizationDTO, SmartContractDTO $smartContractDTO)
+    {
+        $scopes = [
+            'INPUT::SmartContractDTO' => $smartContractDTO,
+            'INPUT::AuthorizationDTO' => $authorizationDTO
+        ];
+
+        $response = $this->execute([
+            GetSmartContractDetailLogic::class
+        ], $scopes);
+
+        $response = $response[GetSmartContractDetailLogic::class];
+
+        $formattedSmartContractDetail = $response['smart_contract_detail'];
+        $formattedSmartContractDetail['smart_contract_serial'] = $response['smart_contract']->smart_contract_serial;
+        $formattedSmartContractDetail['status'] = $response['smart_contract']->status;
+        $formattedSmartContractDetail['status_detail'] = 'Order '.$response['smart_contract']->on_going_order.' of '.$response['smart_contract']->total_order;
+        $formattedSmartContractDetail['total_price'] = displayNumeric($response['smart_contract']->total_price);
+        $formattedSmartContractDetail['start_date'] = date('d F Y H:i:s', strtotime($response['smart_contract']->created_at));
+
+        $formattedSmartContractDetail['logs'] = [];
+        foreach ($response['logs'] as $log) {
+            $newValue = [];
+            $newValue['status'] = $log->smart_contract_status;
+            $newValue['information'] = $log->information;
+            $newValue['created_at'] = date('d F Y H:i:s', strtotime($log->created_at));
+
+            $formattedSmartContractDetail['logs'][] = $newValue;
+        }
+
+        return $formattedSmartContractDetail;
+    }
+
+    public function cancelSmartContract(AuthorizationDTO $authorizationDTO, SmartContractDTO $smartContractDTO, SmartContractLogDTO $smartContractLogDTO)
+    {
+        $scopes = [
+            'INPUT::AuthorizationDTO' => $authorizationDTO,
+            'INPUT::SmartContractDTO' => $smartContractDTO,
+            'INPUT::SmartContractLogDTO' => $smartContractLogDTO,
+        ];
+
+        $response = $this->execute([
+            CancelSmartContractLogic::class
+        ], $scopes);
+
+        return $response[CancelSmartContractLogic::class];
+    }
+
+    public function getSmartContractByOrderSerial(SmartContractDetailDTO $smartContractDetailDTO)
+    {
+        $scopes = [
+            'INPUT::SmartContractDetailDTO' => $smartContractDetailDTO,
+        ];
+
+        $response = $this->execute([
+            GetSmartContractByOrderSerialLogic::class
+        ], $scopes);
+
+        return $response[GetSmartContractByOrderSerialLogic::class];
+    }
+
+    public function processSmartContract(AuthorizationDTO $authorizationDTO, SmartContractDTO $smartContractDTO)
+    {
+        $scopes = [
+            'INPUT::AuthorizationDTO' => $authorizationDTO,
+            'INPUT::SmartContractDTO' => $smartContractDTO,
+        ];
+
+        $response = $this->execute([
+            ProcessSmartContractLogic::class
+        ], $scopes);
+
+        return $response[ProcessSmartContractLogic::class];
+    }
+
+    public function completeSmartContract(AuthorizationDTO $authorizationDTO, SmartContractDTO $smartContractDTO)
+    {
+        $scopes = [
+            'INPUT::AuthorizationDTO' => $authorizationDTO,
+            'INPUT::SmartContractDTO' => $smartContractDTO,
+        ];
+
+        $response = $this->execute([
+            CompleteSmartContractLogic::class
+        ], $scopes);
+
+        return $response[CompleteSmartContractLogic::class];
     }
 }

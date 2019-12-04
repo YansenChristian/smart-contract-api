@@ -30,6 +30,7 @@ $router->group([
     });
 
     $router->group(['prefix' => 'vendors'], function () use ($router) {
+        $router->get('/', 'VendorController@getSmartContractVendors');
         $router->get('{vendor_id}/exists', 'VendorController@getCheckVendorExists');
     });
 
@@ -41,12 +42,16 @@ $router->group([
     $router->group(['prefix' => 'smart-contracts'], function () use ($router) {
         $router->get('/', 'SmartContractController@getSmartContracts');
         $router->post('/', 'SmartContractController@postCreateSmartContract');
+        $router->post('get', 'SmartContractController@getSmartContractForOrderSerial');
         $router->get('product-recommendation', 'SmartContractController@getSmartContractProductRecommendation');
         $router->get('counter', 'SmartContractController@getCounter');
         $router->get('orders/exists', 'SmartContractController@getCheckIfOrderIsSmartContract');
         $router->get('{smart_contract_serial}', 'SmartContractController@getSmartContractDetail');
         $router->post('{smart_contract_serial}/approve', 'SmartContractController@postApproveSmartContract');
         $router->post('{smart_contract_serial}/reject', 'SmartContractController@postRejectSmartContract');
+        $router->post('{smart_contract_serial}/cancel', 'SmartContractController@postCancelSmartContract');
+        $router->post('{smart_contract_serial}/process', 'SmartContractController@postProcessSmartContract');
+        $router->post('{smart_contract_serial}/complete', 'SmartContractController@postCompleteSmartContract');
     });
 
     $router->group(['prefix' => 'legals'], function () use ($router) {

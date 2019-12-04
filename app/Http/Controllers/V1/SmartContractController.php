@@ -6,6 +6,7 @@ namespace App\Http\Controllers\V1;
 use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDetailDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDTO;
+use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractLogDTO;
 use App\Http\Modules\V1\DataTransferObjects\Users\SellerDTO;
 use App\Http\Modules\V1\DataTransferObjects\Users\VendorDTO;
 use App\Http\Modules\V1\Enumerations\SmartContracts\SmartContractStatus;
@@ -37,12 +38,17 @@ class SmartContractController extends Controller
     public function getSmartContracts(Request $request, SmartContractService $smartContractService)
     {
         $rules = [
-            'vendor_id' => 'required_without:user_id|string',
-            'user_id' => 'required_without:vendor_id|string',
+            'vendor_id' => 'string',
+            'user_id' => 'string',
             'role' => 'required|string|in:Admin,Seller,Buyer',
             'page' => 'int',
             'limit' => 'int'
         ];
+
+        if($request->get('role') != 'Admin') {
+            $rules['vendor_id'] .= '|required_without:user_id';
+            $rules['user_id'] .= '|required_without:vendor_id';
+        }
 
         if($request->has('smart_contract_serial')) {
             $rules['smart_contract_serial'] = 'required|string';
@@ -74,6 +80,7 @@ class SmartContractController extends Controller
         $authorizationDTO->bearer = $request->header('authorization');
 
         $perPage = $request->get('limit', 10);
+        $filters = [];
 
         if($request->has('smart_contract_serial')) {
             $filters[] = [
@@ -145,7 +152,7 @@ class SmartContractController extends Controller
                 $response = $smartContractService->getSellerSmartContracts($authorizationDTO, $filters, $perPage);
                 break;
             default:
-                $response = '';
+                $response = $smartContractService->getSmartContracts($authorizationDTO, $filters, $perPage);
                 break;
         }
 
@@ -160,7 +167,17 @@ class SmartContractController extends Controller
         $authorizationDTO = new AuthorizationDTO();
         $authorizationDTO->bearer = $request->header('Authorization');
 
-        $response = $smartContractService->getSellerSmartContractDetail($authorizationDTO, $smartContractDTO);
+        switch ($request->get('role', '')) {
+            case 'Buyer':
+                $response = $smartContractService->getBuyerSmartContractDetail($authorizationDTO, $smartContractDTO);
+                break;
+            case 'Seller':
+                $response = $smartContractService->getSellerSmartContractDetail($authorizationDTO, $smartContractDTO);
+                break;
+            default:
+                $response = $smartContractService->getSmartContractDetail($authorizationDTO, $smartContractDTO);
+                break;
+        }
 
         return response()->json($response, 200);
     }
@@ -310,6 +327,111 @@ class SmartContractController extends Controller
         }
 
         $response = $smartContractService->getSmartContractProductRecommendation($authorizationDTO);
+        return response()->json($response, 200);
+    }
+
+    public function postCancelSmartContract(Request $request, $smart_contract_serial, SmartContractService $smartContractService)
+    {
+        $rules = [
+            'notes' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if($validator->fails()){
+            throw new \Exception($validator->getMessageBag());
+        }
+
+        $authorizationDTO = new AuthorizationDTO();
+        if($request->hasHeader('Authorization')) {
+            $authorizationDTO->bearer = $request->header('Authorization');
+        }
+        if($request->hasHeader('x-access-token')) {
+            $authorizationDTO->access_token = $request->header('x-access-token');
+        }
+
+        $smartContractDTO = new SmartContractDTO();
+        $smartContractDTO->smart_contract_serial = smartContractSerialToOriginal($smart_contract_serial);
+        $smartContractDTO->smart_contract_status = SmartContractStatus::CANCELED;
+
+        $smartContractLogDTO = new SmartContractLogDTO();
+        $smartContractLogDTO->information = 'Smart Contract has been canceled';
+        if($request->get('notes') == 'Auto Reject Unpaid Order') {
+            $smartContractLogDTO->information = 'SmartContracts/status_detail.canceled_by_unpaid_order';
+        } else if ($request->get('notes') == 'Auto Reject Unprocessed Order') {
+            $smartContractLogDTO->information = 'SmartContracts/status_detail.canceled_by_unprocessed_order';
+        }
+
+        $smartContractService->cancelSmartContract($authorizationDTO, $smartContractDTO, $smartContractLogDTO);
+
+        $response = trans(
+            'SmartContracts/update_status_response.' . SmartContractStatus::CANCELED['name'],
+            ['smart_contract_serial' => $smartContractDTO->smart_contract_serial]
+        );
+        return response()->json($response, 200);
+    }
+
+    public function getSmartContractForOrderSerial(Request $request, SmartContractService $smartContractService)
+    {
+        $rules = [
+            'order_serial' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if($validator->fails()){
+            throw new \Exception($validator->getMessageBag());
+        }
+
+        $smartContractDetailDTO = new SmartContractDetailDTO();
+        $smartContractDetailDTO->order_serial = $request->get('order_serial');
+
+        $result = $smartContractService->getSmartContractByOrderSerial($smartContractDetailDTO);
+
+        return response()->json($result, 200);
+    }
+
+    public function postProcessSmartContract(Request $request, $smart_contract_serial, SmartContractService $smartContractService)
+    {
+        $authorizationDTO = new AuthorizationDTO();
+        if($request->hasHeader('Authorization')) {
+            $authorizationDTO->bearer = $request->header('Authorization');
+        }
+        if($request->hasHeader('x-access-token')) {
+            $authorizationDTO->access_token = $request->header('x-access-token');
+        }
+
+        $smartContractDTO = new SmartContractDTO();
+        $smartContractDTO->smart_contract_serial = smartContractSerialToOriginal($smart_contract_serial);
+        $smartContractDTO->smart_contract_status = SmartContractStatus::IN_PROGRESS;
+
+        $smartContractService->processSmartContract($authorizationDTO, $smartContractDTO);
+
+        $response = trans(
+            'SmartContracts/update_status_response.' . SmartContractStatus::IN_PROGRESS['name'],
+            ['smart_contract_serial' => $smartContractDTO->smart_contract_serial]
+        );
+        return response()->json($response, 200);
+    }
+
+    public function postCompleteSmartContract(Request $request, $smart_contract_serial, SmartContractService $smartContractService)
+    {
+        $authorizationDTO = new AuthorizationDTO();
+        if($request->hasHeader('Authorization')) {
+            $authorizationDTO->bearer = $request->header('Authorization');
+        }
+        if($request->hasHeader('x-access-token')) {
+            $authorizationDTO->access_token = $request->header('x-access-token');
+        }
+
+        $smartContractDTO = new SmartContractDTO();
+        $smartContractDTO->smart_contract_serial = smartContractSerialToOriginal($smart_contract_serial);
+        $smartContractDTO->smart_contract_status = SmartContractStatus::ENDED;
+
+        $smartContractService->completeSmartContract($authorizationDTO, $smartContractDTO);
+
+        $response = trans(
+            'SmartContracts/update_status_response.' . SmartContractStatus::ENDED['name'],
+            ['smart_contract_serial' => $smartContractDTO->smart_contract_serial]
+        );
         return response()->json($response, 200);
     }
 }

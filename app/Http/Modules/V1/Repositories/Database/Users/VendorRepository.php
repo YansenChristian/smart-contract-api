@@ -22,4 +22,31 @@ class VendorRepository
         return DB::table('smart_contract_vendors')
             ->paginate($perPage);
     }
+
+    public function insert(array $vendors)
+    {
+        return DB::table('smart_contract_vendors')
+            ->insert($vendors);
+    }
+
+    public function deactivateVendors(array $vendorIds)
+    {
+        return DB::table('smart_contract_vendors')
+            ->whereIn('smart_contract_vendors.vendor_id', $vendorIds)
+            ->update(['smart_contract_vendors.deleted_at' => date('Y-m-d H:i:s')]);
+    }
+
+    public function activateVendors(array $vendorIds)
+    {
+        return DB::table('smart_contract_vendors')
+            ->whereIn('smart_contract_vendors.vendor_id', $vendorIds)
+            ->update(['smart_contract_vendors.deleted_at' => null]);
+    }
+
+    public function getByIds(array $vendorIds)
+    {
+        return DB::table('smart_contract_vendors')
+            ->whereIn('smart_contract_vendors.vendor_id', $vendorIds)
+            ->get();
+    }
 }

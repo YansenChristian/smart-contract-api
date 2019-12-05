@@ -32,6 +32,8 @@ $router->group([
     $router->group(['prefix' => 'vendors'], function () use ($router) {
         $router->get('/', 'VendorController@getSmartContractVendors');
         $router->get('{vendor_id}/exists', 'VendorController@getCheckVendorExists');
+        $router->post('activate', 'VendorController@postActivateVendors');
+        $router->post('deactivate', 'VendorController@postDeactivateVendors');
     });
 
     $router->group(['prefix' => 'items'], function () use ($router) {

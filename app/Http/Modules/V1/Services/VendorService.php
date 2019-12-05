@@ -4,7 +4,9 @@
 namespace App\Http\Modules\V1\Services;
 
 
+use App\Http\Modules\V1\BusinessLogics\Users\ActivateVendorsLogic;
 use App\Http\Modules\V1\BusinessLogics\Users\CheckIfVendorIsSmartContractLogic;
+use App\Http\Modules\V1\BusinessLogics\Users\DeactivateVendorsLogic;
 use App\Http\Modules\V1\BusinessLogics\Users\GetSmartContractVendorsLogic;
 use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
 use App\Http\Modules\V1\DataTransferObjects\Users\VendorDTO;
@@ -63,5 +65,31 @@ class VendorService extends Service
         });
 
         return $vendors;
+    }
+
+    public function activateVendors($vendorIds)
+    {
+        $scopes = [
+            'INPUT::VendorIds' => $vendorIds
+        ];
+
+        $response = $this->execute([
+            ActivateVendorsLogic::class
+        ], $scopes);
+
+        return $response[ActivateVendorsLogic::class];
+    }
+
+    public function deactivateVendors($vendorIds)
+    {
+        $scopes = [
+            'INPUT::VendorIds' => $vendorIds
+        ];
+
+        $response = $this->execute([
+            DeactivateVendorsLogic::class
+        ], $scopes);
+
+        return $response[DeactivateVendorsLogic::class];
     }
 }

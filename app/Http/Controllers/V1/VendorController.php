@@ -64,7 +64,9 @@ class VendorController extends Controller
 
         $vendorService->activateVendors($vendorIds);
 
-        return response()->json('The vendors: ['.implode(", ",$request->get('vendor_ids'))."] have been activated to be part(s) of Smart Contract");
+        return response()->json([
+            'message' => 'The vendors: ['.implode(", ",$request->get('vendor_ids'))."] have been activated to be part(s) of Smart Contract"
+        ]);
     }
 
     public function postDeactivateVendors(Request $request, VendorService $vendorService)
@@ -85,6 +87,8 @@ class VendorController extends Controller
 
         $vendorService->deactivateVendors($vendorIds);
 
-        return response()->json('The vendors: ['.implode(", ",$request->get('vendor_ids'))."] have been deactivated from being part(s) of Smart Contract");
+        return response()->json([
+            'message' => 'The vendors: ['.implode(", ",$request->get('vendor_ids'))."] have been deactivated from being part(s) of Smart Contract"
+        ]);
     }
 }

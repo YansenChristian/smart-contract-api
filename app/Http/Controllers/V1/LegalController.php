@@ -4,6 +4,7 @@
 namespace App\Http\Controllers\V1;
 
 
+use App\Exceptions\ApiValidationException;
 use App\Http\Controllers\Controller;
 use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDTO;
@@ -21,7 +22,7 @@ class LegalController extends Controller
 
         $validator = Validator::make($request->all(), $rules);
         if($validator->fails()){
-            throw new \Exception($validator->getMessageBag());
+            throw new ApiValidationException($validator->getMessageBag());
         }
 
         $authorizationDTO = new AuthorizationDTO();

@@ -52,7 +52,7 @@ class ActivateItemLogic extends BusinessLogic
         return;
     }
 
-    public function createLog()
+    private function createLog()
     {
         $sellerDTO = $this->getScope('INPUT::SellerDTO');
         $itemDTO = $this->getScope('INPUT::ItemDTO');

@@ -100,6 +100,6 @@ class GetSellerSmartContractDetailLogic extends BusinessLogic
             $log->user_name = $users[encode($log->user_id)]['name'];
         }
 
-        return$smartContractLogs;
+        return $smartContractLogs;
     }
 }

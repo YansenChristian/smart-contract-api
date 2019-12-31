@@ -99,7 +99,7 @@ class ApproveSmartContractRequestLogic extends BusinessLogic
         );
     }
 
-    public function createSmartContractApprovedLog($smartContractDTO, $sellerDTO)
+    private function createSmartContractApprovedLog($smartContractDTO, $sellerDTO)
     {
         $smartContractLogDTO = new SmartContractLogDTO();
         $smartContractLogDTO->user_id = $sellerDTO->id;
@@ -110,7 +110,7 @@ class ApproveSmartContractRequestLogic extends BusinessLogic
         $this->logRepository->addSmartContractLog($smartContractLogDTO->toArray());
     }
 
-    public function createSmartContractInProgressLog($smartContractDTO, $sellerDTO)
+    private function createSmartContractInProgressLog($smartContractDTO, $sellerDTO)
     {
         $smartContractLogDTO = new SmartContractLogDTO();
         $smartContractLogDTO->user_id = $sellerDTO->id;

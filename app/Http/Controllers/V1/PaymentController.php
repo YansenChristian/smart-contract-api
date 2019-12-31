@@ -4,6 +4,7 @@
 namespace App\Http\Controllers\V1;
 
 
+use App\Exceptions\ApiValidationException;
 use App\Http\Modules\V1\Services\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -24,7 +25,7 @@ class PaymentController
 
         $validator = Validator::make($request->all(), $rules);
         if($validator->fails()){
-            throw new \Exception($validator->getMessageBag());
+            throw new ApiValidationException($validator->getMessageBag());
         }
 
         $response = $paymentService->confirmOrderPayment($headers, $request->all());

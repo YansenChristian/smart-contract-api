@@ -49,11 +49,11 @@ class CancelSmartContractLogic extends BusinessLogic
         $smartContract = $this->smartContractRepository->getBySerialNumber(['*'], $smartContractDTO->smart_contract_serial);
         $smartContractDTO->buyer_user_id = $smartContract->buyer_user_id;
 
-        $this->sendSmartContractCancelationEmailToBuyer($smartContractDTO, $authorizationDTO);
+        $this->sendSmartContractCancellationEmailToBuyer($smartContractDTO, $authorizationDTO);
         $this->createLog($smartContractDTO, $smartContractLogDTO);
     }
 
-    private function sendSmartContractCancelationEmailToBuyer($smartContractDTO, $authorizationDTO)
+    private function sendSmartContractCancellationEmailToBuyer($smartContractDTO, $authorizationDTO)
     {
         $payloads = [
             'user_ids' => [encode($smartContractDTO->buyer_user_id)]

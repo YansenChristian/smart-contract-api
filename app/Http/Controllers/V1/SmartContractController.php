@@ -3,6 +3,7 @@
 
 namespace App\Http\Controllers\V1;
 
+use App\Exceptions\ApiValidationException;
 use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDetailDTO;
 use App\Http\Modules\V1\DataTransferObjects\SmartContracts\SmartContractDTO;
@@ -25,7 +26,7 @@ class SmartContractController extends Controller
 
         $validator = Validator::make($request->all(), $rules);
         if($validator->fails()){
-            throw new \Exception($validator->getMessageBag());
+            throw new ApiValidationException($validator->getMessageBag());
         }
 
         $vendorDTO = new VendorDTO();
@@ -73,7 +74,7 @@ class SmartContractController extends Controller
 
         $validator = Validator::make($request->all(), $rules);
         if($validator->fails()){
-            throw new \Exception($validator->getMessageBag());
+            throw new ApiValidationException($validator->getMessageBag());
         }
 
         $authorizationDTO = new AuthorizationDTO();
@@ -140,7 +141,7 @@ class SmartContractController extends Controller
                     'value' => decode($request->get('user_id'))
                 ];
 
-                $response = $smartContractService->getBuyerSmartContracts($filters, $perPage);
+                $response = $smartContractService->getBuyerSmartContracts($authorizationDTO,$filters, $perPage);
                 break;
             case 'Seller':
                 $filters[] = [
@@ -192,7 +193,7 @@ class SmartContractController extends Controller
 
         $validator = Validator::make($request->all(), $rules);
         if($validator->fails()){
-            throw new \Exception($validator->getMessageBag());
+            throw new ApiValidationException($validator->getMessageBag());
         }
 
         $smartContractDTO = new SmartContractDTO();
@@ -235,7 +236,7 @@ class SmartContractController extends Controller
 
         $validator = Validator::make($request->all(), $rules);
         if($validator->fails()){
-            throw new \Exception($validator->getMessageBag());
+            throw new ApiValidationException($validator->getMessageBag());
         }
 
         $smartContractDetailDTO = new SmartContractDetailDTO();
@@ -254,7 +255,7 @@ class SmartContractController extends Controller
 
         $validator = Validator::make($request->all(), $rules);
         if($validator->fails()){
-            throw new \Exception($validator->getMessageBag());
+            throw new ApiValidationException($validator->getMessageBag());
         }
 
         $authorizationDTO = new AuthorizationDTO();
@@ -289,7 +290,7 @@ class SmartContractController extends Controller
 
         $validator = Validator::make($request->all(), $rules);
         if($validator->fails()){
-            throw new \Exception($validator->getMessageBag());
+            throw new ApiValidationException($validator->getMessageBag());
         }
 
         $authorizationDTO = new AuthorizationDTO();
@@ -338,7 +339,7 @@ class SmartContractController extends Controller
 
         $validator = Validator::make($request->all(), $rules);
         if($validator->fails()){
-            throw new \Exception($validator->getMessageBag());
+            throw new ApiValidationException($validator->getMessageBag());
         }
 
         $authorizationDTO = new AuthorizationDTO();
@@ -378,7 +379,7 @@ class SmartContractController extends Controller
 
         $validator = Validator::make($request->all(), $rules);
         if($validator->fails()){
-            throw new \Exception($validator->getMessageBag());
+            throw new ApiValidationException($validator->getMessageBag());
         }
 
         $smartContractDetailDTO = new SmartContractDetailDTO();

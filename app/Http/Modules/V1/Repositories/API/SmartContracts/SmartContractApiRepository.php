@@ -17,6 +17,7 @@ class SmartContractApiRepository
                 'Authorization' => $payloads['authorization']
             ],
             'query' => [
+                'role' => $payloads['role'],
                 'order_serials' => $payloads['order_serials']
             ]
         ]);

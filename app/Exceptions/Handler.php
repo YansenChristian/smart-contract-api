@@ -15,6 +15,7 @@ use Rollbar\Rollbar;
 use Rollbar\RollbarLogger;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 
 class Handler extends ExceptionHandler
@@ -62,7 +63,6 @@ class Handler extends ExceptionHandler
 
     public function render($request, Exception $exception)
     {
-        dd($exception);
         if($exception instanceof RLException) {
             return $exception->getResponse();
         }

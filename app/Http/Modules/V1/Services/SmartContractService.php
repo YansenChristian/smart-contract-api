@@ -143,7 +143,7 @@ class SmartContractService extends Service
             $smartContractLog->user_name = $log->user_name;
             $smartContractLog->created_at = $log->created_at;
             $smartContractLog->status = $log->smart_contract_status;
-            $smartContractLog->information = $log->information;
+            $smartContractLog->information = trans($log->information);
 
             $smartContractDetail->logs[] = $smartContractLog;
         }
@@ -356,7 +356,7 @@ class SmartContractService extends Service
         foreach ($response['logs'] as $log) {
             $newValue = [];
             $newValue['status'] = $log->smart_contract_status;
-            $newValue['information'] = $log->information;
+            $newValue['information'] = trans($log->information);
             $newValue['created_at'] = date('d F Y H:i:s', strtotime($log->created_at));
 
             $formattedSmartContractDetail['logs'][] = $newValue;

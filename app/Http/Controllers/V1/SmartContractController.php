@@ -138,7 +138,7 @@ class SmartContractController extends Controller
                 $filters[] = [
                     'column' => 'smart_contracts.buyer_user_id',
                     'operator' => '=',
-                    'value' => decode($request->get('user_id'))
+                    'value' => $request->get('user_id')
                 ];
 
                 $response = $smartContractService->getBuyerSmartContracts($authorizationDTO,$filters, $perPage);
@@ -147,7 +147,7 @@ class SmartContractController extends Controller
                 $filters[] = [
                     'column' => 'smart_contracts.vendor_id',
                     'operator' => '=',
-                    'value' => decode($request->get('vendor_id'))
+                    'value' => $request->get('vendor_id')
                 ];
 
                 $response = $smartContractService->getSellerSmartContracts($authorizationDTO, $filters, $perPage);

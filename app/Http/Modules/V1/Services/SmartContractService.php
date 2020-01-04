@@ -306,7 +306,7 @@ class SmartContractService extends Service
         $smartContractsDetail = $response['smart_contracts_detail'];
         $orderSerials = array_column($response['smart_contracts_detail'], 'order_serial');
 
-        foreach ($response['smart_contracts'] as $smartContract) {
+        $response['smart_contracts']->getCollection()->transform(function ($smartContract) use ($smartContractsDetail, $orderSerials) {
             $smartContractDetail = $smartContractsDetail[array_search($smartContract->order_serial, $orderSerials)];
 
             $smartContract->payment_method = $smartContractDetail['payment_method'];
@@ -325,7 +325,9 @@ class SmartContractService extends Service
 
             unset($smartContract->buyer_user_id);
             unset($smartContract->vendor_id);
-        }
+
+            return $smartContract;
+        });
 
         return $response['smart_contracts'];
     }

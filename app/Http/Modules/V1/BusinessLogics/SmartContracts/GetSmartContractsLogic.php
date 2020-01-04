@@ -54,7 +54,7 @@ class GetSmartContractsLogic extends BusinessLogic
         $smartContractsDetail = $this->smartContractApiRepository->getSmartContracts($smartContracts,$headers);
 
         return [
-            'smart_contracts' => $smartContracts,
+            'smart_contracts' => $smartContractsWithPagination,
             'smart_contracts_detail' => $smartContractsDetail
         ];
     }

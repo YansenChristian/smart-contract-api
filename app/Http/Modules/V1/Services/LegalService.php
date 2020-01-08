@@ -34,13 +34,17 @@ class LegalService extends Service
         $newValue->smart_contract_serial = $smartContractDTO->smart_contract_serial;
         $newValue->smart_contract_details = [];
 
+        $newValue->total_price = 0;
         foreach ($legalContent->order_serials as $orderSerial) {
             $smartContractDetail = new stdClass();
             $smartContractDetail->order_serial = $orderSerial;
             $smartContractDetail->order_date = getOrderDateByOrderSerial($orderSerial);
+            $smartContractDetail->subtotal_price = displayNumeric($legalContent->total_price);
+            $newValue->total_price += $legalContent->total_price;
 
             $newValue->smart_contract_details[] = $smartContractDetail;
         }
+        $newValue->total_price = displayNumeric($newValue->total_price);
 
         return $newValue;
     }

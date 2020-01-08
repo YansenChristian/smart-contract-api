@@ -28,10 +28,11 @@ class VendorService extends Service
         return $response[CheckIfVendorIsSmartContractLogic::class];
     }
 
-    public function getSmartContractVendors(AuthorizationDTO $authorizationDTO, $perPage)
+    public function getSmartContractVendors(AuthorizationDTO $authorizationDTO, $perPage, $keyword)
     {
         $scopes = [
             'INPUT::PerPage' => $perPage,
+            'INPUT::Keyword' => $keyword,
             'INPUT::AuthorizationDTO' => $authorizationDTO,
         ];
 
@@ -67,10 +68,11 @@ class VendorService extends Service
         return $vendors;
     }
 
-    public function activateVendors($vendorIds)
+    public function activateVendors($vendorIds, $vendorNames)
     {
         $scopes = [
-            'INPUT::VendorIds' => $vendorIds
+            'INPUT::VendorIds' => $vendorIds,
+            'INPUT::VendorNames' => $vendorNames
         ];
 
         $response = $this->execute([

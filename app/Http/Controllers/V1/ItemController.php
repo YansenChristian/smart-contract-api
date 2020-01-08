@@ -60,4 +60,21 @@ class ItemController extends Controller
 
         return response()->json($response, 200);
     }
+
+    public function getCheckIfItemIsSmartContract(Request $request,ItemService $itemService)
+    {
+
+        $rules = [
+            'item_id' => 'required'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if($validator->fails()){
+            throw new ApiValidationException($validator->getMessageBag());
+        }
+
+        $response = $itemService->checkIfItemIsSmartContract($request->get('item_id'));
+
+        return response()->json($response, 200);
+    }
 }

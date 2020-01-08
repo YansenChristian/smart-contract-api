@@ -5,6 +5,7 @@ namespace App\Http\Modules\V1\Services;
 
 
 use App\Http\Modules\V1\BusinessLogics\Items\ActivateItemLogic;
+use App\Http\Modules\V1\BusinessLogics\Items\CheckIfItemIsSmartContract;
 use App\Http\Modules\V1\BusinessLogics\Items\DeactivateItemLogic;
 use App\Http\Modules\V1\BusinessLogics\Items\GetItemLogic;
 use App\Http\Modules\V1\DataTransferObjects\Items\ItemDTO;
@@ -43,4 +44,16 @@ class ItemService extends Service
 
         return $response[CheckIfItemsAreSmartContractLogic::class];
     }
+
+    public function checkIfItemIsSmartContract($itemId)
+    {
+        $scopes = [
+            'INPUT::ItemId' => $itemId
+        ];
+
+        $response = $this->execute([CheckIfItemIsSmartContract::class], $scopes);
+
+        return $response[CheckIfItemIsSmartContract::class];
+    }
+
 }

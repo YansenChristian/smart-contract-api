@@ -26,7 +26,7 @@ class VendorController extends Controller
     public function getSmartContractVendors(Request $request, VendorService $vendorService)
     {
         $rules = [
-            'limit' => 'required|int'
+            'limit' => 'required|int',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -42,14 +42,18 @@ class VendorController extends Controller
             $authorizationDTO->access_token = $request->header('x-access-token');
         }
 
-        $result = $vendorService->getSmartContractVendors($authorizationDTO, $request->get('limit'));
+        $result = $vendorService->getSmartContractVendors(
+            $authorizationDTO,
+            $request->get('limit'),
+            $request->get('keyword', '')
+        );
         return response()->json($result, 200);
     }
 
     public function postActivateVendors(Request $request, VendorService $vendorService)
     {
         $rules = [
-            'vendor_ids' => 'required|array'
+            'vendors' => 'required|array',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -57,15 +61,16 @@ class VendorController extends Controller
             throw new ApiValidationException($validator->getMessageBag());
         }
 
-        $vendorIds = $request->get('vendor_ids');
+        $vendors = $request->get('vendors');
+        $vendorIds = array_column($vendors, 'id');
         array_walk($vendorIds, function (&$vendorId) {
             $vendorId = decode($vendorId);
         });
 
-        $vendorService->activateVendors($vendorIds);
+        $vendorService->activateVendors($vendorIds, array_column($vendors, 'name'));
 
         return response()->json([
-            'message' => 'The vendors: ['.implode(", ",$request->get('vendor_ids'))."] have been activated to be part(s) of Smart Contract"
+            'message' => 'The vendors: ['.implode(", ",array_column($vendors, 'id'))."] have been activated to be part(s) of Smart Contract"
         ]);
     }
 

@@ -24,7 +24,8 @@ class ActivateVendorsLogic extends BusinessLogic
     public function run()
     {
         $this->validateScopes([
-            'INPUT::VendorIds'
+            'INPUT::VendorIds',
+            'INPUT::VendorNames'
         ]);
 
         $existingVendors = $this->vendorRepository->getByIds($this->getScope('INPUT::VendorIds'));
@@ -32,10 +33,15 @@ class ActivateVendorsLogic extends BusinessLogic
 
         $this->vendorRepository->activateVendors($existingVendorIds);
 
+        $vendors = array_combine($this->getScope('INPUT::VendorIds'), $this->getScope('INPUT::VendorNames'));
+
         $newVendorIds = array_diff($this->getScope('INPUT::VendorIds'), $existingVendorIds);
         $vendorData = [];
-        array_walk($newVendorIds, function ($id) use (&$vendorData){
-             $vendorData[] = ['vendor_id' => $id];
+        array_walk($newVendorIds, function ($id) use (&$vendorData, $vendors){
+             $vendorData[] = [
+                 'vendor_id' => $id,
+                 'name' => $vendors[$id]
+             ];
         });
 
         return $this->vendorRepository->insert($vendorData);

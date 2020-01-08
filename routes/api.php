@@ -39,6 +39,7 @@ $router->group([
     $router->group(['prefix' => 'items'], function () use ($router) {
         $router->post('/', 'ItemController@postToggleItemActivation');
         $router->post('/exist', 'ItemController@postCheckIfItemsAreSmartContract');
+        $router->get('/exists', 'ItemController@getCheckIfItemIsSmartContract');
     });
 
     $router->group(['prefix' => 'smart-contracts'], function () use ($router) {

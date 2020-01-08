@@ -96,6 +96,7 @@ class GetSellerSmartContractDetailLogic extends BusinessLogic
         }
 
         $users = $this->userApiRepository->getUsersByIds($payloads, $headers);
+
         foreach ($smartContractLogs as $log) {
             $log->user_name = $users[encode($log->user_id)]['name'];
         }

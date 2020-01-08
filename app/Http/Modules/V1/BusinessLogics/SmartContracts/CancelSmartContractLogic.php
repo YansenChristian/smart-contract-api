@@ -64,6 +64,7 @@ class CancelSmartContractLogic extends BusinessLogic
             $headers['Authorization'] = $authorizationDTO->bearer;
         }
         if(isset($authorizationDTO->access_token)) {
+
             $headers['x-access-token'] = $authorizationDTO->access_token;
         }
         $user = $this->userApiRepository->getUsersByIds($payloads, $headers);

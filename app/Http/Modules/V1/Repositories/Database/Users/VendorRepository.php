@@ -17,9 +17,10 @@ class VendorRepository
         return $sellers->exists();
     }
 
-    public function getVendors($perPage)
+    public function getVendors($perPage, $keyword)
     {
         return DB::table('smart_contract_vendors')
+            ->where('smart_contract_vendors.name', 'LIKE', '%'.$keyword.'%')
             ->paginate($perPage);
     }
 

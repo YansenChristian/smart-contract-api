@@ -28,13 +28,15 @@ class GetSmartContractVendorsLogic extends BusinessLogic
     {
         $this->validateScopes([
             'INPUT::PerPage' => 'required',
+            'INPUT::Keyword' => 'required',
             'INPUT::AuthorizationDTO' => 'required'
         ]);
 
         $authorizationDTO = $this->getScope('INPUT::AuthorizationDTO');
         $perPage = $this->getScope('INPUT::PerPage');
+        $keyword = $this->getScope('INPUT::Keyword');
 
-        $vendors = $this->vendorRepository->getVendors($perPage);
+        $vendors = $this->vendorRepository->getVendors($perPage, $keyword);
         $vendorIds = array_column($vendors->items(), 'vendor_id');
         array_walk($vendorIds, function (&$vendorId) {
             $vendorId = encode($vendorId);

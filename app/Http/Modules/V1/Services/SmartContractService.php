@@ -76,7 +76,7 @@ class SmartContractService extends Service
             $newValue->status = trans(SmartContractStatus::getByName($value->status)['description']);
             $newValue->buyer_name = $value->buyer_name;
             $newValue->view_smart_contract_detail_link = env('SELLER_PANEL_URL')
-                .'#/smart_contracts/'
+                .'#/transactions/smart-contract/detail/'
                 .smartContractSerialToAlias($value->smart_contract_serial);
 
             if($value->status == SmartContractStatus::WAITING['name']) {
@@ -313,13 +313,13 @@ class SmartContractService extends Service
             $smartContract->buyer = $smartContractDetail['buyer'];
             $smartContract->vendor = $smartContractDetail['vendor'];
             $smartContract->total_price = displayNumeric($smartContract->total_price);
-            $smartContract->view_smart_contract_detail_link = env('WEBSITE_URL')
-                .'#/smart_contracts/'
+            $smartContract->view_smart_contract_detail_link = env('CMS_URL')
+                .'admin-cp/smart-contract/'
                 .smartContractSerialToAlias($smartContract->smart_contract_serial);
 
             if($smartContract->status != SmartContractStatus::WAITING['name']) {
                 $smartContract->view_smart_contract_legal_link = env('SELLER_PANEL_URL')
-                    .'#/legal?smart_contract_serial='
+                    .'smart-contracts/v1/legals?smart_contract_serial='
                     .smartContractSerialToAlias($smartContract->smart_contract_serial);
             }
 

@@ -48,11 +48,10 @@ class VendorService extends Service
             $vendorIds = array_column($response['vendors_detail'], 'id');
 
             $vendors->getCollection()->transform(function ($value) use ($vendorIds, $vendorsDetail) {
-//                $vendorDetail = $vendorsDetail[array_search(encode($value->vendor_id), $vendorIds)];
-                $vendorDetail = $vendorsDetail[array_search($value->vendor_id, $vendorIds)];
+                $vendorDetail = $vendorsDetail[array_search(encode($value->vendor_id), $vendorIds)];
 
                 $newValue = new stdClass();
-                $newValue->id = $vendorDetail['id'];
+                $newValue->id = decode($vendorDetail['id']);
                 $newValue->seller_name = $vendorDetail['seller_name'];
                 $newValue->email = $vendorDetail['email'];
                 $newValue->handphone = $vendorDetail['handphone'];

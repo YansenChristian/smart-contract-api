@@ -61,7 +61,7 @@ class VendorService extends Service
                 $newValue->address = $vendorDetail['address'];
                 $newValue->total_smart_contract_products = $vendorDetail['total_smart_contract_products'];
                 $newValue->view_vendor_profile_link = $vendorDetail['view_vendor_profile_link'];
-                $newValue->is_active = is_null($value->deleted_at) ? false : true;
+                $newValue->is_active = is_null($value->deleted_at);
 
                 return $newValue;
             });

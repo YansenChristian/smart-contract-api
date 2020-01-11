@@ -30,7 +30,7 @@ class SmartContractController extends Controller
         }
 
         $vendorDTO = new VendorDTO();
-        $vendorDTO->id = decode($request->get('vendor_id'));
+        $vendorDTO->id = $request->get('vendor_id');
 
         $counters = $smartContractService->getCounter($vendorDTO);
         return response()->json($counters, 200);

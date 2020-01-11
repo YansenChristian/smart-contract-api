@@ -63,9 +63,9 @@ class VendorController extends Controller
 
         $vendors = $request->get('vendors');
         $vendorIds = array_column($vendors, 'id');
-        array_walk($vendorIds, function (&$vendorId) {
-            $vendorId = decode($vendorId);
-        });
+//        array_walk($vendorIds, function (&$vendorId) {
+//            $vendorId = decode($vendorId);
+//        });
 
         $vendorService->activateVendors($vendorIds, array_column($vendors, 'name'));
 
@@ -86,9 +86,9 @@ class VendorController extends Controller
         }
 
         $vendorIds = $request->get('vendor_ids');
-        array_walk($vendorIds, function (&$vendorId) {
-            $vendorId = decode($vendorId);
-        });
+//        array_walk($vendorIds, function (&$vendorId) {
+//            $vendorId = decode($vendorId);
+//        });
 
         $vendorService->deactivateVendors($vendorIds);
 

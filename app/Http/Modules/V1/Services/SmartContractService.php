@@ -91,7 +91,7 @@ class SmartContractService extends Service
                 ];
                 $newValue->status_detail = trans('SmartContracts/misc.status_detail', $statusDetailParams);
                 $newValue->view_smart_contract_legal_link = env('SELLER_PANEL_URL')
-                    .'#/legal?smart_contract_serial='
+                    .'#/transactions/smart-contract/legal/'
                     .smartContractSerialToAlias($value->smart_contract_serial);
             }
 

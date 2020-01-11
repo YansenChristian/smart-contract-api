@@ -43,27 +43,29 @@ class VendorService extends Service
         $response = $response[GetSmartContractVendorsLogic::class];
 
         $vendors = $response['vendors'];
-        $vendorsDetail = $response['vendors_detail'];
-        $vendorIds = array_column($response['vendors_detail'], 'id');
+        if(count($vendors) > 0) {
+            $vendorsDetail = $response['vendors_detail'];
+            $vendorIds = array_column($response['vendors_detail'], 'id');
 
-        $vendors->getCollection()->transform(function ($value) use ($vendorIds, $vendorsDetail) {
-            $vendorDetail = $vendorsDetail[array_search(encode($value->vendor_id), $vendorIds)];
+            $vendors->getCollection()->transform(function ($value) use ($vendorIds, $vendorsDetail) {
+                $vendorDetail = $vendorsDetail[array_search(encode($value->vendor_id), $vendorIds)];
 
-            $newValue = new stdClass();
-            $newValue->id = $vendorDetail['id'];
-            $newValue->seller_name = $vendorDetail['seller_name'];
-            $newValue->email = $vendorDetail['email'];
-            $newValue->handphone = $vendorDetail['handphone'];
-            $newValue->phone = $vendorDetail['phone'];
-            $newValue->name = $vendorDetail['name'];
-            $newValue->microsite_url = $vendorDetail['microsite_url'];
-            $newValue->address = $vendorDetail['address'];
-            $newValue->total_smart_contract_products = $vendorDetail['total_smart_contract_products'];
-            $newValue->view_vendor_profile_link = $vendorDetail['view_vendor_profile_link'];
-            $newValue->is_active = is_null($value->deleted_at) ? false : true;
+                $newValue = new stdClass();
+                $newValue->id = $vendorDetail['id'];
+                $newValue->seller_name = $vendorDetail['seller_name'];
+                $newValue->email = $vendorDetail['email'];
+                $newValue->handphone = $vendorDetail['handphone'];
+                $newValue->phone = $vendorDetail['phone'];
+                $newValue->name = $vendorDetail['name'];
+                $newValue->microsite_url = $vendorDetail['microsite_url'];
+                $newValue->address = $vendorDetail['address'];
+                $newValue->total_smart_contract_products = $vendorDetail['total_smart_contract_products'];
+                $newValue->view_vendor_profile_link = $vendorDetail['view_vendor_profile_link'];
+                $newValue->is_active = is_null($value->deleted_at) ? false : true;
 
-            return $newValue;
-        });
+                return $newValue;
+            });
+        }
 
         return $vendors;
     }

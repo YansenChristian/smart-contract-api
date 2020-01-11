@@ -37,12 +37,15 @@ class GetSmartContractVendorsLogic extends BusinessLogic
         $keyword = $this->getScope('INPUT::Keyword');
 
         $vendors = $this->vendorRepository->getVendors($perPage, $keyword);
-        $vendorIds = array_column($vendors->items(), 'vendor_id');
-        array_walk($vendorIds, function (&$vendorId) {
-            $vendorId = encode($vendorId);
-        });
+        $vendorsDetail = null;
+        if(count($vendors->items()) > 0) {
+            $vendorIds = array_column($vendors->items(), 'vendor_id');
+            array_walk($vendorIds, function (&$vendorId) {
+                $vendorId = encode($vendorId);
+            });
 
-        $vendorsDetail = $this->getVendorsDetail($authorizationDTO, $vendorIds);
+            $vendorsDetail = $this->getVendorsDetail($authorizationDTO, $vendorIds);
+        }
 
         return [
             'vendors' => $vendors,

@@ -7,7 +7,7 @@ namespace App\Http\Modules\V1\BusinessLogics\SmartContracts;
 use App\Http\Modules\V1\BusinessLogic;
 use App\Http\Modules\V1\Repositories\Database\SmartContracts\SmartContractRepository;
 
-class GetSmartContractCounterLogic extends BusinessLogic
+class GetSellerSmartContractCounterLogic extends BusinessLogic
 {
     private $smartContractRepository;
 
@@ -30,7 +30,7 @@ class GetSmartContractCounterLogic extends BusinessLogic
         $vendorDTO = $this->getScope('INPUT::VendorDTO');
 
         $counterPerStatusName = $this->smartContractRepository
-            ->getCounter()
+            ->getSellerCounter($vendorDTO->id)
             ->pluck('subtotal', 'name');
 
         #calculate total count from each status

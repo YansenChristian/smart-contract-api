@@ -16,6 +16,7 @@ use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetBuyerSmartContractsLogi
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSellerSmartContractDetailLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSellerSmartContractsLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSmartContractByOrderSerialLogic;
+use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSellerSmartContractCounterLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSmartContractCounterLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSmartContractDetailLogic;
 use App\Http\Modules\V1\BusinessLogics\SmartContracts\GetSmartContractProductRecommendationLogic;
@@ -35,13 +36,27 @@ use stdClass;
 
 class SmartContractService extends Service
 {
-    public function getCounter(VendorDTO $vendorDTO)
+    public function getSellerCounter(VendorDTO $vendorDTO)
     {
         $scopes = [
             'INPUT::VendorDTO' => $vendorDTO
         ];
 
-        $response = $this->execute([GetSmartContractCounterLogic::class], $scopes);
+        $response = $this->execute([GetSellerSmartContractCounterLogic::class], $scopes);
+        $counter = $response[GetSellerSmartContractCounterLogic::class]->toArray();
+
+        foreach (SmartContractStatus::getConstants() as $status) {
+            if(!isset($counter[$status['name']])) {
+                $counter[$status['name']] = 0;
+            }
+        }
+
+        return $counter;
+    }
+
+    public function getCounter(VendorDTO $vendorDTO)
+    {
+        $response = $this->execute([GetSmartContractCounterLogic::class], []);
         $counter = $response[GetSmartContractCounterLogic::class]->toArray();
 
         foreach (SmartContractStatus::getConstants() as $status) {

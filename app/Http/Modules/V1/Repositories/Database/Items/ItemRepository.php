@@ -50,7 +50,21 @@ class ItemRepository
     {
         return DB::table('smart_contract_items')
             ->whereIn('item_id', $itemIds)
-            ->select(['item_id'])
+            ->select([
+                'item_id',
+                'deleted_at'
+            ])
             ->get();
+    }
+
+    public function getExistingItems($itemIds)
+    {
+        return DB::table('smart_contract_items')
+            ->whereIn('item_id', $itemIds)
+            ->select([
+                'item_id',
+                'deleted_at'
+            ])
+            ->paginate(10);
     }
 }

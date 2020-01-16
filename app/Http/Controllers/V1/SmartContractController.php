@@ -20,10 +20,6 @@ class SmartContractController extends Controller
 {
     public function getCounter(Request $request, SmartContractService $smartContractService)
     {
-        $rules = [
-            'vendor_id' => 'required'
-        ];
-
         $validator = Validator::make($request->all(), $rules);
         if($validator->fails()){
             throw new ApiValidationException($validator->getMessageBag());
@@ -32,7 +28,7 @@ class SmartContractController extends Controller
         $vendorDTO = new VendorDTO();
         $vendorDTO->id = $request->get('vendor_id');
 
-        $counters = $smartContractService->getCounter($vendorDTO);
+        $counters = $smartContractService->getSellerCounter($vendorDTO);
         return response()->json($counters, 200);
     }
 
@@ -78,7 +74,12 @@ class SmartContractController extends Controller
         }
 
         $authorizationDTO = new AuthorizationDTO();
-        $authorizationDTO->bearer = $request->header('authorization');
+        if($request->hasHeader('Authorization')) {
+            $authorizationDTO->bearer = $request->header('Authorization');
+        }
+        if($request->hasHeader('x-access-token')) {
+            $authorizationDTO->access_token = $request->header('x-access-token');
+        }
 
         $perPage = $request->get('limit', 10);
         $filters = [];
@@ -166,7 +167,12 @@ class SmartContractController extends Controller
         $smartContractDTO->smart_contract_serial = smartContractSerialToOriginal($smart_contract_serial);
 
         $authorizationDTO = new AuthorizationDTO();
-        $authorizationDTO->bearer = $request->header('Authorization');
+        if($request->hasHeader('Authorization')) {
+            $authorizationDTO->bearer = $request->header('Authorization');
+        }
+        if($request->hasHeader('x-access-token')) {
+            $authorizationDTO->access_token = $request->header('x-access-token');
+        }
 
         switch ($request->get('role', '')) {
             case 'Buyer':

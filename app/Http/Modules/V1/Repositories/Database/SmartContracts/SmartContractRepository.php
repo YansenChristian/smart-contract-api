@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class SmartContractRepository
 {
-    public function getCounter($vendorId)
+    public function getSellerCounter($vendorId)
     {
         $selectStatement = [
             'smart_contract_status.name',
@@ -22,6 +22,22 @@ class SmartContractRepository
                 'smart_contract_status.id')
             ->groupBy('smart_contract_status_id')
             ->where('vendor_id', '=', $vendorId)
+            ->select($selectStatement)
+            ->get();
+    }
+
+    public function getCounter()
+    {
+        $selectStatement = [
+            'smart_contract_status.name',
+            DB::raw('COUNT(*) AS subtotal')
+        ];
+        return DB::table('smart_contract_status')
+            ->leftJoin('smart_contracts',
+                'smart_contracts.smart_contract_status_id',
+                '=',
+                'smart_contract_status.id')
+            ->groupBy('smart_contract_status_id')
             ->select($selectStatement)
             ->get();
     }

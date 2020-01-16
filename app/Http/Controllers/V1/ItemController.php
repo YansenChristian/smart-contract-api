@@ -6,6 +6,7 @@ namespace App\Http\Controllers\V1;
 
 use App\Exceptions\ApiValidationException;
 use App\Http\Controllers\Controller;
+use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
 use App\Http\Modules\V1\DataTransferObjects\Items\ItemDTO;
 use App\Http\Modules\V1\DataTransferObjects\Users\SellerDTO;
 use App\Http\Modules\V1\Services\ItemService;
@@ -61,9 +62,8 @@ class ItemController extends Controller
         return response()->json($response, 200);
     }
 
-    public function getCheckIfItemIsSmartContract(Request $request,ItemService $itemService)
+    public function getCheckIfItemIsSmartContract(Request $request, ItemService $itemService)
     {
-
         $rules = [
             'item_id' => 'required'
         ];
@@ -74,6 +74,30 @@ class ItemController extends Controller
         }
 
         $response = $itemService->checkIfItemIsSmartContract($request->get('item_id'));
+
+        return response()->json($response, 200);
+    }
+
+    public function getItemsByVendorId(Request $request, ItemService $itemService)
+    {
+        $rules = [
+            'vendor_id' => 'required'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if($validator->fails()){
+            throw new ApiValidationException($validator->getMessageBag());
+        }
+
+        $authorizationDTO = new AuthorizationDTO();
+        if($request->hasHeader('Authorization')) {
+            $authorizationDTO->bearer = $request->header('Authorization');
+        }
+        if($request->hasHeader('x-access-token')) {
+            $authorizationDTO->access_token = $request->header('x-access-token');
+        }
+
+        $response = $itemService->getItemsByVendorId($request->get('vendor_id'), $authorizationDTO);
 
         return response()->json($response, 200);
     }

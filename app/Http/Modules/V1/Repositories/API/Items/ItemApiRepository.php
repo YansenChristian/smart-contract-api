@@ -18,4 +18,15 @@ class ItemApiRepository
 
         return json_decode($request_api->getBody()->getContents(), true);
     }
+
+    public function getItemsByVendorId($payloads, $headers)
+    {
+        $client = new Client();
+        $request_api = $client->get(env('API_CORE_URL') . 'v4/items/vendor', [
+            'headers' => $headers,
+            'query' => $payloads
+        ]);
+
+        return json_decode($request_api->getBody()->getContents(), true);
+    }
 }

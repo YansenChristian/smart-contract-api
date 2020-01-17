@@ -20,6 +20,10 @@ class SmartContractController extends Controller
 {
     public function getCounter(Request $request, SmartContractService $smartContractService)
     {
+        $rules = [
+            'vendor_id' => 'required'
+        ];
+
         $validator = Validator::make($request->all(), $rules);
         if($validator->fails()){
             throw new ApiValidationException($validator->getMessageBag());

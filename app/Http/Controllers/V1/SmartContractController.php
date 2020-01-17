@@ -277,7 +277,9 @@ class SmartContractController extends Controller
         $smartContractDTO->smart_contract_status = SmartContractStatus::APPROVED;
 
         $sellerDTO = new SellerDTO();
-        $sellerDTO->id = decode($request->get('user_id'));
+        $sellerDTO->id = ($request->get('source') == 'Seller Panel')
+            ? $request->get('user_id')
+            : decode($request->get('user_id'));
 
         $smartContractService->approveSmartContract($authorizationDTO, $smartContractDTO, $sellerDTO);
 
@@ -312,7 +314,9 @@ class SmartContractController extends Controller
         $smartContractDTO->smart_contract_status = SmartContractStatus::REJECTED;
 
         $sellerDTO = new SellerDTO();
-        $sellerDTO->id = decode($request->get('user_id'));
+        $sellerDTO->id = ($request->get('source') == 'Seller Panel')
+            ? $request->get('user_id')
+            : decode($request->get('user_id'));
 
         $smartContractService->rejectSmartContract($authorizationDTO, $smartContractDTO, $sellerDTO);
 

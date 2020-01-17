@@ -28,10 +28,14 @@ class ItemController extends Controller
         }
 
         $itemDTO = new ItemDTO();
-        $itemDTO->item_id = decode($request->get('item_id'));
+        $itemDTO->item_id = ($request->get('source') == 'Seller Panel')
+            ? $request->get('item_id')
+            : decode($request->get('item_id'));
 
         $sellerDTO = new SellerDTO();
-        $sellerDTO->id = decode($request->get('seller_id'));
+        $sellerDTO->id = ($request->get('source') == 'Seller Panel')
+            ? $request->get('seller_id')
+            : decode($request->get('seller_id'));
 
         $currentStatus = $itemService->toggleItemActivation($itemDTO, $sellerDTO);
         $message = ($currentStatus)

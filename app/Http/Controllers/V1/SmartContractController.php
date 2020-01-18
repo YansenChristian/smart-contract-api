@@ -211,6 +211,7 @@ class SmartContractController extends Controller
         $smartContractDTO->buyer_user_id = decode($request->get('user_id'));
         $smartContractDTO->payment_method_id = $request->get('payment_id');
         $smartContractDTO->smart_contract_status = SmartContractStatus::WAITING;
+        $smartContractDTO->smart_contract_status_id = SmartContractStatus::WAITING['id'];
         $smartContractDTO->total_order = $request->get('total_order');
         $smartContractDTO->buyer_notes = isset($request->get('cart_data')[0]['comment'])
             ? $request->get('cart_data')[0]['comment']

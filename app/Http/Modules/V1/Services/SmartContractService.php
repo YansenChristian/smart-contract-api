@@ -54,7 +54,7 @@ class SmartContractService extends Service
         return $counter;
     }
 
-    public function getCounter(VendorDTO $vendorDTO)
+    public function getCounter()
     {
         $response = $this->execute([GetSmartContractCounterLogic::class], []);
         $counter = $response[GetSmartContractCounterLogic::class]->toArray();

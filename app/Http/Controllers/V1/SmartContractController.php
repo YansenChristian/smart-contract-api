@@ -20,6 +20,12 @@ class SmartContractController extends Controller
 {
     public function getCounter(Request $request, SmartContractService $smartContractService)
     {
+        $counters = $smartContractService->getCounter();
+        return response()->json($counters, 200);
+    }
+
+    public function getSellerCounter(Request $request, SmartContractService $smartContractService)
+    {
         $rules = [
             'vendor_id' => 'required'
         ];

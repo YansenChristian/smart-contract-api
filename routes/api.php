@@ -49,6 +49,7 @@ $router->group([
         $router->post('get', 'SmartContractController@getSmartContractForOrderSerial');
         $router->get('product-recommendation', 'SmartContractController@getSmartContractProductRecommendation');
         $router->get('counter', 'SmartContractController@getCounter');
+        $router->get('counter/vendor', 'SmartContractController@getSellerCounter');
         $router->get('orders/exists', 'SmartContractController@getCheckIfOrderIsSmartContract');
         $router->get('{smart_contract_serial}', 'SmartContractController@getSmartContractDetail');
         $router->post('{smart_contract_serial}/approve', 'SmartContractController@postApproveSmartContract');

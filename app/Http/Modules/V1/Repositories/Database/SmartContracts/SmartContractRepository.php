@@ -13,14 +13,14 @@ class SmartContractRepository
     {
         $selectStatement = [
             'smart_contract_status.name',
-            DB::raw('COUNT(*) AS subtotal')
+            DB::raw('COUNT(rl_smart_contracts.id) AS subtotal')
         ];
         return DB::table('smart_contract_status')
             ->leftJoin('smart_contracts',
                 'smart_contracts.smart_contract_status_id',
                 '=',
                 'smart_contract_status.id')
-            ->groupBy('smart_contract_status_id')
+            ->groupBy('smart_contract_status.name')
             ->where('vendor_id', '=', $vendorId)
             ->select($selectStatement)
             ->get();
@@ -30,14 +30,14 @@ class SmartContractRepository
     {
         $selectStatement = [
             'smart_contract_status.name',
-            DB::raw('COUNT(*) AS subtotal')
+            DB::raw('COUNT(rl_smart_contracts.id) AS subtotal')
         ];
         return DB::table('smart_contract_status')
             ->leftJoin('smart_contracts',
                 'smart_contracts.smart_contract_status_id',
                 '=',
                 'smart_contract_status.id')
-            ->groupBy('smart_contract_status_id')
+            ->groupBy('smart_contract_status.name')
             ->select($selectStatement)
             ->get();
     }

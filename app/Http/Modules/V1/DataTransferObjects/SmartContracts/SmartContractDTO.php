@@ -12,6 +12,7 @@ class SmartContractDTO extends DTO
     public $smart_contract_serial;
     public $buyer_user_id;
     public $vendor_id;
+    public $item_id;
     public $smart_contract_status;
     public $smart_contract_status_id;
     public $payment_method_id;

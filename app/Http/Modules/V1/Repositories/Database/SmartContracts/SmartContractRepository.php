@@ -252,7 +252,7 @@ class SmartContractRepository
             'smart_contracts.vendor_id',
             'smart_contracts.total_price',
             'smart_contract_status.name AS status',
-            DB::raw('GROUP_CONCAT(rl_smart_contract_details.order_serial) AS order_serial'),
+            'smart_contract_details.order_serial',
         ];
 
         $smartContracts = DB::table('smart_contracts')

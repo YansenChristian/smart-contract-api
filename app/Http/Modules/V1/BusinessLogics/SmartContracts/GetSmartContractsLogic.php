@@ -38,7 +38,7 @@ class GetSmartContractsLogic extends BusinessLogic
         $authorizationDTO = $this->getScope('INPUT::AuthorizationDTO');
 
         $smartContractsWithPagination = $this->smartContractRepository->getSmartContracts($filters, $perPage);
-
+dd($smartContractsWithPagination);
         $headers = [];
         if(isset($authorizationDTO->bearer)) {
             $headers['Authorization'] = $authorizationDTO->bearer;

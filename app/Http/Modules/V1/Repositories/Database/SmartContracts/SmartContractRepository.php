@@ -252,7 +252,7 @@ class SmartContractRepository
             'smart_contracts.vendor_id',
             'smart_contracts.total_price',
             'smart_contract_status.name AS status',
-            'smart_contract_details.order_serial',
+            DB::raw('GROUP_CONCAT(rl_smart_contract_details.order_serial) AS order_serial'),
         ];
 
         $smartContracts = DB::table('smart_contracts')
@@ -266,7 +266,14 @@ class SmartContractRepository
                 '=',
                 'smart_contract_status.id'
             )
-            ->groupBy('smart_contracts.smart_contract_serial')
+            ->groupBy([
+                'smart_contracts.smart_contract_serial',
+                'smart_contracts.created_at',
+                'smart_contracts.buyer_user_id',
+                'smart_contracts.vendor_id',
+                'smart_contracts.total_price',
+                'smart_contract_status.name'
+            ])
             ->orderBy('smart_contracts.created_at', 'DESC')
             ->select($columns);
 

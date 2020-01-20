@@ -33,6 +33,7 @@ class ActivateItemLogic extends BusinessLogic
         ]);
 
         $itemDTO = $this->getScope('INPUT::ItemDTO');
+        $sellerDTO = $this->getScope('INPUT::SellerDTO');
         $itemExists = $this->itemRepository->exists([
             'item_id' => $itemDTO->item_id
         ]);
@@ -44,7 +45,8 @@ class ActivateItemLogic extends BusinessLogic
             $this->itemRepository->update($itemData, $conditions);
         } else {
             $this->itemRepository->add([
-                'item_id' => $itemDTO->item_id
+                'item_id' => $itemDTO->item_id,
+                'vendor_id' => $sellerDTO->id
             ]);
         }
 

@@ -47,7 +47,9 @@ class VendorService extends Service
             $vendorsDetail = $response['vendors_detail'];
             $vendorIds = array_column($response['vendors_detail'], 'id');
 
-            $vendors->getCollection()->transform(function ($value) use ($vendorIds, $vendorsDetail) {
+            $itemService = new ItemService();
+
+            $vendors->getCollection()->transform(function ($value) use ($vendorIds, $vendorsDetail, $itemService) {
                 $vendorDetail = $vendorsDetail[array_search(encode($value->vendor_id), $vendorIds)];
 
                 $newValue = new stdClass();
@@ -59,7 +61,7 @@ class VendorService extends Service
                 $newValue->name = $vendorDetail['name'];
                 $newValue->microsite_url = $vendorDetail['microsite_url'];
                 $newValue->address = $vendorDetail['address'];
-                $newValue->total_smart_contract_products = $vendorDetail['total_smart_contract_products'];
+                $newValue->total_smart_contract_products = $itemService->getVendorTotalItem($newValue->id)[0]->total_product.' Product(s)';
                 $newValue->view_vendor_profile_link = $vendorDetail['view_vendor_profile_link'];
                 $newValue->is_active = is_null($value->deleted_at);
 

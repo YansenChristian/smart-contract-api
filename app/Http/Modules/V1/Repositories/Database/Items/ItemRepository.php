@@ -67,4 +67,14 @@ class ItemRepository
             ])
             ->paginate(10);
     }
+
+    public function getVendorTotalItem($vendorId)
+    {
+        return DB::table('smart_contract_items')
+            ->where('vendor_id', '=', $vendorId)
+            ->select([
+                DB::raw('COUNT(item_id) AS total_product')
+            ])
+            ->get();
+    }
 }

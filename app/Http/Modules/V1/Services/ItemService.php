@@ -9,6 +9,7 @@ use App\Http\Modules\V1\BusinessLogics\Items\CheckIfItemIsSmartContract;
 use App\Http\Modules\V1\BusinessLogics\Items\DeactivateItemLogic;
 use App\Http\Modules\V1\BusinessLogics\Items\GetItemLogic;
 use App\Http\Modules\V1\BusinessLogics\Items\GetVendorSmartContractItemsLogic;
+use App\Http\Modules\V1\BusinessLogics\Items\GetVendorTotalItemLogic;
 use App\Http\Modules\V1\DataTransferObjects\Auth\AuthorizationDTO;
 use App\Http\Modules\V1\DataTransferObjects\Items\ItemDTO;
 use App\Http\Modules\V1\DataTransferObjects\Users\SellerDTO;
@@ -70,4 +71,14 @@ class ItemService extends Service
         return $response[GetVendorSmartContractItemsLogic::class];
     }
 
+    public function getVendorTotalItem($vendorId)
+    {
+        $scopes = [
+            'INPUT::VendorId' => $vendorId,
+        ];
+
+        $response = $this->execute([GetVendorTotalItemLogic::class], $scopes);
+
+        return $response[GetVendorTotalItemLogic::class];
+    }
 }

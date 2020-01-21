@@ -152,6 +152,12 @@ class SmartContractService extends Service
                 . $smartContractDetail->smart_contract_serial;
         }
 
+        usort($smartContractDetail->orders, function ($order1, $order2) {
+            return strtotime(getOrderDateByOrderSerial($order1['order_serial']))
+                <=>
+                strtotime(getOrderDateByOrderSerial($order2['order_serial']));
+        });
+
         $smartContractDetail->logs = [];
         foreach ($response->logs as $log) {
             $smartContractLog = new stdClass();
@@ -162,6 +168,10 @@ class SmartContractService extends Service
 
             $smartContractDetail->logs[] = $smartContractLog;
         }
+
+        usort($smartContractDetail->logs, function ($orderLog1, $orderLog2) {
+            return $orderLog2->created_at <=> $orderLog1->created_at;
+        });
 
         return $smartContractDetail;
     }
@@ -300,6 +310,12 @@ class SmartContractService extends Service
         if($smartContract['on_going_order'] == $smartContract['total_order']) {
             $smartContract['view_cashback_voucher_link'] = env('WEBSITE_URL')."ralalipoin?tab=my-voucher";
         }
+
+        usort($smartContract['orders'], function ($order1, $order2) {
+            return strtotime(getOrderDateByOrderSerial($order2['order_serial']))
+                <=>
+                strtotime(getOrderDateByOrderSerial($order1['order_serial']));
+        });
 
         return $smartContract;
     }

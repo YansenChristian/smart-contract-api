@@ -54,8 +54,7 @@ class RejectSmartContractRequestLogic extends BusinessLogic
         $smartContractDetailDTO = new SmartContractDetailDTO();
         $smartContractDetailDTO->order_serial = $this->smartContractRepository
             ->getSmartContractFirstOrderSerial($smartContractDTO->smart_contract_serial);
-
-        $this->rejectOrder($smartContractDetailDTO, $authorizationDTO);
+        $this->rejectOrder($smartContractDetailDTO, $sellerDTO);
 
         $smartContract = $this->smartContractRepository->getBySerialNumber(['buyer_user_id'], $smartContractDTO->smart_contract_serial);
         $smartContractDTO->buyer_user_id = $smartContract->buyer_user_id;
@@ -63,20 +62,15 @@ class RejectSmartContractRequestLogic extends BusinessLogic
         $this->createSmartContractRejectedLog($smartContractDTO, $sellerDTO);
     }
 
-    private function rejectOrder($smartContractDetailDTO, $authorizationDTO)
+    private function rejectOrder($smartContractDetailDTO, $sellerDTO)
     {
         $payloads = [
             'order_serial' => $smartContractDetailDTO->order_serial,
+            'user_id' => $sellerDTO->id,
+            'user_name' => ''
         ];
 
-        $headers = [];
-        if(isset($authorizationDTO->bearer)) {
-            $headers['Authorization'] = $authorizationDTO->bearer;
-        }
-        if(isset($authorizationDTO->access_token)) {
-            $headers['x-access-token'] = $authorizationDTO->access_token;
-        }
-        $this->orderApiRepository->rejectOrder($payloads, $headers);
+        $this->orderApiRepository->rejectOrder($payloads);
     }
 
     private function sendSmartContractRejectionEmailToBuyer($smartContractDTO, $authorizationDTO)

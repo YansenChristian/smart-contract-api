@@ -58,11 +58,33 @@ class OrderApiRepository
         return json_decode($request_api->getBody()->getContents(), true);
     }
 
-    public function rejectOrder($payloads, $header)
+    public function acceptOrder($payloads)
+    {
+        $client = new Client();
+        $request_api = $client->post(env('API_SELLER_URL') . 'v2/orders/accept-all-order/'.orderSerialToAlias($payloads['order_serial']), [
+            'headers' => [
+                'Authorization' => 'Bearer '.env('BEARER_TOKEN')
+            ],
+            'query' => [
+                'user_id' => $payloads['user_id'],
+                'user_name' => $payloads['user_name']
+            ]
+        ]);
+
+        return json_decode($request_api->getBody()->getContents(), true);
+    }
+
+    public function rejectOrder($payloads)
     {
         $client = new Client();
         $request_api = $client->post(env('API_SELLER_URL') . 'v2/orders/reject-all-order/'.orderSerialToAlias($payloads['order_serial']), [
-            'headers' => $header,
+            'headers' => [
+                'Authorization' => 'Bearer '.env('BEARER_TOKEN')
+            ],
+            'query' => [
+                'user_id' => $payloads['user_id'],
+                'user_name' => $payloads['user_name']
+            ]
         ]);
 
         return json_decode($request_api->getBody()->getContents(), true);

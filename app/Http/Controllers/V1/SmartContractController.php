@@ -97,8 +97,8 @@ class SmartContractController extends Controller
         if($request->has('smart_contract_serial')) {
             $filters[] = [
                 'column' => 'smart_contracts.smart_contract_serial',
-                'operator' => '=',
-                'value' => $request->get('smart_contract_serial')
+                'operator' => 'LIKE',
+                'value' => '%'.$request->get('smart_contract_serial').'%'
             ];
         }
 
@@ -116,8 +116,8 @@ class SmartContractController extends Controller
         if($request->has('status')) {
             $filters[] = [
                 'column' => 'smart_contracts.smart_contract_status_id',
-                'operator' => '=',
-                'value' => SmartContractStatus::getByName($request->get('status'))['id']
+                'operator' => 'LIKE',
+                'value' => '%'.SmartContractStatus::getByName($request->get('status'))['id'].'%'
             ];
 
             if($request->has('filter')) {

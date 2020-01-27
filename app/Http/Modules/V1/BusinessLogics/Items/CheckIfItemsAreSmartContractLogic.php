@@ -36,7 +36,9 @@ class CheckIfItemsAreSmartContractLogic extends BusinessLogic
 
         $existingItemIds = $this->itemRepository->getExistingItemIds($itemIds);
         foreach ($existingItemIds as $id) {
-            $itemIdsExist[encode($id->item_id)] = true;
+            if(is_null($id->deleted_at )) {
+                $itemIdsExist[encode($id->item_id)] = true;
+            }
         }
 
         $this->putScope('DB::ItemIdsExist', $itemIdsExist);

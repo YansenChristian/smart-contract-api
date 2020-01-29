@@ -60,6 +60,8 @@ class CreateSmartContractLogic extends BusinessLogic
         $this->createDetail($smartContractDTO, $orderSerials);
         $this->createLegal($smartContractDTO);
         $this->createLog($smartContractDTO);
+
+        return $orderSerials;
     }
 
     private function generateOrderSerials($authorizationDTO, $payloads)

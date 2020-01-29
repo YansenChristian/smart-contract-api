@@ -34,6 +34,7 @@ class CreateSmartContractOrdersLogic extends BusinessLogic
         $checkoutData = $this->getScope('INPUT::CheckoutData');
 
         $checkoutData['order_serials'] = $orderSerials;
+        $checkoutData['is_smart_contract'] = true;
 
         $headers = [];
         if(isset($authorizationDTO->bearer)) {

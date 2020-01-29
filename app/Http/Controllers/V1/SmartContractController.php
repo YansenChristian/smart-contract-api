@@ -219,6 +219,7 @@ class SmartContractController extends Controller
         $smartContractDTO->payment_method_id = $request->get('payment_id');
         $smartContractDTO->smart_contract_status = SmartContractStatus::WAITING;
         $smartContractDTO->smart_contract_status_id = SmartContractStatus::WAITING['id'];
+        $smartContractDTO->on_going_order = 1;
         $smartContractDTO->total_order = $request->get('total_order');
         $smartContractDTO->buyer_notes = isset($request->get('cart_data')[0]['comment'])
             ? $request->get('cart_data')[0]['comment']
@@ -236,14 +237,14 @@ class SmartContractController extends Controller
         $orderDates = $request->get('order_dates');
         $checkoutData = $request->all();
 
-        $smartContractService->createSmartContract(
+        $orderSerials = $smartContractService->createSmartContract(
             $authorizationDTO,
             $smartContractDTO,
             $orderDates,
             $checkoutData
         );
 
-        return response()->json(null, 201);
+        return response()->json($orderSerials, 200);
     }
 
     public function getCheckIfOrderIsSmartContract(Request $request, SmartContractService $smartContractService)

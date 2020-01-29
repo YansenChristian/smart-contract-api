@@ -99,6 +99,7 @@ class GetSellerSmartContractDetailLogic extends BusinessLogic
 
         foreach ($smartContractLogs as $log) {
             $log->user_name = $users[encode($log->user_id)]['name'];
+            $log->user_role = $users[encode($log->user_id)]['type'];
         }
 
         return $smartContractLogs;

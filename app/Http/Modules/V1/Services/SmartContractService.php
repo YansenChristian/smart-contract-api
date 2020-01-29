@@ -166,6 +166,14 @@ class SmartContractService extends Service
             $smartContractLog->status = $log->smart_contract_status;
             $smartContractLog->information = trans($log->information);
 
+            if ($log->user_role == 'A') {
+                $smartContractLog->user_role = 'Admin';
+            } else if ($log->user_role == 'V') {
+                $smartContractLog->user_role = 'Seller';
+            } else {
+                $smartContractLog->user_role = 'Buyer';
+            }
+
             $smartContractDetail->logs[] = $smartContractLog;
         }
 
@@ -195,7 +203,8 @@ class SmartContractService extends Service
             CreateSmartContractLogic::class,
             CreateSmartContractOrdersLogic::class,
         ], $scopes);
-        return $response;
+
+        return $response[CreateSmartContractLogic::class];
     }
 
     public function checkIfOrderIsSmartContract(SmartContractDetailDTO $smartContractDetailDTO)
@@ -387,8 +396,17 @@ class SmartContractService extends Service
         foreach ($response['logs'] as $log) {
             $newValue = [];
             $newValue['status'] = $log->smart_contract_status;
+            $newValue['user_name'] = $log->user_name;
             $newValue['information'] = trans($log->information);
             $newValue['created_at'] = date('d F Y H:i:s', strtotime($log->created_at));
+
+            if ($log->user_role == 'A') {
+                $newValue['user_role'] = 'Admin';
+            } else if ($log->user_role == 'V') {
+                $newValue['user_role'] = 'Seller';
+            } else {
+                $newValue['user_role'] = 'Buyer';
+            }
 
             $formattedSmartContractDetail['logs'][] = $newValue;
         }

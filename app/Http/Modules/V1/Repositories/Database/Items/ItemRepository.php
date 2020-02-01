@@ -72,6 +72,7 @@ class ItemRepository
     {
         return DB::table('smart_contract_items')
             ->where('vendor_id', '=', $vendorId)
+            ->whereNull('deleted_at')
             ->select([
                 DB::raw('COUNT(item_id) AS total_product')
             ])

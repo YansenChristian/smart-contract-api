@@ -204,6 +204,7 @@ class SmartContractRepository
                 '=',
                 'smart_contract_status.id'
             )
+            ->orderBy('smart_contracts.created_at', 'DESC')
             ->select($columns);
 
         foreach ($filters as $filter) {

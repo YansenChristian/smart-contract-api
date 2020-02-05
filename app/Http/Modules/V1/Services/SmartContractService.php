@@ -321,9 +321,9 @@ class SmartContractService extends Service
         }
 
         usort($smartContract['orders'], function ($order1, $order2) {
-            return strtotime(getOrderDateByOrderSerial($order2['order_serial']))
+            return strtotime(getOrderDateByOrderSerial($order1['order_serial']))
                 <=>
-                strtotime(getOrderDateByOrderSerial($order1['order_serial']));
+                strtotime(getOrderDateByOrderSerial($order2['order_serial']));
         });
 
         return $smartContract;

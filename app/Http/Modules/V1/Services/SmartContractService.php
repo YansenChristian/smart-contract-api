@@ -285,7 +285,7 @@ class SmartContractService extends Service
             $newValue->status = $smartContract->status;
 
             $nextOrderDate = getOrderDateByOrderSerial($smartContract->order_serial_of_next_order);
-            $nextOrderDate = date('d F Y, H:i' ,strtotime($nextOrderDate)) . ' WIB';
+            $nextOrderDate = date('d F Y, H:i' , strtotime('+2 days', strtotime($nextOrderDate))) . ' WIB';
             $newValue->next_order_payment_due_date = $nextOrderDate;
             $newValue->view_smart_contract_detail_link = env('WEBSITE_URL').'#/smart_contracts/'.smartContractSerialToAlias($smartContract->smart_contract_serial);
 

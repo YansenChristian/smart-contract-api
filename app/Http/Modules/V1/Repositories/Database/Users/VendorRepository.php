@@ -14,6 +14,7 @@ class VendorRepository
         foreach ($conditions as $key => $value){
             $sellers->where($key, '=', $value);
         }
+        $sellers->whereNull('deleted_at');
         return $sellers->exists();
     }
 
